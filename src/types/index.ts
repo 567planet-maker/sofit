@@ -1,4 +1,4 @@
-export type UserRole = 'customer' | 'admin'
+export type UserRole = 'customer' | 'factory' | 'admin'
 
 export type FactoryStatus = 'pending' | 'active' | 'rejected' | 'suspended'
 

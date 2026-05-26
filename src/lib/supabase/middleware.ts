@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
+import type { UserRole } from '@/types'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request })
@@ -25,7 +26,6 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // 세션 갱신 (IMPORTANT: getUser()를 항상 호출해야 함)
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -43,6 +43,28 @@ export async function updateSession(request: NextRequest) {
     url.pathname = '/login'
     url.searchParams.set('redirect', pathname)
     return NextResponse.redirect(url)
+  }
+
+  if (isProtectedRoute && user) {
+    const role = user.user_metadata?.role as UserRole | undefined
+
+    // 역할 미설정 사용자 → 역할 선택 페이지
+    if (!role && pathname !== '/onboarding') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/onboarding'
+      return NextResponse.redirect(url)
+    }
+
+    // 잘못된 역할로 보호된 라우트 접근 차단
+    if (role === 'customer' && (isFactoryRoute || isAdminRoute)) {
+      return NextResponse.redirect(new URL('/customer', request.url))
+    }
+    if (role === 'factory' && (isCustomerRoute || isAdminRoute)) {
+      return NextResponse.redirect(new URL('/factory', request.url))
+    }
+    if (role === 'admin' && (isCustomerRoute || isFactoryRoute)) {
+      return NextResponse.redirect(new URL('/admin', request.url))
+    }
   }
 
   return supabaseResponse
