@@ -76,14 +76,14 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
   NEXT_PUBLIC_SUPABASE_ANON_KEY=
   SUPABASE_SERVICE_ROLE_KEY=   ← NEXT_PUBLIC_ 절대 금지
   ```
-- [ ] Vercel 환경변수 동일하게 등록
+- [x] Vercel 환경변수 동일하게 등록
 - [x] Supabase 패키지 설치
   ```bash
   npm install @supabase/supabase-js @supabase/ssr
   ```
 - [x] `src/lib/supabase/client.ts` — 브라우저용
 - [x] `src/lib/supabase/server.ts` — 서버용 (cookies 기반)
-- [ ] 연결 테스트 확인
+- [x] 연결 테스트 확인
 
 ---
 
