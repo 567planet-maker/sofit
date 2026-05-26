@@ -44,12 +44,12 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 
 ### Day 1~2: 프로젝트 초기화
 
-- [ ] GitHub Private 레포 생성 (`sofit`)
-- [ ] Next.js 14 프로젝트 생성
+- [x] GitHub Private 레포 생성 (`sofit`)
+- [x] Next.js 14 프로젝트 생성
   ```bash
   npx create-next-app@latest sofit --typescript --tailwind --app --eslint --src-dir
   ```
-- [ ] 폴더 구조 세팅
+- [x] 폴더 구조 세팅
   ```
   src/
     app/           # 페이지 (App Router)
@@ -57,32 +57,32 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
     lib/           # supabase 클라이언트, 유틸
     types/         # 타입 정의
   ```
-- [ ] `.prettierrc` 설정
-- [ ] `.env.local` 생성 + `.gitignore` 포함 확인 ← 보안 필수
-- [ ] GitHub 첫 커밋·푸시
+- [x] `.prettierrc` 설정
+- [x] `.env.local` 생성 + `.gitignore` 포함 확인 ← 보안 필수
+- [x] GitHub 첫 커밋·푸시
 
 ### Day 2~3: Vercel 배포 파이프라인
 
-- [ ] Vercel 계정 생성 → GitHub 레포 연결
-- [ ] Vercel Hobby 자동 배포 확인 (푸시 → 자동 빌드)
-- [ ] 배포 URL 접속 확인
+- [x] Vercel 계정 생성 → GitHub 레포 연결
+- [x] Vercel Hobby 자동 배포 확인 (푸시 → 자동 빌드)
+- [x] 배포 URL 접속 확인
 
 ### Day 3~4: Supabase 셋업
 
-- [ ] Supabase 프로젝트 생성 (Region: Northeast Asia - Tokyo)
-- [ ] 환경변수 복사 → `.env.local` 입력
+- [x] Supabase 프로젝트 생성 (Region: Northeast Asia - Tokyo)
+- [x] 환경변수 복사 → `.env.local` 입력
   ```
   NEXT_PUBLIC_SUPABASE_URL=
   NEXT_PUBLIC_SUPABASE_ANON_KEY=
   SUPABASE_SERVICE_ROLE_KEY=   ← NEXT_PUBLIC_ 절대 금지
   ```
 - [ ] Vercel 환경변수 동일하게 등록
-- [ ] Supabase 패키지 설치
+- [x] Supabase 패키지 설치
   ```bash
   npm install @supabase/supabase-js @supabase/ssr
   ```
-- [ ] `src/lib/supabase/client.ts` — 브라우저용
-- [ ] `src/lib/supabase/server.ts` — 서버용 (cookies 기반)
+- [x] `src/lib/supabase/client.ts` — 브라우저용
+- [x] `src/lib/supabase/server.ts` — 서버용 (cookies 기반)
 - [ ] 연결 테스트 확인
 
 ---
@@ -126,11 +126,11 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
   - [ ] Supabase Auth Providers에서 카카오 활성화
 - [ ] **네이버 소셜 로그인**
   - [ ] 네이버 디벨로퍼 앱 등록 + Supabase 연동
-- [ ] **미들웨어** (`src/middleware.ts`)
-  - [ ] `/customer/*` → customer 역할만
-  - [ ] `/factory/*` → factory 역할만
-  - [ ] `/admin/*` → admin 역할만
-  - [ ] 미인증 → `/login` 리디렉션
+- [x] **미들웨어** (`src/middleware.ts`)
+  - [x] `/customer/*` → customer 역할만
+  - [x] `/factory/*` → factory 역할만
+  - [x] `/admin/*` → admin 역할만
+  - [x] 미인증 → `/login` 리디렉션
 - [ ] **로그인 페이지** (`/login`) — 카카오·네이버 버튼
 - [ ] **최초 로그인 플로우** — 역할 선택, 약관 동의
 - [ ] **공장 가입** — 추가 정보 입력 → `factories` INSERT (status: pending)
