@@ -94,25 +94,25 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 
 ### DB 스키마 생성 (Supabase SQL 에디터)
 
-- [ ] `users` 테이블 생성 + 신규 가입 트리거
-- [ ] `customers` 테이블 생성
-- [ ] `factories` 테이블 생성
-- [ ] `factory_portfolios` 테이블 생성
-- [ ] `quote_requests` 테이블 생성
-- [ ] `request_files` 테이블 생성
-- [ ] `matches` 테이블 생성
-- [ ] `factory_quotes` 테이블 생성
-- [ ] `chat_rooms` 테이블 생성
-- [ ] `chat_messages` 테이블 생성
-- [ ] `notifications` 테이블 생성
-- [ ] `status_logs` 테이블 생성
-- [ ] 인덱스 전체 생성
+- [x] `users` 테이블 생성 + 신규 가입 트리거
+- [x] `customers` 테이블 생성
+- [x] `factories` 테이블 생성
+- [x] `factory_portfolios` 테이블 생성
+- [x] `quote_requests` 테이블 생성
+- [x] `request_files` 테이블 생성
+- [x] `matches` 테이블 생성
+- [x] `factory_quotes` 테이블 생성
+- [x] `chat_rooms` 테이블 생성
+- [x] `chat_messages` 테이블 생성
+- [x] `notifications` 테이블 생성
+- [x] `status_logs` 테이블 생성
+- [x] 인덱스 전체 생성
 
 ### RLS 설정
 
-- [ ] 전체 테이블 RLS 활성화
-- [ ] `get_my_role()` 헬퍼 함수 생성
-- [ ] 각 테이블 정책 적용 (상세: `DB_SCHEMA.md`)
+- [x] 전체 테이블 RLS 활성화
+- [x] `get_my_role()` 헬퍼 함수 생성
+- [x] 각 테이블 정책 적용 (상세: `DB_SCHEMA.md`)
 - [ ] 역할별 RLS 테스트
   - [ ] 고객 계정으로 타인 견적 조회 불가 확인
   - [ ] 공장 계정으로 미매칭 요청 조회 불가 확인
@@ -120,21 +120,22 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 
 ### 인증 시스템
 
-- [ ] **카카오 소셜 로그인**
-  - [ ] 카카오 디벨로퍼 앱 등록
-  - [ ] 리디렉션 URL: `https://<ref>.supabase.co/auth/v1/callback`
-  - [ ] Supabase Auth Providers에서 카카오 활성화
+- [x] **카카오 소셜 로그인** (커스텀 OAuth — 비즈니스 인증 전 임시)
+  - [x] 카카오 디벨로퍼 앱 등록
+  - [x] 리디렉션 URL 등록
+  - [x] Supabase Auth Providers에서 카카오 활성화
 - [ ] **네이버 소셜 로그인**
   - [ ] 네이버 디벨로퍼 앱 등록 + Supabase 연동
-- [x] **미들웨어** (`src/middleware.ts`)
+- [x] **미들웨어** (`src/proxy.ts`) — Next.js 16 breaking change 대응
   - [x] `/customer/*` → customer 역할만
   - [x] `/factory/*` → factory 역할만
   - [x] `/admin/*` → admin 역할만
   - [x] 미인증 → `/login` 리디렉션
-- [ ] **로그인 페이지** (`/login`) — 카카오·네이버 버튼
-- [ ] **최초 로그인 플로우** — 역할 선택, 약관 동의
-- [ ] **공장 가입** — 추가 정보 입력 → `factories` INSERT (status: pending)
-- [ ] 로그아웃 + 세션 만료 처리
+- [x] **로그인 페이지** (`/login`) — 카카오·네이버 버튼
+- [x] **최초 로그인 플로우** — 역할 선택, 약관 동의
+- [x] **공장 가입** — 추가 정보 입력 → `factories` INSERT (status: pending)
+- [x] 로그아웃 + 세션 만료 처리
+- [x] 계정 삭제 기능 (`/me`)
 
 ---
 

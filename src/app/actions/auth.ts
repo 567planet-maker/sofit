@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { headers } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
+import { createClient as createAdminClient } from '@supabase/supabase-js'
 import type { UserRole } from '@/types'
 
 async function getOrigin() {
@@ -11,16 +12,17 @@ async function getOrigin() {
 }
 
 export async function signInWithKakao() {
-  const supabase = await createClient()
   const origin = await getOrigin()
+  const clientId = process.env.KAKAO_REST_API_KEY!
 
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: 'kakao',
-    options: { redirectTo: `${origin}/auth/callback` },
+  const params = new URLSearchParams({
+    client_id: clientId,
+    redirect_uri: `${origin}/auth/kakao/callback`,
+    response_type: 'code',
+    scope: 'profile_nickname profile_image openid',
   })
 
-  if (error || !data.url) redirect('/login?error=oauth')
-  redirect(data.url)
+  redirect(`https://kauth.kakao.com/oauth/authorize?${params}`)
 }
 
 export async function signInWithNaver() {
@@ -41,6 +43,19 @@ export async function signInWithNaver() {
 export async function signOut() {
   const supabase = await createClient()
   await supabase.auth.signOut()
+  redirect('/login')
+}
+
+export async function deleteAccount() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const admin = createAdminClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+  await admin.auth.admin.deleteUser(user!.id)
   redirect('/login')
 }
 

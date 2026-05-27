@@ -25,8 +25,7 @@ export default async function FactoryLayout({
   }
 
   if (factory.status === 'pending') {
-    const isPendingPage = true // layout에서 경로 확인은 복잡하므로 페이지별로 처리
-    void isPendingPage
+    redirect('/factory/pending')
   }
 
   return <>{children}</>
