@@ -1,10 +1,7 @@
 import { signInWithKakao, signInWithNaver } from '@/app/actions/auth'
+import { EmailAuthForm } from './EmailAuthForm'
 
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ error?: string; redirect?: string }>
-}) {
+export default function LoginPage() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
@@ -39,6 +36,8 @@ export default function LoginPage({
               </button>
             </form>
           </div>
+
+          <EmailAuthForm />
 
           <p className="mt-6 text-center text-xs text-gray-400">
             로그인 시{' '}
