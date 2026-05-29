@@ -1,10 +1,16 @@
 import type { Metadata } from 'next'
-import { Geist } from 'next/font/google'
+import { Geist, Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
 
 const geist = Geist({
   variable: '--font-geist',
   subsets: ['latin'],
+})
+
+const notoSansKR = Noto_Sans_KR({
+  variable: '--font-noto-sans-kr',
+  subsets: ['latin'],
+  weight: ['900'],
 })
 
 export const metadata: Metadata = {
@@ -28,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko" className={`${geist.variable} h-full antialiased`}>
+    <html lang="ko" className={`${geist.variable} ${notoSansKR.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-gray-50 text-gray-900">
         {children}
       </body>
