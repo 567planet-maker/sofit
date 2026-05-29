@@ -227,7 +227,13 @@ CREATE TABLE matches (
   request_id  uuid NOT NULL REFERENCES quote_requests(id),
   factory_id  uuid NOT NULL REFERENCES factories(id),
   status      text DEFAULT 'pending'
-              CHECK (status IN ('pending', 'confirmed', 'rejected', 'cancelled')),
+              CHECK (status IN (
+                'pending',    -- 배포됨, 공장이 검토 중
+                'accepted',   -- 공장이 수락 (견적서 작성 가능)
+                'declined',   -- 공장이 거절
+                'confirmed',  -- 고객이 최종 선택 (매칭 확정)
+                'cancelled'   -- 취소
+              )),
   note        text,
   created_at  timestamptz DEFAULT now(),
   UNIQUE (request_id, factory_id)
@@ -271,13 +277,17 @@ CREATE TABLE chat_rooms (
   id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   request_id  uuid NOT NULL REFERENCES quote_requests(id),
   match_id    uuid REFERENCES matches(id),
-  type        text NOT NULL CHECK (type IN ('customer_sofit', 'factory_sofit')),
+  type        text NOT NULL CHECK (type IN (
+                'customer_sofit',    -- 매칭 전 고객↔소핏 (문의·안내)
+                'customer_factory'   -- 매칭 확정 후 고객↔공장 직접 채팅
+              )),
   created_at  timestamptz DEFAULT now(),
   UNIQUE (match_id, type)
 );
 ```
 
-> 매칭 전에도 고객↔소핏 채팅방은 생성 가능 (request 제출 시 자동 생성)
+> `customer_sofit`: 견적 제출 시 자동 생성 (매칭 전 고객 문의용)
+> `customer_factory`: matches.status = 'confirmed' 시 자동 생성 (직접 소통용, match_id 필수)
 
 ---
 
@@ -324,8 +334,10 @@ CREATE TABLE notifications (
 | type 값 | 대상 | 발생 시점 |
 |---------|------|-----------|
 | new_request | admin | 고객 견적 요청 제출 |
-| new_match | factory | 관리자 매칭 연결 |
-| quote_arrived | customer | 공장 견적서 제출 |
+| factory_distributed | factory | 관리자가 공장에 요청 배포 |
+| quote_arrived | customer | 공장이 견적서 직접 제출 |
+| match_confirmed | factory + customer | 최종 매칭 확정 (고객 선택 완료) |
+| match_declined | factory | 미채택 공장 알림 |
 | new_message | 채팅 상대방 | 새 채팅 메시지 |
 | status_changed | 관련 사용자 | 견적 상태 변경 |
 | factory_approved | factory | 관리자 승인 |
@@ -486,19 +498,24 @@ CREATE POLICY "factories: admin" ON factories
 ### `chat_rooms` / `chat_messages` RLS
 
 ```sql
--- 채팅방: 해당 request 소유 고객 + 매칭된 공장 + 관리자
+-- 채팅방: 고객(본인 요청) + 공장(confirmed 매칭) + 관리자(전체)
 CREATE POLICY "chat_rooms: 참여자 조회" ON chat_rooms
   FOR SELECT USING (
     get_my_role() = 'admin'
-    OR request_id IN (
-      SELECT id FROM quote_requests
-      WHERE customer_id IN (SELECT id FROM customers WHERE user_id = auth.uid())
+    OR (
+      -- 고객: 본인 요청의 모든 채팅방 (customer_sofit + customer_factory)
+      request_id IN (
+        SELECT id FROM quote_requests
+        WHERE customer_id IN (SELECT id FROM customers WHERE user_id = auth.uid())
+      )
     )
     OR (
-      type = 'factory_sofit'
+      -- 공장: confirmed 매칭의 customer_factory 채팅방만
+      type = 'customer_factory'
       AND match_id IN (
         SELECT id FROM matches
         WHERE factory_id IN (SELECT id FROM factories WHERE user_id = auth.uid())
+          AND status = 'confirmed'
       )
     )
   );

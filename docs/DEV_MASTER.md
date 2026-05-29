@@ -234,12 +234,17 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
   - [ ] 이미지 업로드 → `factory-portfolios`
 - [ ] **매칭된 요청 목록** (`/factory/requests`)
   - [ ] 요청 상세 (고객 정보·폼·사진)
-- [ ] **견적서 작성** (`/factory/requests/[id]/quote`)
+- [ ] **수락/거절** (`/factory/requests/[id]`)
+  - [ ] [수락하기] → `matches.status = 'accepted'` + 견적서 폼 활성화
+  - [ ] [거절하기] → `matches.status = 'declined'` + 확인 처리
+- [ ] **견적서 작성** (`/factory/requests/[id]`)
+  - [ ] matches.status='accepted'일 때만 폼 표시
   - [ ] 항목별 금액 입력 + 총액 자동 계산
   - [ ] 납기일 입력
-  - [ ] 제출 → `factory_quotes` INSERT + 알림
+  - [ ] [고객에게 제출하기] → `factory_quotes` INSERT + 고객 알림 직접 발송
 - [ ] **진행 프로젝트** (`/factory/projects`)
   - [ ] 진행 사진 업로드 → `progress-photos`
+  - [ ] 고객과 직접 채팅 연결 버튼 (`customer_factory` 채팅방)
 
 ---
 
@@ -261,14 +266,12 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 - [ ] 컬럼: 접수일·고객명·현장명·업종·상태
 - [ ] 새 요청 강조 표시
 
-### 요청 상세 + 수기 견적 작성 (`/admin/requests/[id]`)
+### 요청 상세 (`/admin/requests/[id]`)
 
 - [ ] 고객 폼 전체 열람
 - [ ] 사진·도면 갤러리 뷰어
 - [ ] 상태 변경 드롭다운 → `status_logs` INSERT
-- [ ] **수기 견적 작성 영역** ← 핵심
-  - [ ] 예상 비용·요청사항 텍스트 입력
-  - [ ] "고객에게 전달" → status=quote_arrived + 고객 알림
+- [ ] 공장 매칭 현황 표시 (수락/거절/미응답)
 - [ ] 관리자 내부 메모 필드 (비공개)
 - [ ] "공장 매칭" 버튼 → `/admin/requests/[id]/match`
 
@@ -310,6 +313,7 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
   - [ ] 메시지 입력창 + 전송
   - [ ] 파일 첨부 (이미지·PDF → `chat-attachments`)
   - [ ] 읽음 처리 (`read_at` UPDATE)
+  - [ ] 읽기 전용 모드 (admin이 customer_factory 방 모니터링 시)
 - [ ] Supabase Realtime 구독
   ```typescript
   supabase.channel(`room:${roomId}`)
@@ -320,11 +324,13 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
     }, handler)
     .subscribe()
   ```
-- [ ] **고객 채팅** (`/customer/chat/[roomId]`)
-- [ ] **공장 채팅** (`/factory/chat/[roomId]`)
+- [ ] **고객 채팅** (`/customer/chat/[roomId]`) — customer_sofit + customer_factory 모두 표시
+- [ ] **공장 채팅** (`/factory/chat/[roomId]`) — 매칭 확정 후 고객과 직접 채팅
 - [ ] **관리자 통합 뷰** (`/admin/chats/[roomId]`)
+  - [ ] customer_sofit: 양방향 소통
+  - [ ] customer_factory: 읽기 전용 모니터링
 - [ ] 견적 요청 제출 시 `customer_sofit` 채팅방 자동 생성
-- [ ] 공장 매칭 시 `factory_sofit` 채팅방 자동 생성
+- [ ] 매칭 확정 시 `customer_factory` 채팅방 자동 생성 (고객↔공장 직접 채팅)
 
 ### 웹 내 알림 시스템
 
@@ -332,7 +338,8 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 - [ ] 알림 트리거 연결 (이벤트 발생 지점마다)
   - [ ] 견적 요청 제출 → 관리자
   - [ ] 공장 매칭 → 공장
-  - [ ] 견적서 제출 → 고객·관리자
+  - [ ] 공장 수락/거절 → 관리자
+  - [ ] 견적서 제출 → 고객 (직접)
   - [ ] 새 채팅 메시지 → 상대방
   - [ ] 상태 변경 → 해당 사용자
   - [ ] 공장 승인/반려 → 공장
@@ -351,8 +358,8 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 ### 기능 테스트
 
 - [ ] **고객 E2E**: 랜딩 → 로그인 → 폼 제출 → 상태 확인 → 견적서 수신 → 채팅
-- [ ] **공장 E2E**: 가입 → 심사 → 포트폴리오 → 매칭 알림 → 견적서 제출
-- [ ] **관리자 E2E**: 요청 수신 → 수기 견적 → 공장 매칭 → 채팅 중계 → 상태 변경
+- [ ] **공장 E2E**: 가입 → 심사 → 포트폴리오 → 매칭 알림 → 수락 → 견적서 고객에게 직접 제출
+- [ ] **관리자 E2E**: 요청 수신 → 공장 배포 → 매칭 현황 확인 → 최종 매칭 확정 → 채팅 모니터링
 - [ ] 모바일 테스트 (Chrome Android, Safari iOS)
 - [ ] 파일 업로드·다운로드 (이미지, PDF)
 - [ ] 채팅 실시간 (2개 탭 동시 접속)
