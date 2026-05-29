@@ -46,73 +46,73 @@ export default async function HomePage() {
           <div className="pointer-events-none absolute inset-0 hidden lg:block" aria-hidden="true">
 
             {/* 12시 — 콘센트 */}
-            <div className="absolute" style={{ left: '66%', top: '18%', marginLeft: '-140px', marginTop: '-128px' }}>
-              <div className="animate-float-fast"><img src="/images/hero/outlet.png" alt="" width={280} height={255} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '70%', top: '18%', marginLeft: '-105px', marginTop: '-96px' }}>
+              <div className="animate-float-fast"><img src="/images/hero/outlet.png" alt="" width={210} height={191} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 1시 — 에어컨 */}
-            <div className="absolute" style={{ left: '62%', top: '77%', marginLeft: '-120px', marginTop: '-107px' }}>
-              <div className="animate-float-slow"><img src="/images/hero/ac.png" alt="" width={240} height={214} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '62%', top: '75%', marginLeft: '-90px', marginTop: '-81px' }}>
+              <div className="animate-float-slow"><img src="/images/hero/ac.png" alt="" width={180} height={161} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 2시 — CCTV */}
-            <div className="absolute" style={{ left: '78%', top: '27%', marginLeft: '-139px', marginTop: '-124px' }}>
-              <div className="animate-float-medium"><img src="/images/hero/cctv.png" alt="" width={278} height={248} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '80%', top: '28%', marginLeft: '-105px', marginTop: '-93px' }}>
+              <div className="animate-float-medium"><img src="/images/hero/cctv.png" alt="" width={209} height={186} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 2시 30분 — 창호 */}
-            <div className="absolute" style={{ left: '72%', top: '35%', marginLeft: '-100px', marginTop: '-95px' }}>
-              <div className="animate-float-fast"><img src="/images/hero/door.png" alt="" width={200} height={190} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '74%', top: '44%', marginLeft: '-75px', marginTop: '-72px' }}>
+              <div className="animate-float-fast"><img src="/images/hero/door.png" alt="" width={150} height={143} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 3시 — 싱크대 */}
-            <div className="absolute" style={{ left: '90%', top: '46%', marginLeft: '-173px', marginTop: '-158px' }}>
-              <div className="animate-float-slow"><img src="/images/hero/cabinet.png" alt="" width={345} height={315} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '90%', top: '46%', marginLeft: '-130px', marginTop: '-118px' }}>
+              <div className="animate-float-slow"><img src="/images/hero/cabinet.png" alt="" width={259} height={236} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 4시 — 간판 */}
-            <div className="absolute" style={{ left: '85%', top: '65%', marginLeft: '-165px', marginTop: '-132px' }}>
-              <div className="animate-float-fast"><img src="/images/hero/sign.png" alt="" width={330} height={263} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '85%', top: '65%', marginLeft: '-124px', marginTop: '-99px' }}>
+              <div className="animate-float-fast"><img src="/images/hero/sign.png" alt="" width={248} height={197} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 5시 — 소파 */}
-            <div className="absolute" style={{ left: '77%', top: '79%', marginLeft: '-195px', marginTop: '-158px' }}>
-              <div className="animate-float-slow"><img src="/images/hero/sofa.png" alt="" width={390} height={315} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '76%', top: '84%', marginLeft: '-147px', marginTop: '-118px' }}>
+              <div className="animate-float-slow"><img src="/images/hero/sofa.png" alt="" width={293} height={236} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 6시 — 조명 */}
-            <div className="absolute" style={{ left: '50%', top: '80%', marginLeft: '-80px', marginTop: '-95px' }}>
-              <div className="animate-float-medium"><img src="/images/hero/lamp.png" alt="" width={160} height={190} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '50%', top: '76%', marginLeft: '-60px', marginTop: '-72px' }}>
+              <div className="animate-float-medium"><img src="/images/hero/lamp.png" alt="" width={120} height={143} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 7시 — 페인트 */}
-            <div className="absolute" style={{ left: '26%', top: '88%', marginLeft: '-165px', marginTop: '-150px', zIndex: 2 }}>
-              <div className="animate-float-fast"><img src="/images/hero/paint.png" alt="" width={360} height={327} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '26%', top: '88%', marginLeft: '-124px', marginTop: '-113px', zIndex: 2 }}>
+              <div className="animate-float-fast"><img src="/images/hero/paint.png" alt="" width={270} height={245} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 8시 — 타일 */}
-            <div className="absolute" style={{ left: '15%', top: '75%', marginLeft: '-143px', marginTop: '-128px' }}>
-              <div className="animate-float-slow"><img src="/images/hero/tiles.png" alt="" width={285} height={255} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '15%', top: '75%', marginLeft: '-107px', marginTop: '-96px' }}>
+              <div className="animate-float-slow"><img src="/images/hero/tiles.png" alt="" width={214} height={191} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 8시 30분 — 배관 파랑 */}
-            <div className="absolute" style={{ left: '26%', top: '34%', marginLeft: '-98px', marginTop: '-86px', zIndex: 2 }}>
-              <div className="animate-float-medium"><img src="/images/hero/pipe-blue.png" alt="" width={195} height={172} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '24%', top: '38%', marginLeft: '-73px', marginTop: '-65px', zIndex: 2 }}>
+              <div className="animate-float-medium"><img src="/images/hero/pipe-blue.png" alt="" width={146} height={129} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 9시 — 배관 회색 */}
-            <div className="absolute" style={{ left: '10%', top: '46%', marginLeft: '-162px', marginTop: '-139px' }}>
-              <div className="animate-float-medium"><img src="/images/hero/pipe-gray.png" alt="" width={323} height={278} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '10%', top: '46%', marginLeft: '-121px', marginTop: '-105px' }}>
+              <div className="animate-float-medium"><img src="/images/hero/pipe-gray.png" alt="" width={242} height={209} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 10시 — 창틀 */}
-            <div className="absolute" style={{ left: '15%', top: '27%', marginLeft: '-150px', marginTop: '-143px', zIndex: 1 }}>
-              <div className="animate-float-fast"><img src="/images/hero/frame.png" alt="" width={300} height={285} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '15%', top: '27%', marginLeft: '-113px', marginTop: '-107px', zIndex: 1 }}>
+              <div className="animate-float-fast"><img src="/images/hero/frame.png" alt="" width={225} height={214} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
             {/* 11시 — 철거 */}
-            <div className="absolute" style={{ left: '36%', top: '74%', marginLeft: '-165px', marginTop: '-150px', zIndex: 1 }}>
-              <div className="animate-float-slow"><img src="/images/hero/demolition.png" alt="" width={330} height={300} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
+            <div className="absolute" style={{ left: '37%', top: '75%', marginLeft: '-124px', marginTop: '-113px', zIndex: 1 }}>
+              <div className="animate-float-slow"><img src="/images/hero/demolition.png" alt="" width={248} height={225} className="drop-shadow-[0_24px_48px_rgba(0,20,80,0.16)]" style={{ mixBlendMode: 'multiply' }} /></div>
             </div>
 
           </div>
@@ -125,20 +125,20 @@ export default async function HomePage() {
 
           {/* 중앙 텍스트 + CTA */}
           <div className="relative z-20 flex h-full flex-col items-center justify-center pb-28 pt-8 text-center" style={{ marginTop: '-2rem' }}>
-            <h1 className="text-4xl font-black leading-[1.6] tracking-tighter text-sofit-ink sm:text-5xl lg:text-[3.75rem]">
+            <h1 className="text-[1.688rem] font-black leading-[1.1] tracking-tighter text-sofit-ink sm:text-[2.25rem] lg:text-[2.813rem]">
               인테리어의 모든 공정
               <br />
-              <span className="text-sofit-blue mr-2 font-black text-5xl sm:text-6xl lg:text-[5rem] relative top-[8px]" style={{ fontFamily: 'var(--font-noto-sans-kr)' }}>SOFIT</span>에서 쉽고 투명하게
+              <span className="text-sofit-blue mr-2 font-black text-[2.25rem] sm:text-[2.813rem] lg:text-[3.75rem] relative top-[6px]" style={{ fontFamily: 'var(--font-noto-sans-kr)' }}>SOFIT</span>에서 쉽고 투명하게
             </h1>
-            <p className="mx-auto mt-5 max-w-lg text-[1.125rem] leading-relaxed text-sofit-ink/60">
+            <p className="mx-auto mt-4 max-w-[24rem] text-[0.844rem] leading-relaxed text-sofit-ink/60">
               기획부터 완공까지, 검증된 협력업체를 한 곳에서 연결합니다.
             </p>
-            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
                 href="/customer/request"
-                className="flex items-center gap-2.5 rounded-full bg-[#1A1A2E] px-6 py-[13px] text-[15px] font-semibold text-white shadow-lg transition-colors hover:bg-[#12121F]"
+                className="flex items-center gap-[7px] rounded-full bg-[#1A1A2E] px-[18px] py-[10px] text-[11px] font-semibold text-white shadow-lg transition-colors hover:bg-[#12121F]"
               >
-                <svg width="17" height="17" viewBox="0 0 19 19" fill="none">
+                <svg width="13" height="13" viewBox="0 0 19 19" fill="none">
                   <path d="M4 2.5h7.5l4 4V16.5H4V2.5z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M11.5 2.5V6.5H15.5M6.5 9.5h6M6.5 12.5h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
                 </svg>
@@ -146,9 +146,9 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/portfolios"
-                className="flex items-center gap-2.5 rounded-full bg-[#1A1A2E] px-6 py-[13px] text-[15px] font-semibold text-white shadow-lg transition-colors hover:bg-[#12121F]"
+                className="flex items-center gap-[7px] rounded-full bg-[#1A1A2E] px-[18px] py-[10px] text-[11px] font-semibold text-white shadow-lg transition-colors hover:bg-[#12121F]"
               >
-                <svg width="17" height="17" viewBox="0 0 19 19" fill="none">
+                <svg width="13" height="13" viewBox="0 0 19 19" fill="none">
                   <rect x="2.5" y="2.5" width="6" height="6" rx="1.2" stroke="currentColor" strokeWidth="1.6"/>
                   <rect x="10.5" y="2.5" width="6" height="6" rx="1.2" stroke="currentColor" strokeWidth="1.6"/>
                   <rect x="2.5" y="10.5" width="6" height="6" rx="1.2" stroke="currentColor" strokeWidth="1.6"/>
