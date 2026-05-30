@@ -173,9 +173,15 @@ export default async function HomePage() {
 
         {/* ── S3-1: 소핏 해결 헤드라인 ── */}
         <section className="flex items-center justify-center bg-white text-center" style={{ minHeight: '70vh' }}>
-          <h2 className="text-3xl font-black leading-[1.5] tracking-tight text-sofit-ink sm:text-4xl">
-            이제 <span className="text-sofit-blue">소핏</span>이 해결합니다.
-          </h2>
+          <div>
+            <h2 className="text-3xl font-black leading-[1.5] tracking-tight text-sofit-ink sm:text-4xl">
+              이제 <span className="text-sofit-blue">소핏</span>이 해결합니다.
+            </h2>
+            <div className="mx-auto mt-2 flex flex-col gap-2">
+              <div className="h-1 w-full rounded-full bg-sofit-blue" />
+              <div className="h-1 w-full rounded-full bg-sofit-blue" />
+            </div>
+          </div>
         </section>
 
         {/* ── S3: Feature 1 — 공장 매칭 ── */}
