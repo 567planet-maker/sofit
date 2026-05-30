@@ -136,25 +136,17 @@ export default async function HomePage() {
             <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
                 href="/customer/request"
-                className="flex items-center gap-[7px] rounded-full bg-[#1A1A2E] px-[18px] py-[10px] text-[11px] font-semibold text-white shadow-lg transition-colors hover:bg-[#12121F]"
+                className="flex items-center gap-2.5 rounded-full bg-sofit-blue px-6 py-3 text-[14px] font-semibold text-white shadow-lg transition-colors hover:bg-sofit-blue-hover"
               >
-                <svg width="13" height="13" viewBox="0 0 19 19" fill="none">
-                  <path d="M4 2.5h7.5l4 4V16.5H4V2.5z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M11.5 2.5V6.5H15.5M6.5 9.5h6M6.5 12.5h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-                </svg>
-                견적 무료로 요청하기
+                <span style={{ paddingTop: '2px' }}>견적 무료로 요청하기</span>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </Link>
               <Link
                 href="/portfolios"
-                className="flex items-center gap-[7px] rounded-full bg-[#1A1A2E] px-[18px] py-[10px] text-[11px] font-semibold text-white shadow-lg transition-colors hover:bg-[#12121F]"
+                className="flex items-center gap-2.5 rounded-full bg-gray-900 px-6 py-3 text-[14px] font-semibold text-white shadow-lg transition-colors hover:bg-gray-700"
               >
-                <svg width="13" height="13" viewBox="0 0 19 19" fill="none">
-                  <rect x="2.5" y="2.5" width="6" height="6" rx="1.2" stroke="currentColor" strokeWidth="1.6"/>
-                  <rect x="10.5" y="2.5" width="6" height="6" rx="1.2" stroke="currentColor" strokeWidth="1.6"/>
-                  <rect x="2.5" y="10.5" width="6" height="6" rx="1.2" stroke="currentColor" strokeWidth="1.6"/>
-                  <rect x="10.5" y="10.5" width="6" height="6" rx="1.2" stroke="currentColor" strokeWidth="1.6"/>
-                </svg>
-                공장 포트폴리오 보기
+                <span style={{ paddingTop: '2px' }}>공장 포트폴리오 보기</span>
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </Link>
             </div>
           </div>
@@ -169,7 +161,7 @@ export default async function HomePage() {
 
         {/* ── S2: 페인 포인트 헤드라인 ── */}
         <section className="bg-white py-24 text-center">
-          <h2 className="text-4xl font-black leading-[1.5] tracking-tight text-sofit-ink sm:text-5xl">
+          <h2 className="text-3xl font-black leading-[1.5] tracking-tight text-sofit-ink sm:text-4xl">
             <span className="text-sofit-blue">인테리어 발주,</span>
             <br />
             이런 경험 있으신가요?
@@ -178,6 +170,13 @@ export default async function HomePage() {
 
         {/* ── S3: 공감 섹션 ── */}
         <EmpathySection />
+
+        {/* ── S3-1: 소핏 해결 헤드라인 ── */}
+        <section className="flex items-center justify-center bg-white text-center" style={{ minHeight: '70vh' }}>
+          <h2 className="text-3xl font-black leading-[1.5] tracking-tight text-sofit-ink sm:text-4xl">
+            이제 <span className="text-sofit-blue">소핏</span>이 해결합니다.
+          </h2>
+        </section>
 
         {/* ── S3: Feature 1 — 공장 매칭 ── */}
         <FeatureSpotlight
@@ -215,8 +214,8 @@ export default async function HomePage() {
         <TrustBar />
 
         {/* ── S7: 포트폴리오 갤러리 ── */}
-        <section className="bg-sofit-surface px-6 py-24">
-          <div className="mx-auto max-w-6xl">
+        <section className="bg-sofit-surface px-4 py-24">
+          <div className="mx-auto max-w-screen-xl">
             <div className="mb-12 flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="mb-2 text-sm font-semibold tracking-widest text-sofit-blue uppercase">
@@ -281,8 +280,8 @@ export default async function HomePage() {
         </section>
 
         {/* ── S8: 고객 CTA ── */}
-        <section className="bg-sofit-blue px-6 py-32">
-          <div className="mx-auto max-w-2xl text-center">
+        <section className="bg-sofit-blue px-4 py-32">
+          <div className="mx-auto max-w-screen-xl text-center">
             <h2 className="text-4xl font-bold text-white sm:text-5xl">
               인테리어 발주, 지금 바로 시작하세요.
             </h2>
@@ -299,8 +298,8 @@ export default async function HomePage() {
         </section>
 
         {/* ── S9: 공장 파트너 모집 ── */}
-        <section className="bg-sofit-black px-6 py-24">
-          <div className="mx-auto max-w-6xl">
+        <section className="bg-sofit-black px-4 py-24">
+          <div className="mx-auto max-w-screen-xl">
             <div className="mb-16 text-center">
               <p className="mb-3 text-sm font-semibold tracking-widest text-gray-500 uppercase">
                 파트너 공장
@@ -350,8 +349,8 @@ export default async function HomePage() {
         </section>
 
         {/* ── Footer ── */}
-        <footer className="border-t border-gray-100 bg-white px-6 py-12">
-          <div className="mx-auto max-w-6xl">
+        <footer className="border-t border-gray-100 bg-white px-4 py-12">
+          <div className="mx-auto max-w-screen-xl">
             <div className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
               <p className="text-lg font-bold text-sofit-ink">소핏 (SOFIT)</p>
               <div className="flex gap-6 text-sm text-sofit-gray">

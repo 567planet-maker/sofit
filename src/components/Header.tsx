@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { signOut } from '@/app/actions/auth'
+import HeaderShell from '@/components/HeaderShell'
 
 export default async function Header() {
   const supabase = await createClient()
@@ -19,8 +20,8 @@ export default async function Header() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5">
+    <HeaderShell>
+      <div className="mx-auto flex max-w-screen-xl items-center justify-between px-4 py-3.5">
         <Link href="/" className="text-xl font-bold tracking-tight text-gray-900">
           소핏
         </Link>
@@ -66,6 +67,6 @@ export default async function Header() {
           )}
         </div>
       </div>
-    </header>
+    </HeaderShell>
   )
 }
