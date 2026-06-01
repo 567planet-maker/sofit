@@ -1,5 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import FactoryNav from './FactoryNav'
+import Link from 'next/link'
 
 export default async function FactoryLayout({
   children,
@@ -7,16 +9,17 @@ export default async function FactoryLayout({
   children: React.ReactNode
 }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) {
     redirect('/login')
   }
 
-  // 공장 계정 확인
   const { data: factory } = await supabase
     .from('factories')
-    .select('id, status')
+    .select('id, status, company_name')
     .eq('user_id', user.id)
     .single()
 
@@ -28,5 +31,23 @@ export default async function FactoryLayout({
     redirect('/factory/pending')
   }
 
-  return <>{children}</>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="border-b border-gray-200 bg-white">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
+          <div className="flex items-center gap-2.5">
+            <Link href="/factory" className="text-lg font-bold text-gray-900">
+              소핏
+            </Link>
+            <span className="rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-600">
+              파트너
+            </span>
+          </div>
+          <span className="text-sm text-gray-600">{factory.company_name}</span>
+        </div>
+      </header>
+      <FactoryNav />
+      <main>{children}</main>
+    </div>
+  )
 }

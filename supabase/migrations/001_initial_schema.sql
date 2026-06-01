@@ -292,11 +292,18 @@ CREATE POLICY "portfolios: admin"      ON public.factory_portfolios FOR ALL USIN
 -- quote_requests
 CREATE POLICY "requests: 고객 본인 조회" ON public.quote_requests FOR SELECT
   USING (customer_id IN (SELECT id FROM public.customers WHERE user_id = auth.uid()));
+-- SECURITY DEFINER 함수로 matches↔quote_requests 순환 참조 방지
+CREATE OR REPLACE FUNCTION public.get_factory_matched_request_ids()
+RETURNS SETOF uuid
+LANGUAGE sql SECURITY DEFINER STABLE AS $$
+  SELECT m.request_id
+  FROM public.matches m
+  JOIN public.factories f ON m.factory_id = f.id
+  WHERE f.user_id = auth.uid();
+$$;
+
 CREATE POLICY "requests: 공장 매칭된 조회" ON public.quote_requests FOR SELECT
-  USING (id IN (
-    SELECT request_id FROM public.matches
-    WHERE factory_id IN (SELECT id FROM public.factories WHERE user_id = auth.uid())
-  ));
+  USING (id IN (SELECT get_factory_matched_request_ids()));
 CREATE POLICY "requests: admin 전체" ON public.quote_requests FOR ALL USING (get_my_role() = 'admin');
 CREATE POLICY "requests: 고객 INSERT" ON public.quote_requests FOR INSERT
   WITH CHECK (customer_id IN (SELECT id FROM public.customers WHERE user_id = auth.uid()));

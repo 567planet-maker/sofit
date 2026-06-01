@@ -16,7 +16,7 @@ export type FactoryQuoteStatus = 'draft' | 'submitted' | 'accepted' | 'rejected'
 
 export type MatchStatus = 'pending' | 'confirmed' | 'rejected' | 'cancelled'
 
-export type ChatRoomType = 'customer_sofit' | 'factory_sofit'
+export type ChatRoomType = 'customer_sofit' | 'factory_sofit' | 'customer_factory'
 
 export type FileType = 'image' | 'document' | 'sample'
 
@@ -206,6 +206,16 @@ export interface StatusLog {
   to_status: QuoteRequestStatus
   changed_by: string
   note: string | null
+  created_at: string
+}
+
+export interface ProgressPhoto {
+  id: string
+  request_id: string
+  factory_id: string
+  file_url: string
+  file_name: string | null
+  file_size: number | null
   created_at: string
 }
 

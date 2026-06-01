@@ -3,6 +3,14 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
+export type RequestFileInput = {
+  bucket: string
+  path: string
+  fileName: string
+  fileSize: number
+  fileType: 'image' | 'document' | 'sample'
+}
+
 export type QuoteRequestDraft = {
   // Step 1 — Required
   company_name: string
@@ -55,6 +63,7 @@ export type QuoteRequestDraft = {
 
 export async function submitQuoteRequest(
   data: QuoteRequestDraft,
+  files: RequestFileInput[] = [],
 ): Promise<{ error: string } | never> {
   const supabase = await createClient()
   const {
@@ -82,6 +91,19 @@ export async function submitQuoteRequest(
 
   if (error || !request) {
     return { error: '제출에 실패했습니다. 잠시 후 다시 시도해주세요.' }
+  }
+
+  // 업로드된 파일 메타데이터 저장
+  if (files.length > 0) {
+    await supabase.from('request_files').insert(
+      files.map((f) => ({
+        request_id: request.id,
+        file_type: f.fileType,
+        file_url: f.path,
+        file_name: f.fileName,
+        file_size: f.fileSize,
+      })),
+    )
   }
 
   // Admin 알림 생성

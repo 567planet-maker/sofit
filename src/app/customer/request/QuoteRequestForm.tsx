@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useEffect, useTransition } from 'react'
-import { submitQuoteRequest, type QuoteRequestDraft } from '@/app/actions/quote-request'
+import { submitQuoteRequest, type QuoteRequestDraft, type RequestFileInput } from '@/app/actions/quote-request'
+import FileUploader, { type UploadedFile } from '@/components/common/FileUploader'
 
 // ─── 타입 ───────────────────────────────────────────────────
 
@@ -328,9 +329,11 @@ function Step2({
 function Step3({
   data,
   onChange,
+  onFilesChange,
 }: {
   data: FormData
   onChange: (k: keyof FormData, v: unknown) => void
+  onFilesChange: (files: UploadedFile[]) => void
 }) {
   return (
     <div className="space-y-5">
@@ -417,13 +420,17 @@ function Step3({
         />
       </div>
 
-      <div className="rounded-xl border border-dashed border-gray-300 p-5 text-center">
-        <p className="text-sm font-medium text-gray-500">도면 업로드</p>
-        <p className="mt-1 text-xs text-gray-400">
-          파일 업로드 기능은 다음 업데이트에서 지원됩니다.
-          <br />
-          현재는 소핏 담당자에게 직접 전달하시면 됩니다.
-        </p>
+      <div>
+        <p className="mb-2 text-sm font-medium text-gray-700">도면 업로드 (선택)</p>
+        <FileUploader
+          bucket="request-documents"
+          fileType="document"
+          accept=".pdf,.dwg,.dxf"
+          maxSizeMb={20}
+          label="도면 파일을 드래그하거나 클릭하여 선택"
+          hint="PDF, DWG, DXF 형식 지원"
+          onChange={onFilesChange}
+        />
       </div>
     </div>
   )
@@ -432,9 +439,11 @@ function Step3({
 function Step4({
   data,
   onChange,
+  onFilesChange,
 }: {
   data: FormData
   onChange: (k: keyof FormData, v: unknown) => void
+  onFilesChange: (files: UploadedFile[]) => void
 }) {
   return (
     <div className="space-y-5">
@@ -488,13 +497,17 @@ function Step4({
         />
       </div>
 
-      <div className="rounded-xl border border-dashed border-gray-300 p-5 text-center">
-        <p className="text-sm font-medium text-gray-500">매장·현장 사진 업로드 (권장)</p>
-        <p className="mt-1 text-xs text-gray-400">
-          파일 업로드 기능은 다음 업데이트에서 지원됩니다.
-          <br />
-          현재는 소핏 담당자가 연락 후 안내해 드립니다.
-        </p>
+      <div>
+        <p className="mb-2 text-sm font-medium text-gray-700">매장·현장 사진 업로드 (권장)</p>
+        <FileUploader
+          bucket="request-images"
+          fileType="image"
+          accept=".jpg,.jpeg,.png,.webp"
+          maxSizeMb={10}
+          label="사진을 드래그하거나 클릭하여 선택"
+          hint="JPG, PNG, WEBP 형식 지원"
+          onChange={onFilesChange}
+        />
       </div>
     </div>
   )
@@ -621,6 +634,8 @@ export default function QuoteRequestForm() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({})
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
+  const [documents, setDocuments] = useState<UploadedFile[]>([])
+  const [images, setImages] = useState<UploadedFile[]>([])
 
   // localStorage 복구
   useEffect(() => {
@@ -676,7 +691,8 @@ export default function QuoteRequestForm() {
   function handleSubmit() {
     setSubmitError(null)
     startTransition(async () => {
-      const result = await submitQuoteRequest(formData)
+      const allFiles: RequestFileInput[] = [...documents, ...images]
+      const result = await submitQuoteRequest(formData, allFiles)
       if (result && 'error' in result) {
         setSubmitError(result.error)
       } else {
@@ -735,8 +751,8 @@ export default function QuoteRequestForm() {
           <Step1 data={formData} errors={errors} onChange={handleChange} />
         )}
         {step === 2 && <Step2 data={formData} onChange={handleChange} />}
-        {step === 3 && <Step3 data={formData} onChange={handleChange} />}
-        {step === 4 && <Step4 data={formData} onChange={handleChange} />}
+        {step === 3 && <Step3 data={formData} onChange={handleChange} onFilesChange={setDocuments} />}
+        {step === 4 && <Step4 data={formData} onChange={handleChange} onFilesChange={setImages} />}
         {step === 5 && <Step5 data={formData} onChange={handleChange} />}
 
         {submitError && (

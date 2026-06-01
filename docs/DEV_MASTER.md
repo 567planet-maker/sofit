@@ -114,9 +114,9 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 - [x] `get_my_role()` 헬퍼 함수 생성
 - [x] 각 테이블 정책 적용 (상세: `DB_SCHEMA.md`)
 - [ ] 역할별 RLS 테스트
-  - [ ] 고객 계정으로 타인 견적 조회 불가 확인
-  - [ ] 공장 계정으로 미매칭 요청 조회 불가 확인
-  - [ ] admin은 전체 조회 확인
+  - [ ] 고객 계정으로 타인 견적 조회 불가 확인 ← W8 통합테스트
+  - [ ] 공장 계정으로 미매칭 요청 조회 불가 확인 ← W5 공장 계정 생성 후
+  - [x] admin은 전체 조회 확인 (nav 관리자 링크 노출 확인)
 
 ### 인증 시스템
 
@@ -178,73 +178,88 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 
 ---
 
-## W4 — 파일 업로드 + 고객 화면
+## W4 — 파일 업로드 + 고객 화면 ✅
 
 **완료 기준**: 파일 업로드 동작, 고객이 상태 추적 가능
+**완료일**: 2026-06-01
 
 ### Supabase Storage 버킷 생성
 
-- [ ] `request-images` (10MB, jpg/png/webp, 업로더·매칭공장·admin)
-- [ ] `request-documents` (20MB, pdf/dwg/dxf, 업로더·매칭공장·admin)
-- [ ] `factory-portfolios` (10MB, jpg/png, 전체 공개)
-- [ ] `factory-biz-docs` (20MB, pdf/jpg, admin 전용)
-- [ ] `progress-photos` (10MB, jpg/png, 해당공장·고객·admin)
-- [ ] `chat-attachments` (20MB, jpg/png/pdf, 채팅참여자·admin)
+- [x] `request-images` (10MB, jpg/png/webp, 업로더·매칭공장·admin) — RLS 정책 포함
+- [x] `request-documents` (20MB, pdf/dwg/dxf, 업로더·매칭공장·admin) — RLS 정책 포함
+- [x] `factory-portfolios` (10MB, jpg/png, 전체 공개) ← SQL 정책 정의 완료, 버킷은 대시보드 수동 생성
+- [x] `factory-biz-docs` (20MB, pdf/jpg, admin 전용) ← SQL 정책 정의 완료, 버킷은 대시보드 수동 생성
+- [x] `progress-photos` (10MB, jpg/png, 해당공장·고객·admin) ← SQL 정책 정의 완료, 버킷은 대시보드 수동 생성
+- [ ] `chat-attachments` (20MB, jpg/png/pdf, 채팅참여자·admin) ← W7
 
 ### `FileUploader` 컴포넌트
 
-- [ ] 드래그앤드롭 + 클릭 업로드
-- [ ] 이미지 미리보기 썸네일
-- [ ] 파일 삭제
-- [ ] 업로드 진행률 표시
-- [ ] 확장자·크기 제한 클라이언트 검사
+- [x] 드래그앤드롭 + 클릭 업로드
+- [x] 이미지 미리보기 썸네일
+- [x] 파일 삭제 (Storage에서도 제거)
+- [x] 업로드 진행 상태 표시 (업로드 중... / ✓ 완료)
+- [x] 확장자·크기 제한 클라이언트 검사
 
 ### 고객 화면
 
-- [ ] **내 견적 목록** (`/customer/requests`)
-  - [ ] 상태별 탭 필터
-  - [ ] `StatusBadge` 컴포넌트 (색상 구분)
-- [ ] **견적 상세** (`/customer/requests/[id]`)
-  - [ ] 입력한 폼 내용 열람
-  - [ ] 업로드 사진·도면 미리보기 갤러리
-  - [ ] 상태 변경 타임라인 (`status_logs` 기반)
-  - [ ] 채팅 버튼
-- [ ] **공장 견적서 비교** (`/customer/requests/[id]/quotes`)
-  - [ ] `QuoteCard` 컴포넌트 (총액·납기·포트폴리오 링크)
-  - [ ] 가격·납기 고객에게만 노출
+- [x] **내 견적 목록** (`/customer/requests`)
+  - [x] 상태별 탭 필터 (URL 쿼리 파라미터)
+  - [x] `StatusBadge` 컴포넌트 (색상 구분)
+- [x] **견적 상세** (`/customer/requests/[id]`)
+  - [x] 입력한 폼 내용 열람
+  - [x] 업로드 사진·도면 서명URL 갤러리
+  - [x] 상태 변경 타임라인 (`status_logs` 기반)
+  - [x] 채팅 버튼 (customer_sofit 채팅방)
+- [x] **공장 견적서 비교** (`/customer/requests/[id]/quotes`)
+  - [x] `QuoteCard` 컴포넌트 (총액·납기·포트폴리오 링크)
+  - [x] 가격·납기 고객에게만 노출
 
 ---
 
-## W5 — 공장 화면
+## W5 — 공장 화면 ✅
 
 **완료 기준**: 공장이 가입·포트폴리오 등록·견적서 제출 가능
+**완료일**: 2026-06-01
 
 ### 공장 온보딩
 
-- [ ] 추가 정보 입력 (`/factory/onboarding`)
-  - [ ] 회사명·위치·소개
-  - [ ] 사업자등록증 업로드 → `factory-biz-docs`
-- [ ] 심사 대기 페이지 (`/factory/pending`)
+- [x] 추가 정보 입력 (`/factory/onboarding`)
+  - [x] 회사명·위치·소개
+  - [ ] 사업자등록증 업로드 → `factory-biz-docs` ← 관리자 승인 화면(W6)과 연계
+- [x] 심사 대기 페이지 (`/factory/pending`)
 
 ### 공장 대시보드
 
-- [ ] **홈** (`/factory`) — 진행 중 프로젝트 요약
-- [ ] **포트폴리오 관리** (`/factory/portfolios`)
-  - [ ] 작업 사례 등록·수정·삭제
-  - [ ] 이미지 업로드 → `factory-portfolios`
-- [ ] **매칭된 요청 목록** (`/factory/requests`)
-  - [ ] 요청 상세 (고객 정보·폼·사진)
-- [ ] **수락/거절** (`/factory/requests/[id]`)
-  - [ ] [수락하기] → `matches.status = 'accepted'` + 견적서 폼 활성화
-  - [ ] [거절하기] → `matches.status = 'declined'` + 확인 처리
-- [ ] **견적서 작성** (`/factory/requests/[id]`)
-  - [ ] matches.status='accepted'일 때만 폼 표시
-  - [ ] 항목별 금액 입력 + 총액 자동 계산
-  - [ ] 납기일 입력
-  - [ ] [고객에게 제출하기] → `factory_quotes` INSERT + 고객 알림 직접 발송
-- [ ] **진행 프로젝트** (`/factory/projects`)
-  - [ ] 진행 사진 업로드 → `progress-photos`
-  - [ ] 고객과 직접 채팅 연결 버튼 (`customer_factory` 채팅방)
+- [x] **홈** (`/factory`) — 통계 카드(신규 매칭·수락·견적서) + 최근 매칭 목록 + 빠른 링크
+- [x] **포트폴리오 관리** (`/factory/portfolios`)
+  - [x] 작업 사례 등록·수정·삭제
+  - [x] 이미지 업로드 → `factory-portfolios`
+- [x] **매칭된 요청 목록** (`/factory/requests`)
+  - [x] 탭 필터 (전체/신규/수락됨/거절됨)
+  - [x] 요청 상세 (고객 정보·폼·사진)
+- [x] **수락/거절** (`/factory/requests/[id]`)
+  - [x] [수락하기] → `matches.status = 'confirmed'` + 견적서 폼 활성화
+  - [x] [거절하기] → `matches.status = 'rejected'` + 사유 입력 + 관리자 알림
+- [x] **견적서 작성** (`/factory/requests/[id]`)
+  - [x] matches.status='confirmed'일 때만 폼 표시
+  - [x] 항목별 금액 입력(재료비·인건비·배송비·설치비·철거비·기타·마진) + 총액 자동 계산
+  - [x] 납기일(일수) 입력
+  - [x] 임시저장 기능
+  - [x] [고객에게 제출하기] → `factory_quotes` INSERT(status=submitted) + 고객 알림 + quote_request.status → quote_arrived
+- [x] **진행 프로젝트** (`/factory/projects`)
+  - [x] 계약완료·시공중 프로젝트 목록
+  - [x] 진행 사진 업로드 → `progress-photos` 버킷 + `progress_photos` 테이블
+  - [x] 고객과 직접 채팅 연결 버튼 (`customer_factory` 채팅방)
+
+### DB·스토리지 추가 (migration 002_w5_storage.sql)
+
+- [x] `progress_photos` 테이블 + RLS
+- [x] `matches` 테이블 공장 UPDATE 정책 추가
+- [x] `notifications` 테이블 INSERT 정책 추가
+- [x] `chat_rooms.type`에 `customer_factory` 추가
+- [x] `factory-portfolios` 버킷 생성 (Supabase 대시보드 수동)
+- [x] `factory-biz-docs` 버킷 생성 (Supabase 대시보드 수동)
+- [x] `progress-photos` 버킷 생성 (Supabase 대시보드 수동)
 
 ---
 
