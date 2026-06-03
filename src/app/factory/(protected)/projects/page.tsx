@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { ProgressPhoto } from '@/types'
 import ProgressPhotoUploader from './ProgressPhotoUploader'
+import { QUOTE_REQUEST_STATUS_LABELS } from '@/lib/constants/status'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('ko-KR', {
@@ -97,11 +98,6 @@ export default async function FactoryProjectsPage() {
     }),
   )
 
-  const STATUS_LABELS: Record<string, string> = {
-    contracted: '계약완료',
-    in_progress: '시공중',
-    completed: '완료',
-  }
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -129,7 +125,7 @@ export default async function FactoryProjectsPage() {
                     <div className="flex items-center gap-2">
                       <h2 className="font-semibold text-gray-900">{req.site_name}</h2>
                       <span className="rounded-full bg-teal-50 px-2 py-0.5 text-xs font-medium text-teal-700">
-                        {STATUS_LABELS[req.status] ?? req.status}
+                        {QUOTE_REQUEST_STATUS_LABELS[req.status as keyof typeof QUOTE_REQUEST_STATUS_LABELS] ?? req.status}
                       </span>
                     </div>
                     <p className="mt-0.5 text-sm text-gray-500">{req.company_name}</p>

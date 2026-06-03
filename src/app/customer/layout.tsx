@@ -8,10 +8,17 @@ export default async function CustomerLayout({
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
-  if (!user) {
-    redirect('/login')
-  }
+  const { data: userData } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!userData?.role) redirect('/onboarding')
+  if (userData.role === 'factory') redirect('/factory')
+  if (userData.role === 'admin') redirect('/admin')
 
   return <>{children}</>
 }

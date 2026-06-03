@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import StatusBadge from '@/components/common/StatusBadge'
 import type { QuoteRequestStatus, RequestFile, StatusLog } from '@/types'
+import { QUOTE_REQUEST_STATUS_LABELS } from '@/lib/constants/status'
 
 // file_type → bucket 매핑
 function getBucket(fileType: string) {
@@ -31,16 +32,6 @@ function Row({ label, value }: { label: string; value: string | number | boolean
   )
 }
 
-const STATUS_LABELS: Record<QuoteRequestStatus, string> = {
-  submitted: '접수됨',
-  reviewing: '검토중',
-  matching: '공장 매칭중',
-  quote_arrived: '견적서 도착',
-  negotiating: '소통중',
-  contracted: '계약완료',
-  in_progress: '시공중',
-  completed: '완료',
-}
 
 export default async function CustomerRequestDetailPage({
   params,
@@ -126,7 +117,7 @@ export default async function CustomerRequestDetailPage({
                 </div>
                 <div className="pb-3">
                   <p className="text-sm font-medium text-gray-800">
-                    {STATUS_LABELS[log.to_status as QuoteRequestStatus] ?? log.to_status}
+                    {QUOTE_REQUEST_STATUS_LABELS[log.to_status as QuoteRequestStatus] ?? log.to_status}
                   </p>
                   <p className="text-xs text-gray-400">{formatDate(log.created_at)}</p>
                   {log.note && <p className="mt-1 text-xs text-gray-500">{log.note}</p>}

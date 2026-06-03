@@ -263,56 +263,72 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 
 ---
 
-## W6 — 관리자 화면 ★
+## W6 — 관리자 화면 ★ ✅
 
 **완료 기준**: 관리자가 견적 수령 → 검수 → 매칭 → 견적 전달 전 과정 처리 가능
+**완료일**: 2026-06-02
 
 > AI가 없으므로 이 화면이 소핏의 실질적 운영 두뇌.
 > 화면 흐름: `UI_FLOW.md` §6 참조
 
 ### 관리자 레이아웃
 
-- [ ] 사이드바 (미처리 건수 뱃지 포함)
-- [ ] 관리자 역할 강제 미들웨어 확인
+- [x] 사이드바 (미처리 건수 뱃지 포함) — `AdminNav.tsx` + `layout.tsx`
+- [x] 관리자 역할 강제 미들웨어 확인 (layout에서 role 체크)
 
 ### 전체 견적 요청 목록 (`/admin/requests`)
 
-- [ ] 상태별 탭 필터
-- [ ] 컬럼: 접수일·고객명·현장명·업종·상태
-- [ ] 새 요청 강조 표시
+- [x] 상태별 탭 필터
+- [x] 컬럼: 접수일·업체명·현장명·업종·상태
+- [x] 새 요청 강조 표시 (submitted 행 하이라이트)
 
 ### 요청 상세 (`/admin/requests/[id]`)
 
-- [ ] 고객 폼 전체 열람
-- [ ] 사진·도면 갤러리 뷰어
-- [ ] 상태 변경 드롭다운 → `status_logs` INSERT
-- [ ] 공장 매칭 현황 표시 (수락/거절/미응답)
-- [ ] 관리자 내부 메모 필드 (비공개)
-- [ ] "공장 매칭" 버튼 → `/admin/requests/[id]/match`
+- [x] 고객 폼 전체 열람
+- [x] 사진·도면 갤러리 뷰어 (서명URL)
+- [x] 상태 변경 드롭다운 → `status_logs` INSERT + 고객 알림
+- [x] 공장 매칭 현황 표시 (수락/거절/검토중)
+- [x] 관리자 내부 메모 필드 (비공개) — `AdminNoteEditor.tsx`
+- [x] "공장 매칭 관리" 버튼 → `/admin/requests/[id]/match`
 
 ### 공장 매칭 (`/admin/requests/[id]/match`)
 
-- [ ] 활성 공장 카드 목록
-- [ ] 위치·카테고리 필터
-- [ ] [매칭] 클릭 → `matches` INSERT + 공장 알림
-- [ ] 매칭 이력 + 취소 기능
+- [x] 활성 공장 카드 목록 (이미 배포된 공장 제외)
+- [x] [배포] 클릭 → `matches` INSERT + 공장 알림 + 요청 상태 matching 전환
+- [x] 매칭 이력 + 배포 취소 기능 (pending만 취소 가능)
+- [x] 수락된 공장에 고객↔공장 채팅방 생성 버튼
 
 ### 공장 관리 (`/admin/factories`)
 
-- [ ] 승인 대기 탭 (사업자등록증 다운로드·열람)
-- [ ] 승인/반려 처리 + 공장 알림
-- [ ] 활성 공장 목록 + 정지 처리
-- [ ] 공장 상세 (`/admin/factories/[id]`)
+- [x] 승인 대기·활성·정지·반려 탭 필터
+- [x] 공장 상세 (`/admin/factories/[id]`)
+  - [x] 사업자등록증 서명URL 열람/다운로드
+  - [x] 포트폴리오 갤러리
+  - [x] 승인/반려 처리 + 공장 알림 — `FactoryActions.tsx`
+  - [x] 정지·재활성화 처리
 
 ### 채팅 통합 뷰 (`/admin/chats`)
 
-- [ ] 전체 채팅방 목록 (미답변 우선)
-- [ ] 채팅방 선택 → 메시지 표시 + 전송
+- [x] 전체 채팅방 목록 (미답변 우선 정렬)
+- [x] 채팅방 선택 → 메시지 표시 + 전송 (customer_sofit)
+- [x] customer_factory 방은 읽기 전용 모니터링
 
 ### 사용자 관리 (`/admin/users`)
 
-- [ ] 고객·공장 계정 목록
-- [ ] 계정 정지 기능
+- [x] 고객·공장·관리자 역할별 탭 필터
+- [x] 공장 계정 → 공장 상세 링크
+
+### 서버 액션 (`src/app/actions/admin.ts`)
+
+- [x] `changeRequestStatus` — 상태 변경 + status_logs INSERT + 고객 알림
+- [x] `updateAdminNote` — 관리자 메모 저장
+- [x] `createMatch` — 공장 배포 + 공장 알림
+- [x] `cancelMatch` — 배포 취소
+- [x] `createCustomerFactoryChat` — 고객↔공장 채팅방 생성
+- [x] `approveFactory` — 공장 승인 + 알림
+- [x] `rejectFactory` — 공장 반려 + 알림
+- [x] `suspendFactory` / `activateFactory` — 공장 정지/재활성화
+- [x] `sendAdminMessage` — 관리자 메시지 전송
 
 ---
 

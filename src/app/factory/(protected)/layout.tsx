@@ -13,9 +13,17 @@ export default async function FactoryLayout({
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    redirect('/login')
-  }
+  if (!user) redirect('/login')
+
+  const { data: userData } = await supabase
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (!userData?.role) redirect('/onboarding')
+  if (userData.role === 'customer') redirect('/customer')
+  if (userData.role === 'admin') redirect('/admin')
 
   const { data: factory } = await supabase
     .from('factories')
@@ -23,13 +31,8 @@ export default async function FactoryLayout({
     .eq('user_id', user.id)
     .single()
 
-  if (!factory) {
-    redirect('/factory/onboarding')
-  }
-
-  if (factory.status === 'pending') {
-    redirect('/factory/pending')
-  }
+  if (!factory) redirect('/factory/onboarding')
+  if (factory.status === 'pending') redirect('/factory/pending')
 
   return (
     <div className="min-h-screen bg-gray-50">
