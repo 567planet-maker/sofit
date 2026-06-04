@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
+type SBClient = Awaited<ReturnType<typeof createClient>>
+
 // ─────────────────────────────────────────────────────────────
 // 공장 프로필 생성
 // ─────────────────────────────────────────────────────────────
@@ -76,11 +78,14 @@ export async function acceptMatch(
   if (!match) return { error: '매칭 정보를 찾을 수 없습니다.' }
   if (match.status !== 'pending') return { error: '이미 처리된 요청입니다.' }
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from('matches')
     .update({ status: 'confirmed' })
     .eq('id', matchId)
+    .select('id')
+    .maybeSingle()
   if (error) return { error: `수락 처리 실패: ${error.message}` }
+  if (!updated) return { error: 'RLS 정책 오류: Supabase에서 002_w5_storage.sql 마이그레이션을 실행해주세요.' }
 
   // customer_factory 채팅방 자동 생성 (중복 방지)
   const { data: existingRoom } = await supabase
@@ -140,11 +145,14 @@ export async function rejectMatch(
   if (!match) return { error: '매칭 정보를 찾을 수 없습니다.' }
   if (match.status !== 'pending') return { error: '이미 처리된 요청입니다.' }
 
-  const { error } = await supabase
+  const { data: updated, error } = await supabase
     .from('matches')
     .update({ status: 'rejected', note: note ?? null })
     .eq('id', matchId)
+    .select('id')
+    .maybeSingle()
   if (error) return { error: `거절 처리 실패: ${error.message}` }
+  if (!updated) return { error: 'RLS 정책 오류: Supabase에서 002_w5_storage.sql 마이그레이션을 실행해주세요.' }
 
   // 관리자 알림
   const { data: admins } = await supabase
@@ -219,9 +227,10 @@ export async function saveQuoteDraft(
       .eq('id', existing.id)
     if (error) return { error: '임시저장 실패' }
   } else {
+    // draft는 is_latest=false (최신 submitted만 is_latest=true)
     const { error } = await supabase
       .from('factory_quotes')
-      .insert({ match_id: matchId, ...data, status: 'draft' })
+      .insert({ match_id: matchId, ...data, status: 'draft', is_latest: false })
     if (error) return { error: '임시저장 실패' }
   }
 
@@ -230,14 +239,14 @@ export async function saveQuoteDraft(
 }
 
 // ─────────────────────────────────────────────────────────────
-// 견적서 고객에게 제출
+// 견적서 고객에게 제출 (버전 관리 지원)
 // ─────────────────────────────────────────────────────────────
 
 export async function submitFactoryQuote(
   matchId: string,
   data: QuoteInput,
 ): Promise<{ error?: string }> {
-  const { supabase, factory } = await getAuthFactory()
+  const { supabase, factory, user } = await getAuthFactory()
 
   const { data: match } = await supabase
     .from('matches')
@@ -248,26 +257,55 @@ export async function submitFactoryQuote(
   if (!match) return { error: '매칭 정보를 찾을 수 없습니다.' }
   if (match.status !== 'confirmed') return { error: '수락된 요청에만 견적서를 제출할 수 있습니다.' }
 
-  // 기존 draft 삭제 후 submitted 레코드 insert
+  // 1. 현재 최신 submitted 버전 조회
+  const { data: latestQuote } = await supabase
+    .from('factory_quotes')
+    .select('id, version')
+    .eq('match_id', matchId)
+    .eq('is_latest', true)
+    .eq('status', 'submitted')
+    .maybeSingle()
+
+  const nextVersion = (latestQuote?.version ?? 0) + 1
+
+  // 2. 기존 submitted → superseded 처리
+  if (latestQuote) {
+    await supabase
+      .from('factory_quotes')
+      .update({ status: 'superseded', is_latest: false })
+      .eq('id', latestQuote.id)
+  }
+
+  // 3. draft 삭제
   await supabase
     .from('factory_quotes')
     .delete()
     .eq('match_id', matchId)
     .eq('status', 'draft')
 
+  // 4. 새 버전 insert
   const { error: insertError } = await supabase
     .from('factory_quotes')
-    .insert({ match_id: matchId, ...data, status: 'submitted' })
+    .insert({
+      match_id: matchId,
+      ...data,
+      version: nextVersion,
+      status: 'submitted',
+      is_latest: true,
+    })
   if (insertError) return { error: `견적서 제출 실패: ${insertError.message}` }
 
-  // quote_request 상태를 quote_arrived로 변경
+  // 5. quote_request 상태 업데이트
   await supabase
     .from('quote_requests')
     .update({ status: 'quote_arrived' })
     .eq('id', match.request_id)
     .in('status', ['submitted', 'reviewing', 'matching'])
 
-  // 고객 알림
+  // 6. 채팅방에 자동 메시지 발송
+  await sendQuoteRevisionChatMessage(supabase, matchId, user.id, nextVersion)
+
+  // 7. 고객 알림
   const { data: reqRow } = await supabase
     .from('quote_requests')
     .select('customer_id, site_name')
@@ -285,7 +323,7 @@ export async function submitFactoryQuote(
       await supabase.from('notifications').insert({
         user_id: customerUser.user_id,
         type: 'quote_arrived',
-        title: '견적서가 도착했습니다',
+        title: nextVersion === 1 ? '견적서가 도착했습니다' : `수정 견적서(v${nextVersion})가 도착했습니다`,
         body: `${reqRow.site_name} — ${factory.company_name}`,
         link: `/customer/requests/${match.request_id}/quotes`,
       })
@@ -295,6 +333,35 @@ export async function submitFactoryQuote(
   revalidatePath(`/factory/requests/${match.request_id}`)
   revalidatePath('/factory/requests')
   return {}
+}
+
+// ─────────────────────────────────────────────────────────────
+// 견적서 제출 시 채팅방 자동 메시지
+// ─────────────────────────────────────────────────────────────
+
+async function sendQuoteRevisionChatMessage(
+  supabase: SBClient,
+  matchId: string,
+  senderUserId: string,
+  version: number,
+): Promise<void> {
+  const { data: room } = await supabase
+    .from('chat_rooms')
+    .select('id')
+    .eq('match_id', matchId)
+    .eq('type', 'customer_factory')
+    .maybeSingle()
+
+  if (!room) return
+
+  await supabase.from('chat_messages').insert({
+    room_id: room.id,
+    sender_id: senderUserId,
+    content:
+      version === 1
+        ? '견적서를 제출했습니다. 확인해 주세요.'
+        : `수정 견적서(v${version})를 제출했습니다. 변경 내용을 확인해 주세요.`,
+  })
 }
 
 // ─────────────────────────────────────────────────────────────

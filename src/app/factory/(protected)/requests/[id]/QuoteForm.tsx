@@ -4,23 +4,33 @@ import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { saveQuoteDraft, submitFactoryQuote, type QuoteInput } from '@/app/actions/factory'
 
-type Props = {
-  matchId: string
-  existing?: {
-    material_cost: number
-    labor_cost: number
-    delivery_cost: number
-    install_cost: number
-    demolition_cost: number
-    extra_cost: number
-    margin: number
-    delivery_days: number | null
-    note: string | null
-    status: string
-  } | null
+type ExistingQuote = {
+  material_cost: number
+  labor_cost: number
+  delivery_cost: number
+  install_cost: number
+  demolition_cost: number
+  extra_cost: number
+  margin: number
+  delivery_days: number | null
+  note: string | null
+  status: string
+  version: number
 }
 
-type CostKey = 'material_cost' | 'labor_cost' | 'delivery_cost' | 'install_cost' | 'demolition_cost' | 'extra_cost' | 'margin'
+type Props = {
+  matchId: string
+  existing?: ExistingQuote | null
+}
+
+type CostKey =
+  | 'material_cost'
+  | 'labor_cost'
+  | 'delivery_cost'
+  | 'install_cost'
+  | 'demolition_cost'
+  | 'extra_cost'
+  | 'margin'
 
 type CostState = Record<CostKey, number>
 
@@ -43,6 +53,12 @@ export default function QuoteForm({ matchId, existing }: Props) {
   const [isPending, startTransition] = useTransition()
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
+
+  const isSubmitted = existing?.status === 'submitted'
+  const isDraft = existing?.status === 'draft'
+
+  // submitted 상태에서 수정 버튼을 누르면 편집 모드 진입
+  const [isEditing, setIsEditing] = useState(isDraft)
 
   const [costs, setCosts] = useState<CostState>({
     material_cost: existing?.material_cost ?? 0,
@@ -97,40 +113,72 @@ export default function QuoteForm({ matchId, existing }: Props) {
     })
   }
 
-  const isAlreadySubmitted = existing?.status === 'submitted'
+  // ── 제출 완료 상태 (수정 모드가 아닐 때) ──────────────────────
+  if (isSubmitted && !isEditing) {
+    const submittedTotal =
+      existing!.material_cost +
+      existing!.labor_cost +
+      existing!.delivery_cost +
+      existing!.install_cost +
+      existing!.demolition_cost +
+      existing!.extra_cost +
+      existing!.margin
 
-  if (isAlreadySubmitted) {
     return (
-      <div className="rounded-2xl border border-green-200 bg-green-50 p-5">
-        <p className="font-semibold text-green-800">견적서 제출 완료</p>
-        <p className="mt-1 text-sm text-green-700">고객에게 견적서가 전달되었습니다.</p>
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-white p-3">
-            <p className="text-xs text-gray-500">총 견적금액</p>
-            <p className="mt-0.5 text-lg font-bold text-gray-900">
-              {formatKrw(existing!.material_cost + existing!.labor_cost + existing!.delivery_cost +
-                existing!.install_cost + existing!.demolition_cost + existing!.extra_cost + existing!.margin)}원
-            </p>
+      <div className="space-y-4">
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-green-800">
+                견적서 v{existing!.version} 제출 완료
+              </p>
+              <p className="mt-1 text-sm text-green-700">고객에게 견적서가 전달되었습니다.</p>
+            </div>
+            <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700">
+              v{existing!.version}
+            </span>
           </div>
-          <div className="rounded-xl bg-white p-3">
-            <p className="text-xs text-gray-500">납기</p>
-            <p className="mt-0.5 text-lg font-bold text-gray-900">
-              {existing!.delivery_days != null ? `${existing!.delivery_days}일` : '미정'}
-            </p>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-white p-3">
+              <p className="text-xs text-gray-500">총 견적금액</p>
+              <p className="mt-0.5 text-lg font-bold text-gray-900">
+                {formatKrw(submittedTotal)}원
+              </p>
+            </div>
+            <div className="rounded-xl bg-white p-3">
+              <p className="text-xs text-gray-500">납기</p>
+              <p className="mt-0.5 text-lg font-bold text-gray-900">
+                {existing!.delivery_days != null ? `${existing!.delivery_days}일` : '미정'}
+              </p>
+            </div>
           </div>
+          {existing!.note && (
+            <p className="mt-3 rounded-lg bg-white p-3 text-sm text-gray-600">{existing!.note}</p>
+          )}
         </div>
-        {existing!.note && (
-          <p className="mt-3 rounded-lg bg-white p-3 text-sm text-gray-600">{existing!.note}</p>
-        )}
+
+        <button
+          onClick={() => setIsEditing(true)}
+          className="w-full rounded-xl border border-indigo-200 bg-white py-3 text-sm font-medium text-indigo-600 hover:bg-indigo-50"
+        >
+          수정 견적서 작성하기 (v{existing!.version + 1})
+        </button>
       </div>
     )
   }
 
+  // ── 편집 폼 (신규 / draft 이어서 / submitted 수정) ─────────────
   return (
     <div className="space-y-4">
-      {existing?.status === 'draft' && (
+      {isDraft && !isEditing && (
         <p className="rounded-lg bg-yellow-50 px-4 py-2 text-sm text-yellow-700">
           임시저장된 견적서가 있습니다.
+        </p>
+      )}
+      {isEditing && isSubmitted && (
+        <p className="rounded-lg bg-blue-50 px-4 py-2 text-sm text-blue-700">
+          v{existing!.version} 기준으로 수정 견적서를 작성합니다.
+          고객에게 제출하면 v{existing!.version + 1}로 전달됩니다.
         </p>
       )}
 
@@ -156,7 +204,6 @@ export default function QuoteForm({ matchId, existing }: Props) {
           ))}
         </div>
 
-        {/* 합계 */}
         <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-4">
           <span className="font-semibold text-gray-800">총 견적금액</span>
           <span className="text-xl font-bold text-indigo-600">{formatKrw(total)}원</span>
@@ -166,9 +213,7 @@ export default function QuoteForm({ matchId, existing }: Props) {
       {/* 납기 + 메모 */}
       <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
         <div className="mb-4">
-          <label className="mb-1.5 block text-sm font-medium text-gray-700">
-            납기 (일수)
-          </label>
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">납기 (일수)</label>
           <input
             type="number"
             min={1}
@@ -179,9 +224,7 @@ export default function QuoteForm({ matchId, existing }: Props) {
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-gray-700">
-            메모 (선택)
-          </label>
+          <label className="mb-1.5 block text-sm font-medium text-gray-700">메모 (선택)</label>
           <textarea
             rows={3}
             value={note}
@@ -215,6 +258,15 @@ export default function QuoteForm({ matchId, existing }: Props) {
           {isPending ? '제출 중...' : '고객에게 제출하기'}
         </button>
       </div>
+
+      {isEditing && (
+        <button
+          onClick={() => setIsEditing(false)}
+          className="w-full rounded-xl border border-gray-100 py-2 text-xs text-gray-400 hover:text-gray-600"
+        >
+          취소 (현재 제출된 견적서로 돌아가기)
+        </button>
+      )}
     </div>
   )
 }

@@ -128,6 +128,47 @@ export default async function CustomerRequestDetailPage({
         </section>
       )}
 
+      {/* 내가 요청한 견적서 요약 */}
+      {(req.sofa_type || req.sofa_count || req.fabric_type || req.delivery_date) && (
+        <section className="rounded-2xl border border-indigo-100 bg-indigo-50/50 p-4">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-indigo-400">
+            내가 요청한 견적서
+          </p>
+          <div className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-gray-700">
+            {req.sofa_type && (
+              <span>
+                <span className="text-gray-400">형태</span> {req.sofa_type}
+              </span>
+            )}
+            {req.sofa_count && (
+              <span>
+                <span className="text-gray-400">수량</span> {req.sofa_count}개
+              </span>
+            )}
+            {req.seat_count && (
+              <span>
+                <span className="text-gray-400">좌석</span> {req.seat_count}인용
+              </span>
+            )}
+            {req.fabric_type && (
+              <span>
+                <span className="text-gray-400">원단</span> {req.fabric_type}
+              </span>
+            )}
+            {req.color_code && (
+              <span>
+                <span className="text-gray-400">색상</span> {req.color_code}
+              </span>
+            )}
+            {req.delivery_date && (
+              <span>
+                <span className="text-gray-400">납품 희망</span> {req.delivery_date}
+              </span>
+            )}
+          </div>
+        </section>
+      )}
+
       {/* 견적서 보기 / 채팅 버튼 */}
       <div className="flex gap-3">
         {(req.status === 'quote_arrived' || req.status === 'negotiating') && (

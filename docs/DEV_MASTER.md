@@ -172,7 +172,7 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 - [x] **Step 5** — 일정 + 최종 확인
 - [x] 로컬스토리지 임시 저장 (새로고침 복구)
 - [x] 제출 → `quote_requests` INSERT
-- [ ] `request_files` INSERT ← W4 파일 업로드 연동 후
+- [x] `request_files` INSERT (`src/app/actions/quote-request.ts` 구현 완료)
 - [x] 관리자 알림 생성 (notifications INSERT)
 - [x] 제출 완료 페이지
 
@@ -394,6 +394,7 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 ## W8 — 통합 테스트 + 배포
 
 **완료 기준**: E2E 테스트 통과, 천일쇼파 입점, 첫 테스트 견적 1건 처리
+**진행 중**: 2026-06-04~
 
 ### 기능 테스트
 
@@ -407,18 +408,18 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 
 ### 보안 점검
 
-- [ ] RLS: 타인 데이터 조회 불가 (역할별 테스트)
-- [ ] `/admin` 인증 없이 접근 불가
-- [ ] `NEXT_PUBLIC_` 환경변수에 `SERVICE_ROLE_KEY` 없음
-- [ ] `.env.local` Git에 커밋 안 됨
-- [ ] 파일 업로드 확장자·크기 제한 동작
-- [ ] `factory-biz-docs` 버킷 admin 외 접근 불가
+- [ ] RLS: 타인 데이터 조회 불가 (역할별 브라우저 테스트 필요)
+- [x] `/admin` 인증 없이 접근 불가 (layout.tsx 서버사이드 role 체크 + redirect)
+- [x] `NEXT_PUBLIC_` 환경변수에 `SERVICE_ROLE_KEY` 없음 (`SUPABASE_SERVICE_ROLE_KEY` — `NEXT_PUBLIC_` 미사용 확인)
+- [x] `.env.local` Git에 커밋 안 됨 (`.gitignore`의 `.env*` 패턴으로 차단)
+- [ ] 파일 업로드 확장자·크기 제한 동작 (브라우저 테스트 필요)
+- [ ] `factory-biz-docs` 버킷 admin 외 접근 불가 (Supabase 대시보드 확인 필요)
 
 ### 법무 페이지
 
-- [ ] `/terms` 이용약관 게시 (초안)
-- [ ] `/privacy` 개인정보처리방침 게시 (법적 의무)
-- [ ] 회원가입 시 동의 체크박스 연동
+- [x] `/terms` 이용약관 게시 (`src/app/terms/page.tsx`)
+- [x] `/privacy` 개인정보처리방침 게시 (`src/app/privacy/page.tsx`)
+- [x] 회원가입 시 동의 체크박스 연동 (`/onboarding` — 체크 전 역할 선택 비활성화)
 
 ### 천일쇼파 입점
 
@@ -428,10 +429,10 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 
 ### 배포 최종
 
-- [ ] Vercel 프로덕션 빌드 에러 없음
+- [x] Vercel 프로덕션 빌드 에러 없음 (로컬 `npm run build` 통과)
 - [ ] 소셜 로그인 운영 URL 콜백 등록 (카카오·네이버)
-- [ ] 404·500 에러 페이지
-- [ ] 기본 OG 이미지 설정
+- [x] 404·500 에러 페이지 (`src/app/not-found.tsx`, `src/app/error.tsx`)
+- [x] 기본 OG 이미지 설정 (`src/app/opengraph-image.tsx` — edge runtime, 동적 생성)
 
 ---
 

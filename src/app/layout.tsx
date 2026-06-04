@@ -14,6 +14,7 @@ const notoSansKR = Noto_Sans_KR({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://sofit.vercel.app'),
   title: {
     default: '소핏 (SOFIT)',
     template: '%s | 소핏',
@@ -25,6 +26,13 @@ export const metadata: Metadata = {
     description: '쇼파·빌트인 발주, 이제 소핏으로 한 번에.',
     locale: 'ko_KR',
     type: 'website',
+    url: 'https://sofit.vercel.app',
+    siteName: '소핏',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '소핏 (SOFIT)',
+    description: '쇼파·빌트인 발주, 이제 소핏으로 한 번에. 검증된 공장 매칭 플랫폼.',
   },
 }
 
