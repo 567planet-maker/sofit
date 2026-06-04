@@ -82,6 +82,21 @@ export async function acceptMatch(
     .eq('id', matchId)
   if (error) return { error: `수락 처리 실패: ${error.message}` }
 
+  // customer_factory 채팅방 자동 생성 (중복 방지)
+  const { data: existingRoom } = await supabase
+    .from('chat_rooms')
+    .select('id')
+    .eq('match_id', matchId)
+    .eq('type', 'customer_factory')
+    .maybeSingle()
+  if (!existingRoom) {
+    await supabase.from('chat_rooms').insert({
+      request_id: match.request_id,
+      match_id: matchId,
+      type: 'customer_factory',
+    })
+  }
+
   // 관리자 알림
   const { data: admins } = await supabase
     .from('users')
@@ -101,6 +116,7 @@ export async function acceptMatch(
 
   revalidatePath(`/factory/requests/${match.request_id}`)
   revalidatePath('/factory/requests')
+  revalidatePath('/admin/chats')
   return {}
 }
 

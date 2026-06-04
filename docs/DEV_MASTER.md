@@ -332,20 +332,21 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
 
 ---
 
-## W7 — 채팅 + 알림
+## W7 — 채팅 + 알림 ✅
 
 **완료 기준**: 실시간 채팅 동작, 새 메시지 시 알림 뱃지 업데이트
+**완료일**: 2026-06-04
 
 ### 채팅 시스템 (Supabase Realtime)
 
-- [ ] `ChatRoom` 공통 컴포넌트
-  - [ ] 메시지 리스트 (무한 스크롤 또는 페이지네이션)
-  - [ ] 새 메시지 자동 스크롤
-  - [ ] 메시지 입력창 + 전송
-  - [ ] 파일 첨부 (이미지·PDF → `chat-attachments`)
-  - [ ] 읽음 처리 (`read_at` UPDATE)
-  - [ ] 읽기 전용 모드 (admin이 customer_factory 방 모니터링 시)
-- [ ] Supabase Realtime 구독
+- [x] `ChatRoom` 공통 컴포넌트 (`src/components/chat/ChatRoom.tsx`)
+  - [x] 메시지 리스트 (초기 로드 후 Realtime 신규 메시지 append)
+  - [x] 새 메시지 자동 스크롤
+  - [x] 메시지 입력창 + 전송 (Ctrl+Enter 단축키)
+  - [x] 파일 첨부 (이미지·PDF → `chat-attachments`)
+  - [x] 읽음 처리 (`read_at` UPDATE)
+  - [x] 읽기 전용 모드 (admin이 customer_factory 방 모니터링 시)
+- [x] Supabase Realtime 구독
   ```typescript
   supabase.channel(`room:${roomId}`)
     .on('postgres_changes', {
@@ -355,30 +356,38 @@ W8  통합 테스트 + 천일쇼파 입점 + 배포
     }, handler)
     .subscribe()
   ```
-- [ ] **고객 채팅** (`/customer/chat/[roomId]`) — customer_sofit + customer_factory 모두 표시
-- [ ] **공장 채팅** (`/factory/chat/[roomId]`) — 매칭 확정 후 고객과 직접 채팅
-- [ ] **관리자 통합 뷰** (`/admin/chats/[roomId]`)
-  - [ ] customer_sofit: 양방향 소통
-  - [ ] customer_factory: 읽기 전용 모니터링
-- [ ] 견적 요청 제출 시 `customer_sofit` 채팅방 자동 생성
-- [ ] 매칭 확정 시 `customer_factory` 채팅방 자동 생성 (고객↔공장 직접 채팅)
+- [x] **고객 채팅** (`/customer/chat/[roomId]`) — customer_sofit + customer_factory 모두 표시
+- [x] **공장 채팅** (`/factory/chat/[roomId]`) — 매칭 확정 후 고객과 직접 채팅
+- [x] **관리자 통합 뷰** (`/admin/chats/[roomId]`) — W6에서 구현 완료
+  - [x] customer_sofit: 양방향 소통
+  - [x] customer_factory: 읽기 전용 모니터링
+- [x] 견적 요청 제출 시 `customer_sofit` 채팅방 자동 생성
+- [x] 매칭 확정 시 `customer_factory` 채팅방 자동 생성 (고객↔공장 직접 채팅)
 
 ### 웹 내 알림 시스템
 
-- [ ] `src/lib/notifications.ts` — 알림 생성 함수
-- [ ] 알림 트리거 연결 (이벤트 발생 지점마다)
-  - [ ] 견적 요청 제출 → 관리자
-  - [ ] 공장 매칭 → 공장
-  - [ ] 공장 수락/거절 → 관리자
-  - [ ] 견적서 제출 → 고객 (직접)
-  - [ ] 새 채팅 메시지 → 상대방
-  - [ ] 상태 변경 → 해당 사용자
-  - [ ] 공장 승인/반려 → 공장
-- [ ] `NotificationBell` 컴포넌트
-  - [ ] 읽지 않은 알림 카운트 (Realtime 구독)
-  - [ ] 드롭다운 (최근 10개)
-  - [ ] 클릭 → 페이지 이동 + `read_at` UPDATE
-- [ ] 알림 전체 목록 (`/notifications`)
+- [x] `src/lib/notifications.ts` — 알림 생성 함수 (W2에서 구현, W7에서 확장)
+- [x] 알림 트리거 연결 (이벤트 발생 지점마다)
+  - [x] 견적 요청 제출 → 관리자
+  - [x] 공장 매칭 → 공장
+  - [x] 공장 수락/거절 → 관리자
+  - [x] 견적서 제출 → 고객 (직접)
+  - [x] 새 채팅 메시지 → 상대방 (`src/app/actions/chat.ts`)
+  - [x] 상태 변경 → 해당 사용자
+  - [x] 공장 승인/반려 → 공장
+- [x] `NotificationBell` 컴포넌트 (`src/components/notifications/NotificationBell.tsx`)
+  - [x] 읽지 않은 알림 카운트 (Realtime 구독)
+  - [x] 드롭다운 (최근 10개)
+  - [x] 클릭 → 페이지 이동 + `read_at` UPDATE
+- [x] 알림 전체 목록 (`/notifications`)
+
+### DB·스토리지 추가 (migration 003_w7_chat.sql)
+
+- [x] `chat_rooms` SELECT 정책 수정 (공장이 customer_factory 방 조회 가능)
+- [x] `chat_rooms` INSERT 정책 추가 (고객 customer_sofit, 공장 customer_factory)
+- [x] `chat_messages` INSERT 보안 강화 (방 참여자 여부 확인)
+- [x] `chat_messages` UPDATE 정책 추가 (읽음 처리)
+- [ ] `chat-attachments` 버킷 생성 (Supabase 대시보드 수동) + Storage 정책 적용
 
 ---
 

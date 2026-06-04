@@ -106,6 +106,13 @@ export async function submitQuoteRequest(
     )
   }
 
+  // customer_sofit 채팅방 자동 생성
+  await supabase.from('chat_rooms').insert({
+    request_id: request.id,
+    match_id: null,
+    type: 'customer_sofit',
+  })
+
   // Admin 알림 생성
   const { data: admins } = await supabase
     .from('users')

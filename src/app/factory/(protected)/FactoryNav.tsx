@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { href: '/factory/requests', label: '매칭 요청' },
   { href: '/factory/portfolios', label: '포트폴리오' },
   { href: '/factory/projects', label: '진행 프로젝트' },
+  { href: '/factory/chat', label: '채팅' },
 ]
 
 export default function FactoryNav() {
