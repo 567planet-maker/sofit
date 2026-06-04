@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import type { RequestFile } from '@/types'
 import MatchActions from './MatchActions'
+import JoinActions from './JoinActions'
 import QuoteForm from './QuoteForm'
 
 function Row({ label, value }: { label: string; value: string | number | boolean | null }) {
@@ -41,14 +42,13 @@ export default async function FactoryRequestDetailPage({
     .single()
   if (!factory) notFound()
 
-  // 매칭 확인
+  // 매칭 확인 (없어도 진행 가능 — 신규 요청 조회 후 참여 가능)
   const { data: match } = await supabase
     .from('matches')
     .select('id, status, note')
     .eq('factory_id', factory.id)
     .eq('request_id', requestId)
-    .single()
-  if (!match) notFound()
+    .maybeSingle()
 
   // 견적 요청 상세 (파일 포함)
   const { data: req } = await supabase
@@ -58,35 +58,39 @@ export default async function FactoryRequestDetailPage({
     .single()
   if (!req) notFound()
 
-  // draft 우선 조회, 없으면 최신 submitted 조회
+  // 매칭이 있을 때만 견적서·채팅방 조회
   const QUOTE_FIELDS =
     'material_cost, labor_cost, delivery_cost, install_cost, demolition_cost, extra_cost, margin, delivery_days, note, status, version'
 
-  const { data: draftQuote } = await supabase
-    .from('factory_quotes')
-    .select(QUOTE_FIELDS)
-    .eq('match_id', match.id)
-    .eq('status', 'draft')
-    .maybeSingle()
+  const { data: draftQuote } = match
+    ? await supabase
+        .from('factory_quotes')
+        .select(QUOTE_FIELDS)
+        .eq('match_id', match.id)
+        .eq('status', 'draft')
+        .maybeSingle()
+    : { data: null }
 
-  const { data: submittedQuote } = await supabase
-    .from('factory_quotes')
-    .select(QUOTE_FIELDS)
-    .eq('match_id', match.id)
-    .eq('is_latest', true)
-    .eq('status', 'submitted')
-    .maybeSingle()
+  const { data: submittedQuote } = match
+    ? await supabase
+        .from('factory_quotes')
+        .select(QUOTE_FIELDS)
+        .eq('match_id', match.id)
+        .eq('is_latest', true)
+        .eq('status', 'submitted')
+        .maybeSingle()
+    : { data: null }
 
-  // draft가 있으면 draft를 폼에 전달 (편집 이어서), 없으면 submitted
   const existingQuote = draftQuote ?? submittedQuote
 
-  // customer_factory 채팅방 조회
-  const { data: chatRoom } = await supabase
-    .from('chat_rooms')
-    .select('id')
-    .eq('match_id', match.id)
-    .eq('type', 'customer_factory')
-    .maybeSingle()
+  const { data: chatRoom } = match
+    ? await supabase
+        .from('chat_rooms')
+        .select('id')
+        .eq('match_id', match.id)
+        .eq('type', 'customer_factory')
+        .maybeSingle()
+    : { data: null }
 
   // 파일 서명 URL 생성
   const files: (RequestFile & { signedUrl: string | null })[] = await Promise.all(
@@ -116,12 +120,20 @@ export default async function FactoryRequestDetailPage({
         </div>
       </div>
 
-      {/* 수락/거절 액션 */}
+      {/* 매칭 액션 */}
       <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-        <h2 className="mb-4 font-semibold text-gray-800">매칭 처리</h2>
-        <MatchActions matchId={match.id} matchStatus={match.status} />
-        {match.note && match.status === 'rejected' && (
-          <p className="mt-3 text-sm text-gray-500">거절 사유: {match.note}</p>
+        <h2 className="mb-4 font-semibold text-gray-800">
+          {match ? '매칭 상태' : '신규 견적 요청'}
+        </h2>
+        {match ? (
+          <>
+            <MatchActions matchId={match.id} matchStatus={match.status} />
+            {match.note && match.status === 'rejected' && (
+              <p className="mt-3 text-sm text-gray-500">거절 사유: {match.note}</p>
+            )}
+          </>
+        ) : (
+          <JoinActions requestId={requestId} />
         )}
       </section>
 
@@ -283,8 +295,8 @@ export default async function FactoryRequestDetailPage({
         </div>
       </section>
 
-      {/* ── 공장 견적서 작성/수정 (수락 후에만 표시) ──────────────── */}
-      {match.status === 'confirmed' && (
+      {/* ── 공장 견적서 작성/수정 (참여 후에만 표시) ──────────────── */}
+      {match?.status === 'confirmed' && (
         <section className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-semibold text-gray-800">공장 견적서</h2>

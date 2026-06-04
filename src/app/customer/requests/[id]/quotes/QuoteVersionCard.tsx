@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useTransition } from 'react'
 import Link from 'next/link'
+import { acceptFactoryQuote } from '@/app/actions/quote-request'
 
 export type QuoteVersion = {
   id: string
@@ -32,6 +33,9 @@ type Props = {
   factory: FactoryInfo
   quotes: QuoteVersion[] // version 내림차순 정렬 (index 0 = 최신)
   isLowest: boolean
+  requestId: string
+  matchId: string
+  canAccept: boolean
 }
 
 const COST_FIELDS: { key: keyof Omit<QuoteVersion, 'id' | 'version' | 'is_latest' | 'total_cost' | 'delivery_days' | 'note' | 'status' | 'created_at'>; label: string }[] = [
@@ -55,20 +59,44 @@ function DiffCell({ diff }: { diff: number }) {
   return <span className="font-medium text-green-600">{formatKrw(diff)}원 ↓</span>
 }
 
-export default function QuoteVersionCard({ factory, quotes, isLowest }: Props) {
+export default function QuoteVersionCard({ factory, quotes, isLowest, requestId, matchId, canAccept }: Props) {
   const [showDiff, setShowDiff] = useState(false)
+  const [confirming, setConfirming] = useState(false)
+  const [isPending, startTransition] = useTransition()
+  const [acceptError, setAcceptError] = useState<string | null>(null)
 
   const latest = quotes[0]
   const previous = quotes[1] ?? null
   const hasHistory = previous !== null
+  const isAccepted = latest.status === 'accepted'
+
+  const handleAccept = () => {
+    setAcceptError(null)
+    startTransition(async () => {
+      const result = await acceptFactoryQuote(requestId, matchId)
+      if (result.error) {
+        setAcceptError(result.error)
+        setConfirming(false)
+      }
+    })
+  }
 
   return (
     <div
       className={`rounded-2xl border bg-white p-5 shadow-sm ${
-        isLowest ? 'border-indigo-200 ring-1 ring-indigo-200' : 'border-gray-100'
+        isAccepted
+          ? 'border-indigo-400 ring-2 ring-indigo-300'
+          : isLowest
+          ? 'border-indigo-200 ring-1 ring-indigo-200'
+          : 'border-gray-100'
       }`}
     >
-      {isLowest && (
+      {isAccepted && (
+        <span className="mb-3 inline-block rounded-full bg-indigo-600 px-2.5 py-0.5 text-xs font-medium text-white">
+          계약 확정
+        </span>
+      )}
+      {!isAccepted && isLowest && (
         <span className="mb-3 inline-block rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
           최저가
         </span>
@@ -215,6 +243,51 @@ export default function QuoteVersionCard({ factory, quotes, isLowest }: Props) {
       <p className="mt-3 text-xs text-gray-400">
         {new Date(latest.created_at).toLocaleDateString('ko-KR')} 제출
       </p>
+
+      {/* 수락 UI */}
+      {isAccepted ? (
+        <div className="mt-4 rounded-xl bg-indigo-50 px-4 py-3 text-center text-sm font-medium text-indigo-700">
+          이 견적서로 계약이 확정되었습니다
+        </div>
+      ) : canAccept ? (
+        confirming ? (
+          <div className="mt-4 space-y-3 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
+            <p className="text-sm text-gray-700">
+              <span className="font-semibold">{factory.company_name}</span>의 견적서로
+              계약을 확정하시겠습니까?
+            </p>
+            <p className="text-xs text-gray-500">
+              확정 후에는 취소하기 어렵습니다. 소핏 담당자가 이후 진행을 안내드립니다.
+            </p>
+            {acceptError && (
+              <p className="text-xs text-red-500">{acceptError}</p>
+            )}
+            <div className="flex gap-2">
+              <button
+                onClick={handleAccept}
+                disabled={isPending}
+                className="flex-1 rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {isPending ? '처리 중...' : '네, 계약 확정'}
+              </button>
+              <button
+                onClick={() => { setConfirming(false); setAcceptError(null) }}
+                disabled={isPending}
+                className="flex-1 rounded-xl border border-gray-200 bg-white py-2.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setConfirming(true)}
+            className="mt-4 w-full rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white hover:bg-indigo-700"
+          >
+            이 견적서로 계약하기
+          </button>
+        )
+      ) : null}
     </div>
   )
 }

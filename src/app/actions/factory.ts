@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 type SBClient = Awaited<ReturnType<typeof createClient>>
 
@@ -177,6 +177,95 @@ export async function rejectMatch(
 }
 
 // ─────────────────────────────────────────────────────────────
+// 공장 자율 참여 — 고객 요청서에 직접 매칭 참여
+// ─────────────────────────────────────────────────────────────
+
+export async function joinRequest(
+  requestId: string,
+): Promise<{ error?: string }> {
+  const { supabase, factory, user } = await getAuthFactory()
+
+  // 공장 활성 상태 확인
+  const { data: fullFactory } = await supabase
+    .from('factories')
+    .select('id, company_name, status')
+    .eq('id', factory.id)
+    .single()
+  if (fullFactory?.status !== 'active') return { error: '활성 공장만 참여할 수 있습니다.' }
+
+  // 요청서 존재·참여 가능 여부 확인
+  const { data: request } = await supabase
+    .from('quote_requests')
+    .select('id, status, customer_id')
+    .eq('id', requestId)
+    .single()
+  if (!request) return { error: '견적 요청을 찾을 수 없습니다.' }
+  if (['contracted', 'in_progress', 'completed'].includes(request.status)) {
+    return { error: '이미 완료된 요청입니다.' }
+  }
+
+  // 중복 참여 방지
+  const { data: existing } = await supabase
+    .from('matches')
+    .select('id')
+    .eq('request_id', requestId)
+    .eq('factory_id', factory.id)
+    .maybeSingle()
+  if (existing) return { error: '이미 참여한 요청입니다.' }
+
+  const db = createServiceClient()
+
+  // 매칭 레코드 생성 (바로 confirmed)
+  const { data: newMatch, error: matchError } = await db
+    .from('matches')
+    .insert({ request_id: requestId, factory_id: factory.id, status: 'confirmed' })
+    .select('id')
+    .single()
+  if (matchError) return { error: '참여 처리 실패' }
+
+  // 고객↔공장 채팅방 즉시 개설
+  await db.from('chat_rooms').insert({
+    request_id: requestId,
+    match_id: newMatch.id,
+    type: 'customer_factory',
+  })
+
+  // 요청서 상태를 submitted → matching으로 자동 전환
+  await db
+    .from('quote_requests')
+    .update({ status: 'matching' })
+    .eq('id', requestId)
+    .eq('status', 'submitted')
+
+  // 고객 알림
+  const { data: customerUser } = await db
+    .from('customers')
+    .select('user_id')
+    .eq('id', request.customer_id)
+    .single()
+
+  if (customerUser) {
+    const { data: reqInfo } = await db
+      .from('quote_requests')
+      .select('site_name')
+      .eq('id', requestId)
+      .single()
+
+    await db.from('notifications').insert({
+      user_id: customerUser.user_id,
+      type: 'new_match',
+      title: `${factory.company_name}이(가) 견적에 참여했습니다`,
+      body: reqInfo?.site_name ?? '',
+      link: `/customer/requests/${requestId}`,
+    })
+  }
+
+  revalidatePath(`/factory/requests/${requestId}`)
+  revalidatePath('/factory/requests')
+  return {}
+}
+
+// ─────────────────────────────────────────────────────────────
 // 견적서 타입
 // ─────────────────────────────────────────────────────────────
 
@@ -295,8 +384,9 @@ export async function submitFactoryQuote(
     })
   if (insertError) return { error: `견적서 제출 실패: ${insertError.message}` }
 
-  // 5. quote_request 상태 업데이트
-  await supabase
+  // 5. quote_request 상태 업데이트 (service client로 RLS 우회 — 위에서 공장 권한 검증 완료)
+  const db = createServiceClient()
+  await db
     .from('quote_requests')
     .update({ status: 'quote_arrived' })
     .eq('id', match.request_id)
@@ -306,21 +396,21 @@ export async function submitFactoryQuote(
   await sendQuoteRevisionChatMessage(supabase, matchId, user.id, nextVersion)
 
   // 7. 고객 알림
-  const { data: reqRow } = await supabase
+  const { data: reqRow } = await db
     .from('quote_requests')
     .select('customer_id, site_name')
     .eq('id', match.request_id)
     .single()
 
   if (reqRow) {
-    const { data: customerUser } = await supabase
+    const { data: customerUser } = await db
       .from('customers')
       .select('user_id')
       .eq('id', reqRow.customer_id)
       .single()
 
     if (customerUser) {
-      await supabase.from('notifications').insert({
+      await db.from('notifications').insert({
         user_id: customerUser.user_id,
         type: 'quote_arrived',
         title: nextVersion === 1 ? '견적서가 도착했습니다' : `수정 견적서(v${nextVersion})가 도착했습니다`,

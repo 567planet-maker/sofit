@@ -171,12 +171,16 @@ export default async function CustomerRequestDetailPage({
 
       {/* 견적서 보기 / 채팅 버튼 */}
       <div className="flex gap-3">
-        {(req.status === 'quote_arrived' || req.status === 'negotiating') && (
+        {!['submitted', 'reviewing'].includes(req.status) && (
           <Link
             href={`/customer/requests/${id}/quotes`}
-            className="rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700"
+            className={`rounded-xl px-5 py-2.5 text-sm font-medium ${
+              req.status === 'quote_arrived'
+                ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                : 'border border-indigo-200 text-indigo-600 hover:bg-indigo-50'
+            }`}
           >
-            견적서 확인
+            {req.status === 'contracted' ? '계약 견적서 보기' : '견적서 확인'}
           </Link>
         )}
         {chatRoom && (

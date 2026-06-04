@@ -11,9 +11,10 @@ function formatTime(iso: string) {
   })
 }
 
-const ROOM_TYPE_LABEL: Record<string, string> = {
-  customer_sofit: '소핏 상담',
-  customer_factory: '공장 직접 채팅',
+function getRoomLabel(type: string, factoryName?: string) {
+  if (type === 'customer_sofit') return '소핏 상담'
+  if (type === 'customer_factory') return factoryName ? `${factoryName} 채팅` : '공장 직접 채팅'
+  return type
 }
 
 export default async function CustomerChatListPage() {
@@ -58,7 +59,7 @@ export default async function CustomerChatListPage() {
   // 채팅방 목록 (customer_sofit + customer_factory)
   const { data: rooms } = await supabase
     .from('chat_rooms')
-    .select('id, type, request_id, created_at')
+    .select('id, type, request_id, match_id, created_at')
     .in('request_id', requestIds)
     .in('type', ['customer_sofit', 'customer_factory'])
     .order('created_at', { ascending: false })
@@ -70,6 +71,23 @@ export default async function CustomerChatListPage() {
         <p className="mt-1 text-sm text-gray-400">견적 요청을 제출하면 상담 채팅방이 열립니다.</p>
       </div>
     )
+  }
+
+  // customer_factory 방의 공장명 조회
+  const factoryMatchIds = rooms
+    .filter((r) => r.type === 'customer_factory' && r.match_id)
+    .map((r) => r.match_id as string)
+
+  const factoryNameByMatchId: Record<string, string> = {}
+  if (factoryMatchIds.length > 0) {
+    const { data: matchFactories } = await supabase
+      .from('matches')
+      .select('id, factories(company_name)')
+      .in('id', factoryMatchIds)
+    for (const m of matchFactories ?? []) {
+      const factoryRow = m.factories as unknown as { company_name: string } | null
+      if (factoryRow?.company_name) factoryNameByMatchId[m.id] = factoryRow.company_name
+    }
   }
 
   // 각 채팅방의 마지막 메시지 및 미읽음 카운트
@@ -100,6 +118,7 @@ export default async function CustomerChatListPage() {
           const lastMsg = lastMsgByRoom[room.id]
           const unread = unreadByRoom[room.id] ?? 0
 
+          const factoryName = room.match_id ? factoryNameByMatchId[room.match_id] : undefined
           return (
             <Link
               key={room.id}
@@ -114,7 +133,7 @@ export default async function CustomerChatListPage() {
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <p className="truncate text-sm font-semibold text-gray-900">
-                    {ROOM_TYPE_LABEL[room.type]}
+                    {getRoomLabel(room.type, factoryName)}
                   </p>
                   <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
                     {req?.site_name ?? ''}

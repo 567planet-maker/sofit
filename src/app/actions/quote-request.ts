@@ -1,7 +1,8 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 export type RequestFileInput = {
   bucket: string
@@ -132,4 +133,98 @@ export async function submitQuoteRequest(
   }
 
   redirect(`/customer/request/submitted?id=${request.id}`)
+}
+
+// ─────────────────────────────────────────────────────────────
+// 고객이 특정 공장의 견적서를 수락 → quote_requests.status = 'contracted'
+// ─────────────────────────────────────────────────────────────
+export async function acceptFactoryQuote(
+  requestId: string,
+  matchId: string,
+): Promise<{ error?: string }> {
+  // 인증 검증은 user 클라이언트로
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: '인증 오류' }
+
+  const { data: customer } = await supabase
+    .from('customers')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+  if (!customer) return { error: '고객 정보를 찾을 수 없습니다.' }
+
+  // 소유권 확인
+  const { data: request } = await supabase
+    .from('quote_requests')
+    .select('id, status')
+    .eq('id', requestId)
+    .eq('customer_id', customer.id)
+    .single()
+  if (!request) return { error: '견적 요청을 찾을 수 없습니다.' }
+  if (request.status === 'contracted') return { error: '이미 계약이 완료된 요청입니다.' }
+
+  // 매칭이 이 요청 소속인지 확인
+  const { data: match } = await supabase
+    .from('matches')
+    .select('id, status, factory_id')
+    .eq('id', matchId)
+    .eq('request_id', requestId)
+    .single()
+  if (!match) return { error: '매칭 정보를 찾을 수 없습니다.' }
+  if (match.status !== 'confirmed') return { error: '수락된 매칭이 아닙니다.' }
+
+  // DB 쓰기는 service client로 (RLS 우회 — 위에서 권한 검증 완료)
+  const db = createServiceClient()
+
+  const { error: quoteError } = await db
+    .from('factory_quotes')
+    .update({ status: 'accepted' })
+    .eq('match_id', matchId)
+    .eq('is_latest', true)
+    .eq('status', 'submitted')
+  if (quoteError) return { error: '견적서 수락 처리 실패' }
+
+  const { error: reqError } = await db
+    .from('quote_requests')
+    .update({ status: 'contracted' })
+    .eq('id', requestId)
+  if (reqError) return { error: '상태 업데이트 실패' }
+
+  await db.from('status_logs').insert({
+    request_id: requestId,
+    from_status: request.status,
+    to_status: 'contracted',
+    changed_by: user.id,
+    note: '고객이 견적서를 최종 수락했습니다',
+  })
+
+  const { data: factoryUser } = await db
+    .from('factories')
+    .select('user_id')
+    .eq('id', match.factory_id)
+    .single()
+
+  if (factoryUser) {
+    const { data: reqInfo } = await db
+      .from('quote_requests')
+      .select('site_name')
+      .eq('id', requestId)
+      .single()
+
+    await db.from('notifications').insert({
+      user_id: factoryUser.user_id,
+      type: 'status_changed',
+      title: '견적서가 수락되었습니다',
+      body: `${reqInfo?.site_name ?? ''} — 고객이 최종 계약을 확정했습니다`,
+      link: `/factory/requests/${requestId}`,
+    })
+  }
+
+  revalidatePath(`/customer/requests/${requestId}/quotes`)
+  revalidatePath(`/customer/requests/${requestId}`)
+  revalidatePath('/customer/requests')
+  return {}
 }

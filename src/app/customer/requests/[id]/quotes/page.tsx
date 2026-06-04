@@ -46,7 +46,7 @@ export default async function CustomerQuotesPage({
     .single()
   if (!request) notFound()
 
-  // 모든 버전(submitted + superseded) 조회 — version 내림차순
+  // submitted + superseded + accepted 모두 조회 — version 내림차순
   const { data: allQuotes } = await supabase
     .from('factory_quotes')
     .select(
@@ -62,7 +62,7 @@ export default async function CustomerQuotesPage({
     `,
     )
     .eq('matches.request_id', requestId)
-    .in('status', ['submitted', 'superseded'])
+    .in('status', ['submitted', 'superseded', 'accepted'])
     .order('version', { ascending: false })
 
   const typedQuotes = (allQuotes ?? []) as unknown as QuoteRow[]
@@ -87,6 +87,9 @@ export default async function CustomerQuotesPage({
     (a, b) => (a.quotes[0]?.total_cost ?? 0) - (b.quotes[0]?.total_cost ?? 0),
   )
 
+  // 수락 가능 여부: 아직 계약 전이고 submitted 상태의 견적이 있을 때
+  const canAccept = ['quote_arrived', 'negotiating', 'matching'].includes(request.status)
+
   return (
     <div className="mx-auto max-w-3xl px-4 py-10">
       <Link
@@ -96,6 +99,12 @@ export default async function CustomerQuotesPage({
         ← {request.site_name}
       </Link>
       <h1 className="mb-6 text-xl font-bold text-gray-900">공장 견적서</h1>
+
+      {request.status === 'contracted' && (
+        <div className="mb-4 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+          계약이 확정되었습니다. 소핏 담당자가 이후 진행을 안내드립니다.
+        </div>
+      )}
 
       {factoryGroups.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-gray-200 py-16 text-center">
@@ -109,15 +118,20 @@ export default async function CustomerQuotesPage({
               key={group.matchId}
               factory={group.factory}
               quotes={group.quotes}
-              isLowest={idx === 0}
+              isLowest={idx === 0 && group.quotes[0]?.status !== 'accepted'}
+              requestId={requestId}
+              matchId={group.matchId}
+              canAccept={canAccept}
             />
           ))}
         </div>
       )}
 
-      <p className="mt-6 text-center text-xs text-gray-400">
-        견적서 선택 및 계약 진행은 소핏 담당자가 안내드립니다.
-      </p>
+      {canAccept && factoryGroups.length > 0 && (
+        <p className="mt-6 text-center text-xs text-gray-400">
+          원하는 공장의 견적서에서 &quot;이 견적서로 계약하기&quot;를 누르시면 계약이 확정됩니다.
+        </p>
+      )}
     </div>
   )
 }
