@@ -63,7 +63,7 @@ function PainPointItem({
         />
       )}
       <div>
-        <p className="whitespace-pre-line text-3xl font-bold leading-tight text-white sm:text-4xl lg:text-[2.75rem]">
+        <p className="whitespace-pre-line text-3xl font-semibold leading-tight text-white sm:text-4xl lg:text-[2.75rem]">
           {title}
         </p>
         <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-white/60 sm:text-lg">

@@ -1,0 +1,25 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inline banner</title>
+<style>
+:root{--ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;--canvas:#F6F8FB;--surface:#FFFFFF;--border:#E3E8EE;--accent:#5469D4;--accent-tint:#EDEFFB;--success:#1A7F64;--success-tint:#E6F4EF;--warning:#9A6700;--warning-tint:#FBF3E0;--danger:#C0123C;--danger-tint:#FCE8EC;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:0 0 16px}
+.stack{max-width:540px;display:flex;flex-direction:column;gap:12px}
+.bn{display:flex;gap:12px;padding:14px 16px;border-radius:11px;border:1px solid}
+.ic{width:24px;height:24px;border-radius:7px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.tt{font-size:14px;font-weight:700}
+.ds{font-size:13px;margin-top:3px;line-height:1.45}
+.act{margin-top:9px;font-size:13px;font-weight:700;text-decoration:none}
+.warn{background:var(--warning-tint);border-color:#F0DCA8}.warn .ic{background:#F4D680;color:#7A5200}.warn .tt{color:var(--warning)}.warn .ds,.warn .act{color:#7A5200}
+.info{background:var(--accent-tint);border-color:#D2D8F7}.info .ic{background:#C3CAF4;color:var(--accent)}.info .tt{color:var(--accent)}.info .ds,.info .act{color:#3E4AA8}
+.ok{background:var(--success-tint);border-color:#BDE3D2}.ok .ic{background:#A8DCC4;color:var(--success)}.ok .tt{color:var(--success)}.ok .ds{color:#16664F}
+</style></head><body>
+<h2>인라인 배너 (승인 대기 / 안내 / 완료)</h2>
+<div class="stack">
+  <div class="bn warn"><div class="ic">!</div><div><div class="tt">승인 대기 중</div><div class="ds">사업자등록증 검토 후 공장 활동이 시작됩니다. 보통 1영업일 이내 처리돼요.</div><a class="act" href="#">서류 다시 제출 →</a></div></div>
+  <div class="bn info"><div class="ic">i</div><div><div class="tt">새 견적서가 도착했습니다</div><div class="ds">천일쇼파가 수정 견적(v2)을 보냈습니다. 이전 버전과 비교해 보세요.</div></div></div>
+  <div class="bn ok"><div class="ic">✓</div><div><div class="tt">계약이 확정되었습니다</div><div class="ds">시공 일정은 채팅으로 공장과 조율해 주세요.</div></div></div>
+</div>
+</body></html>

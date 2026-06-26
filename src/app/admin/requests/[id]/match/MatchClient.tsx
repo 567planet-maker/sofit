@@ -23,10 +23,10 @@ type ExistingMatch = {
 }
 
 const MATCH_STATUS: Record<string, { label: string; className: string }> = {
-  pending: { label: '검토중', className: 'bg-yellow-50 text-yellow-700 border-yellow-200' },
-  confirmed: { label: '수락', className: 'bg-green-50 text-green-700 border-green-200' },
-  rejected: { label: '거절', className: 'bg-red-50 text-red-600 border-red-200' },
-  cancelled: { label: '취소', className: 'bg-gray-100 text-gray-500 border-gray-200' },
+  pending: { label: '검토중', className: 'bg-warning-tint text-warning border-yellow-200' },
+  confirmed: { label: '수락', className: 'bg-success-tint text-success border-green-200' },
+  rejected: { label: '거절', className: 'bg-danger-tint text-danger border-danger/30' },
+  cancelled: { label: '취소', className: 'bg-surface-muted text-ink-muted border-border' },
 }
 
 export default function MatchClient({
@@ -91,13 +91,13 @@ export default function MatchClient({
   return (
     <div className="space-y-8">
       {error && (
-        <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">{error}</p>
+        <p className="rounded-lg bg-danger-tint px-4 py-2 text-sm text-danger">{error}</p>
       )}
 
       {/* 배포된 공장 현황 */}
       {activeMatches.length > 0 && (
         <section>
-          <h2 className="mb-3 font-semibold text-gray-800">배포된 공장 현황</h2>
+          <h2 className="mb-3 font-medium text-ink">배포된 공장 현황</h2>
           <div className="space-y-3">
             {activeMatches.map((m) => {
               const statusInfo = MATCH_STATUS[m.status] ?? MATCH_STATUS.pending
@@ -106,20 +106,20 @@ export default function MatchClient({
               return (
                 <div
                   key={m.id}
-                  className="flex items-center justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+                  className="flex items-center justify-between rounded-card border border-border bg-white p-4 shadow-card"
                 >
                   <div className="min-w-0">
-                    <p className="font-medium text-gray-900">{m.factories?.company_name}</p>
+                    <p className="font-medium text-ink">{m.factories?.company_name}</p>
                     {m.factories?.location && (
-                      <p className="text-xs text-gray-500">{m.factories.location}</p>
+                      <p className="text-xs text-ink-muted">{m.factories.location}</p>
                     )}
                     {m.status === 'rejected' && m.note && (
-                      <p className="mt-1 text-xs text-gray-400">거절 사유: {m.note}</p>
+                      <p className="mt-1 text-xs text-ink-subtle">거절 사유: {m.note}</p>
                     )}
                   </div>
                   <div className="ml-4 flex flex-shrink-0 items-center gap-2">
                     {quote && quote.status === 'submitted' && (
-                      <span className="text-sm font-semibold text-indigo-700">
+                      <span className="text-sm font-medium text-brand">
                         {new Intl.NumberFormat('ko-KR').format(quote.total_cost)}원
                         {quote.delivery_days ? ` · ${quote.delivery_days}일` : ''}
                       </span>
@@ -133,7 +133,7 @@ export default function MatchClient({
                       <button
                         onClick={() => handleCreateChat(m.id)}
                         disabled={isLoading || isPending}
-                        className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-40"
+                        className="rounded-lg bg-brand px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-hover disabled:opacity-40"
                       >
                         {isLoading ? '...' : '채팅방 생성'}
                       </button>
@@ -141,7 +141,7 @@ export default function MatchClient({
                     {m.chatRoomId && (
                       <a
                         href={`/admin/chats/${m.chatRoomId}`}
-                        className="rounded-lg border border-indigo-200 px-3 py-1.5 text-xs text-indigo-600 hover:bg-indigo-50"
+                        className="rounded-lg border border-brand-tint-strong px-3 py-1.5 text-xs text-brand hover:bg-brand-tint"
                       >
                         채팅 보기
                       </a>
@@ -150,7 +150,7 @@ export default function MatchClient({
                       <button
                         onClick={() => handleCancel(m.id)}
                         disabled={isLoading || isPending}
-                        className="rounded-lg border border-red-200 px-3 py-1.5 text-xs text-red-600 hover:bg-red-50 disabled:opacity-40"
+                        className="rounded-lg border border-danger/30 px-3 py-1.5 text-xs text-danger hover:bg-danger-tint disabled:opacity-40"
                       >
                         {isLoading ? '...' : '배포 취소'}
                       </button>
@@ -165,9 +165,9 @@ export default function MatchClient({
 
       {/* 배포 가능한 공장 */}
       <section>
-        <h2 className="mb-3 font-semibold text-gray-800">활성 공장 목록</h2>
+        <h2 className="mb-3 font-medium text-ink">활성 공장 목록</h2>
         {availableFactories.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-gray-200 py-10 text-center text-sm text-gray-400">
+          <p className="rounded-card border border-dashed border-border py-10 text-center text-sm text-ink-subtle">
             배포 가능한 활성 공장이 없습니다.
           </p>
         ) : (
@@ -177,24 +177,24 @@ export default function MatchClient({
               return (
                 <div
                   key={f.id}
-                  className="flex items-start justify-between rounded-2xl border border-gray-100 bg-white p-4 shadow-sm"
+                  className="flex items-start justify-between rounded-card border border-border bg-white p-4 shadow-card"
                 >
                   <div className="min-w-0">
-                    <p className="font-medium text-gray-900">{f.company_name}</p>
+                    <p className="font-medium text-ink">{f.company_name}</p>
                     {f.location && (
-                      <p className="mt-0.5 text-xs text-gray-500">{f.location}</p>
+                      <p className="mt-0.5 text-xs text-ink-muted">{f.location}</p>
                     )}
                     {f.description && (
-                      <p className="mt-1 line-clamp-2 text-xs text-gray-400">{f.description}</p>
+                      <p className="mt-1 line-clamp-2 text-xs text-ink-subtle">{f.description}</p>
                     )}
                     {f.rating_avg > 0 && (
-                      <p className="mt-1 text-xs text-yellow-600">★ {f.rating_avg.toFixed(1)}</p>
+                      <p className="mt-1 text-xs text-warning">★ {f.rating_avg.toFixed(1)}</p>
                     )}
                   </div>
                   <button
                     onClick={() => handleDispatch(f.id)}
                     disabled={isLoading || isPending}
-                    className="ml-3 flex-shrink-0 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-40"
+                    className="ml-3 flex-shrink-0 rounded-card bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-40"
                   >
                     {isLoading ? '배포 중...' : '배포'}
                   </button>

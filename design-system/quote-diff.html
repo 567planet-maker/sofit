@@ -1,0 +1,36 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quote diff</title>
+<style>
+:root{--ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;--canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F7F9FC;--border:#E3E8EE;--accent:#5469D4;--accent-tint:#EDEFFB;--success:#1A7F64;--danger:#C0123C;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:32px}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:0 0 12px}
+.card{max-width:480px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(26,31,54,.06)}
+.hd{padding:15px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700;display:flex;justify-content:space-between}
+.hd .sub{font-size:12px;color:var(--ink-subtle);font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:11px;color:var(--ink-subtle);font-weight:600;text-align:right;padding:9px 20px;background:var(--surface-muted);border-bottom:1px solid var(--border)}
+th:first-child{text-align:left}
+td{padding:10px 20px;border-bottom:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums}
+td:first-child{text-align:left;color:var(--ink-muted)}
+tr:last-child td{border-bottom:none}
+.up{color:var(--danger);font-weight:600;font-size:12px}
+.down{color:var(--success);font-weight:600;font-size:12px}
+.same{color:var(--ink-subtle);font-size:12px}
+.tot td{background:var(--surface-muted);font-weight:800;border-top:1px solid var(--border)}
+</style></head><body>
+<h2>견적 버전 비교 — v1 → v2 항목별 변동</h2>
+<div class="card">
+  <div class="hd"><span>천일쇼파 견적 변경</span><span class="sub">v1 → v2</span></div>
+  <table>
+    <thead><tr><th>항목</th><th>v1</th><th>v2</th><th>변동</th></tr></thead>
+    <tbody>
+      <tr><td>재료비</td><td>6,500,000</td><td>6,800,000</td><td class="up">▲ 300,000</td></tr>
+      <tr><td>인건비</td><td>3,200,000</td><td>3,200,000</td><td class="same">—</td></tr>
+      <tr><td>설치비</td><td>1,500,000</td><td>1,200,000</td><td class="down">▼ 300,000</td></tr>
+      <tr class="tot"><td>총액</td><td>11,900,000</td><td>12,400,000</td><td class="up">▲ 500,000</td></tr>
+    </tbody>
+  </table>
+</div>
+</body></html>

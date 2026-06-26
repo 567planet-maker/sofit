@@ -13,7 +13,7 @@ function LoginForm() {
         placeholder="이메일"
         required
         autoComplete="email"
-        className="rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400"
+        className="rounded-card border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-brand"
       />
       <input
         name="password"
@@ -21,7 +21,7 @@ function LoginForm() {
         placeholder="비밀번호"
         required
         autoComplete="current-password"
-        className="rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400"
+        className="rounded-card border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-brand"
       />
       {state?.error && (
         <p className="text-center text-xs text-red-500">{state.error}</p>
@@ -29,7 +29,7 @@ function LoginForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-xl bg-gray-900 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="rounded-card bg-ink py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? '로그인 중...' : '이메일로 로그인'}
       </button>
@@ -47,7 +47,7 @@ function SignupForm() {
         placeholder="이메일"
         required
         autoComplete="email"
-        className="rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400"
+        className="rounded-card border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-brand"
       />
       <input
         name="password"
@@ -56,7 +56,7 @@ function SignupForm() {
         required
         minLength={8}
         autoComplete="new-password"
-        className="rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none transition-colors focus:border-gray-400"
+        className="rounded-card border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-brand"
       />
       {state?.error && (
         <p className="text-center text-xs text-red-500">{state.error}</p>
@@ -67,7 +67,7 @@ function SignupForm() {
       <button
         type="submit"
         disabled={pending}
-        className="rounded-xl bg-gray-900 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="rounded-card bg-ink py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {pending ? '가입 중...' : '이메일로 회원가입'}
       </button>
@@ -82,21 +82,21 @@ export function EmailAuthForm() {
     <div>
       <div className="relative my-5">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-100" />
+          <div className="w-full border-t border-border" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-white px-3 text-gray-400">또는</span>
+          <span className="bg-white px-3 text-ink-subtle">또는</span>
         </div>
       </div>
 
-      <div className="mb-4 flex rounded-xl bg-gray-100 p-1">
+      <div className="mb-4 flex rounded-card bg-surface-muted p-1">
         <button
           type="button"
           onClick={() => setMode('login')}
           className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
             mode === 'login'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-white text-ink shadow-card'
+              : 'text-ink-muted hover:text-ink'
           }`}
         >
           로그인
@@ -106,8 +106,8 @@ export function EmailAuthForm() {
           onClick={() => setMode('signup')}
           className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
             mode === 'signup'
-              ? 'bg-white text-gray-900 shadow-sm'
-              : 'text-gray-500 hover:text-gray-700'
+              ? 'bg-white text-ink shadow-card'
+              : 'text-ink-muted hover:text-ink'
           }`}
         >
           회원가입

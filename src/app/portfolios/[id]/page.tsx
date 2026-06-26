@@ -99,10 +99,10 @@ export default async function PortfolioDetailPage({
 
               {factory && (
                 <div className="mt-6 rounded-xl bg-gray-50 p-4">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                  <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
                     공장 정보
                   </p>
-                  <p className="mt-1 font-semibold text-gray-900">{factory.company_name}</p>
+                  <p className="mt-1 font-medium text-gray-900">{factory.company_name}</p>
                   {factory.location && (
                     <p className="mt-0.5 text-sm text-gray-500">{factory.location}</p>
                   )}
@@ -115,7 +115,7 @@ export default async function PortfolioDetailPage({
               <div className="mt-6">
                 <Link
                   href="/customer/request"
-                  className="block rounded-xl bg-indigo-600 py-3 text-center font-semibold text-white transition-colors hover:bg-indigo-500"
+                  className="block rounded-xl bg-indigo-600 py-3 text-center font-medium text-white transition-colors hover:bg-indigo-500"
                 >
                   이 공장에 견적 요청하기
                 </Link>

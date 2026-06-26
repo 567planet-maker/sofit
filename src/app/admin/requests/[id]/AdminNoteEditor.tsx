@@ -36,18 +36,18 @@ export default function AdminNoteEditor({
         onChange={(e) => setNote(e.target.value)}
         placeholder="관리자 내부 메모 (고객·공장에게 노출되지 않음)"
         rows={4}
-        className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:border-indigo-400"
+        className="w-full resize-none rounded-card border border-border px-4 py-3 text-sm outline-none focus:border-brand"
       />
       <div className="flex items-center gap-3">
         <button
           onClick={handleSave}
           disabled={isPending}
-          className="rounded-xl bg-gray-700 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 disabled:opacity-40"
+          className="rounded-card bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-ink/90 disabled:opacity-40"
         >
           {isPending ? '저장 중...' : '저장'}
         </button>
-        {saved && <span className="text-sm text-green-600">저장되었습니다.</span>}
-        {error && <span className="text-sm text-red-600">{error}</span>}
+        {saved && <span className="text-sm text-success">저장되었습니다.</span>}
+        {error && <span className="text-sm text-danger">{error}</span>}
       </div>
     </div>
   )

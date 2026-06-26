@@ -52,7 +52,7 @@ export default function FactoryActions({
   return (
     <div className="space-y-3">
       {error && (
-        <p className="rounded-lg bg-red-50 px-4 py-2 text-sm text-red-600">{error}</p>
+        <p className="rounded-lg bg-danger-tint px-4 py-2 text-sm text-danger">{error}</p>
       )}
 
       {/* pending 상태: 승인 / 반려 */}
@@ -63,40 +63,40 @@ export default function FactoryActions({
               <button
                 onClick={handleApprove}
                 disabled={isPending}
-                className="flex-1 rounded-xl bg-green-600 py-3 text-sm font-semibold text-white hover:bg-green-700 disabled:opacity-40"
+                className="flex-1 rounded-card bg-green-600 py-3 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-40"
               >
                 {isPending ? '처리 중...' : '승인'}
               </button>
               <button
                 onClick={() => setShowRejectForm(true)}
                 disabled={isPending}
-                className="flex-1 rounded-xl border border-red-200 py-3 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-40"
+                className="flex-1 rounded-card border border-danger/30 py-3 text-sm font-medium text-danger hover:bg-danger-tint disabled:opacity-40"
               >
                 반려
               </button>
             </div>
           ) : (
-            <div className="space-y-3 rounded-2xl border border-gray-200 bg-gray-50 p-4">
-              <p className="text-sm font-medium text-gray-700">반려 사유 (선택)</p>
+            <div className="space-y-3 rounded-card border border-border bg-surface-muted p-4">
+              <p className="text-sm font-medium text-ink">반려 사유 (선택)</p>
               <textarea
                 value={rejectNote}
                 onChange={(e) => setRejectNote(e.target.value)}
                 placeholder="반려 사유를 입력하면 공장에게 전달됩니다."
                 rows={3}
-                className="w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm outline-none focus:border-gray-400"
+                className="w-full resize-none rounded-card border border-border bg-white px-4 py-3 text-sm outline-none focus:border-brand"
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleReject}
                   disabled={isPending}
-                  className="flex-1 rounded-xl bg-red-500 py-2.5 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-40"
+                  className="flex-1 rounded-card bg-red-500 py-2.5 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-40"
                 >
                   {isPending ? '처리 중...' : '반려 확인'}
                 </button>
                 <button
                   onClick={() => setShowRejectForm(false)}
                   disabled={isPending}
-                  className="flex-1 rounded-xl border border-gray-200 bg-white py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                  className="flex-1 rounded-card border border-border bg-white py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-muted"
                 >
                   취소
                 </button>
@@ -111,7 +111,7 @@ export default function FactoryActions({
         <button
           onClick={handleSuspend}
           disabled={isPending}
-          className="w-full rounded-xl border border-gray-200 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-40"
+          className="w-full rounded-card border border-border py-2.5 text-sm font-medium text-ink-muted hover:bg-surface-muted disabled:opacity-40"
         >
           {isPending ? '처리 중...' : '파트너 정지'}
         </button>
@@ -122,7 +122,7 @@ export default function FactoryActions({
         <button
           onClick={handleActivate}
           disabled={isPending}
-          className="w-full rounded-xl bg-green-600 py-2.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-40"
+          className="w-full rounded-card bg-green-600 py-2.5 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-40"
         >
           {isPending ? '처리 중...' : '재활성화'}
         </button>

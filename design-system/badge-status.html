@@ -1,0 +1,43 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Badge · Status</title>
+<style>
+:root{
+  --ink:#1A1F36;--ink-subtle:#8792A2;--canvas:#F6F8FB;--surface:#FFFFFF;
+  --border:#E3E8EE;--accent:#5469D4;--accent-tint:#EDEFFB;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px;-webkit-font-smoothing:antialiased}
+h1{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-subtle);font-weight:600;margin:0 0 10px}
+p.note{font-size:13px;color:var(--ink-subtle);margin:0 0 24px}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:22px 0 12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.b{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;line-height:1.4}
+</style></head>
+<body>
+<h1>Status Badge</h1>
+<p class="note">견적 진행 상태(quote_requests.status) 매핑 — 절제된 톤, 의미별 색 고정</p>
+
+<h2>견적 진행 흐름</h2>
+<div class="row">
+  <span class="b" style="background:#EEF2FB;color:#3D55B5">접수됨</span>
+  <span class="b" style="background:#FBF3E0;color:#9A6700">검토중</span>
+  <span class="b" style="background:#EDEFFB;color:#5469D4">매칭중</span>
+  <span class="b" style="background:#F3ECFB;color:#7C3FB0">견적 도착</span>
+  <span class="b" style="background:#EAF1FB;color:#3367B5">소통중</span>
+  <span class="b" style="background:#E6F4EF;color:#1A7F64">계약완료</span>
+  <span class="b" style="background:#E6F2F2;color:#127067">시공중</span>
+  <span class="b" style="background:#F0F3F8;color:#697386">완료</span>
+</div>
+
+<h2>Tone (범용)</h2>
+<div class="row">
+  <span class="b" style="background:#F0F3F8;color:#4F566B">neutral</span>
+  <span class="b" style="background:#EDEFFB;color:#5469D4">accent</span>
+  <span class="b" style="background:#E6F4EF;color:#1A7F64">success</span>
+  <span class="b" style="background:#FBF3E0;color:#9A6700">warning</span>
+  <span class="b" style="background:#FCE8EC;color:#C0123C">danger</span>
+</div>
+</body></html>

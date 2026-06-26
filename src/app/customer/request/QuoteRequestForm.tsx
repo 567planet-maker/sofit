@@ -31,7 +31,7 @@ const INITIAL: FormData = {
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="mb-1 block text-sm font-medium text-gray-700">
+    <label className="mb-1 block text-sm font-medium text-ink">
       {children}
       {required && <span className="ml-0.5 text-red-500">*</span>}
     </label>
@@ -53,8 +53,8 @@ function Input({
       <Label required={required}>{label}</Label>
       <input
         {...props}
-        className={`w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition-colors focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 ${
-          error ? 'border-red-400' : 'border-gray-200'
+        className={`w-full rounded-card border px-4 py-2.5 text-sm outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20 ${
+          error ? 'border-red-400' : 'border-border'
         }`}
       />
       {error && <p className="mt-1 text-xs text-red-500">{error}</p>}
@@ -76,7 +76,7 @@ function Select({
       <Label required={required}>{label}</Label>
       <select
         {...props}
-        className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none transition-colors focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100"
+        className="w-full rounded-card border border-border px-4 py-2.5 text-sm outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
       >
         {children}
       </select>
@@ -94,12 +94,12 @@ function Checkbox({
   onChange: (v: boolean) => void
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-700">
+    <label className="flex cursor-pointer items-center gap-2 text-sm text-ink">
       <input
         type="checkbox"
         checked={!!checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+        className="h-4 w-4 rounded border-border-strong text-brand focus:ring-brand"
       />
       {label}
     </label>
@@ -107,7 +107,7 @@ function Checkbox({
 }
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h3 className="mb-4 font-semibold text-gray-900">{children}</h3>
+  return <h3 className="mb-4 font-medium text-ink">{children}</h3>
 }
 
 // ─── 스텝 컴포넌트 ───────────────────────────────────────────
@@ -182,8 +182,8 @@ function Step1({
         placeholder="예) 평일 오전 9시~오후 6시"
       />
 
-      <div className="rounded-xl bg-gray-50 p-4">
-        <p className="mb-3 text-sm font-medium text-gray-600">추가 정보 (선택)</p>
+      <div className="rounded-card bg-surface-muted p-4">
+        <p className="mb-3 text-sm font-medium text-ink-muted">추가 정보 (선택)</p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Input
             label="업종"
@@ -229,7 +229,7 @@ function Step2({
   return (
     <div className="space-y-5">
       <SectionTitle>제품·쇼파 정보 (선택)</SectionTitle>
-      <p className="text-sm text-gray-500">해당 사항이 있는 경우만 입력하세요.</p>
+      <p className="text-sm text-ink-muted">해당 사항이 있는 경우만 입력하세요.</p>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <Select
@@ -338,7 +338,7 @@ function Step3({
   return (
     <div className="space-y-5">
       <SectionTitle>규격 (선택)</SectionTitle>
-      <p className="text-sm text-gray-500">단위: mm. 도면이 있으면 Step 4에서 업로드 가능합니다.</p>
+      <p className="text-sm text-ink-muted">단위: mm. 도면이 있으면 Step 4에서 업로드 가능합니다.</p>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Input
@@ -421,7 +421,7 @@ function Step3({
       </div>
 
       <div>
-        <p className="mb-2 text-sm font-medium text-gray-700">도면 업로드 (선택)</p>
+        <p className="mb-2 text-sm font-medium text-ink">도면 업로드 (선택)</p>
         <FileUploader
           bucket="request-documents"
           fileType="document"
@@ -498,7 +498,7 @@ function Step4({
       </div>
 
       <div>
-        <p className="mb-2 text-sm font-medium text-gray-700">매장·현장 사진 업로드 (권장)</p>
+        <p className="mb-2 text-sm font-medium text-ink">매장·현장 사진 업로드 (권장)</p>
         <FileUploader
           bucket="request-images"
           fileType="image"
@@ -591,9 +591,9 @@ function Step5({
       />
 
       {/* Summary */}
-      <div className="rounded-xl bg-indigo-50 p-4">
-        <p className="mb-3 text-sm font-semibold text-indigo-800">최종 확인</p>
-        <div className="space-y-1.5 text-sm text-indigo-700">
+      <div className="rounded-card bg-brand-tint p-4">
+        <p className="mb-3 text-sm font-medium text-brand">최종 확인</p>
+        <div className="space-y-1.5 text-sm text-brand">
           <p>
             <span className="font-medium">업체명:</span> {data.company_name}
           </p>
@@ -618,7 +618,7 @@ function Step5({
             </p>
           )}
         </div>
-        <p className="mt-3 text-xs text-indigo-500">
+        <p className="mt-3 text-xs text-brand">
           제출 후 소핏 담당자가 영업일 기준 1~2일 내 연락드립니다.
         </p>
       </div>
@@ -714,19 +714,19 @@ export default function QuoteRequestForm() {
           {STEPS.map((s) => (
             <div key={s.id} className="flex flex-col items-center gap-1">
               <div
-                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold transition-colors ${
+                className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
                   s.id < step
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-brand text-white'
                     : s.id === step
-                      ? 'bg-indigo-600 text-white ring-4 ring-indigo-100'
-                      : 'bg-gray-100 text-gray-400'
+                      ? 'bg-brand text-white ring-4 ring-brand/20'
+                      : 'bg-surface-muted text-ink-subtle'
                 }`}
               >
                 {s.id < step ? '✓' : s.id}
               </div>
               <span
                 className={`hidden text-xs sm:block ${
-                  s.id === step ? 'font-semibold text-indigo-600' : 'text-gray-400'
+                  s.id === step ? 'font-medium text-brand' : 'text-ink-subtle'
                 }`}
               >
                 {s.label}
@@ -734,19 +734,19 @@ export default function QuoteRequestForm() {
             </div>
           ))}
         </div>
-        <div className="relative h-1.5 rounded-full bg-gray-100">
+        <div className="relative h-1.5 rounded-full bg-surface-muted">
           <div
-            className="absolute inset-y-0 left-0 rounded-full bg-indigo-600 transition-all duration-300"
+            className="absolute inset-y-0 left-0 rounded-full bg-brand transition-all duration-300"
             style={{ width: `${((step - 1) / (STEPS.length - 1)) * 100}%` }}
           />
         </div>
-        <p className="mt-2 text-center text-sm font-medium text-indigo-600 sm:hidden">
+        <p className="mt-2 text-center text-sm font-medium text-brand sm:hidden">
           {STEPS[step - 1].label}
         </p>
       </div>
 
       {/* 폼 */}
-      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-gray-100 sm:p-8">
+      <div className="rounded-card bg-white p-6 shadow-card ring-1 ring-border sm:p-8">
         {step === 1 && (
           <Step1 data={formData} errors={errors} onChange={handleChange} />
         )}
@@ -756,7 +756,7 @@ export default function QuoteRequestForm() {
         {step === 5 && <Step5 data={formData} onChange={handleChange} />}
 
         {submitError && (
-          <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">{submitError}</div>
+          <div className="mt-4 rounded-lg bg-danger-tint p-3 text-sm text-danger">{submitError}</div>
         )}
 
         {/* 네비게이션 버튼 */}
@@ -766,7 +766,7 @@ export default function QuoteRequestForm() {
               type="button"
               onClick={handleBack}
               disabled={isPending}
-              className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-50"
+              className="rounded-card border border-border px-5 py-2.5 text-sm font-medium text-ink-muted transition-colors hover:bg-surface-muted disabled:opacity-50"
             >
               이전
             </button>
@@ -778,7 +778,7 @@ export default function QuoteRequestForm() {
             <button
               type="button"
               onClick={handleNext}
-              className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500"
+              className="rounded-card bg-brand px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-hover"
             >
               다음
             </button>
@@ -787,7 +787,7 @@ export default function QuoteRequestForm() {
               type="button"
               onClick={handleSubmit}
               disabled={isPending}
-              className="rounded-xl bg-indigo-600 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-indigo-500 disabled:opacity-60"
+              className="rounded-card bg-brand px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-hover disabled:opacity-60"
             >
               {isPending ? '제출 중...' : '견적 요청 제출'}
             </button>
@@ -795,7 +795,7 @@ export default function QuoteRequestForm() {
         </div>
       </div>
 
-      <p className="mt-4 text-center text-xs text-gray-400">
+      <p className="mt-4 text-center text-xs text-ink-subtle">
         입력 내용은 임시 저장됩니다. 새로고침 후에도 복구됩니다.
       </p>
     </div>

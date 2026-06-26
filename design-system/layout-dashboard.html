@@ -1,0 +1,59 @@
+<!-- @dsCard group="Layouts" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard</title>
+<style>
+:root{
+  --ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;
+  --canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F7F9FC;
+  --border:#E3E8EE;--accent:#5469D4;--accent-tint:#EDEFFB;
+  --success:#1A7F64;--success-tint:#E6F4EF;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:28px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto}
+h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin:0 0 4px}
+.sub{font-size:13px;color:var(--ink-muted);margin:0 0 22px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:22px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(26,31,54,.06)}
+.stat{padding:18px}
+.stat .k{font-size:12px;color:var(--ink-subtle);font-weight:600}
+.stat .v{font-size:28px;font-weight:700;letter-spacing:-.02em;margin-top:8px}
+.stat .v .u{font-size:13px;color:var(--ink-subtle);font-weight:600;margin-left:3px}
+.stat .dt{font-size:12px;color:var(--success);font-weight:600;margin-top:6px}
+.cols{display:grid;grid-template-columns:1fr 260px;gap:18px}
+.card h2{font-size:14px;font-weight:700;margin:0;padding:15px 18px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between}
+.card h2 a{font-size:12px;color:var(--accent);text-decoration:none;font-weight:600}
+.row{display:flex;justify-content:space-between;align-items:center;padding:13px 18px;border-bottom:1px solid var(--border)}
+.row:last-child{border-bottom:none}
+.row .nm{font-size:14px;font-weight:600}
+.row .ms{font-size:12px;color:var(--ink-subtle);margin-top:2px}
+.b{display:inline-flex;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--accent-tint);color:var(--accent)}
+.ql{padding:8px}
+.ql a{display:block;padding:11px 14px;border-radius:7px;font-size:14px;font-weight:600;color:var(--ink-muted);text-decoration:none}
+.ql a:hover{background:var(--surface-muted);color:var(--ink)}
+</style></head>
+<body>
+<div class="wrap">
+  <h1>안녕하세요, 천일쇼파님</h1>
+  <p class="sub">오늘의 매칭 현황입니다.</p>
+  <div class="stats">
+    <div class="card stat"><div class="k">신규 매칭</div><div class="v">3<span class="u">건</span></div><div class="dt">▲ 어제보다 +2</div></div>
+    <div class="card stat"><div class="k">진행중 프로젝트</div><div class="v">7<span class="u">건</span></div></div>
+    <div class="card stat"><div class="k">제출한 견적</div><div class="v">12<span class="u">건</span></div></div>
+  </div>
+  <div class="cols">
+    <div class="card">
+      <h2>최근 매칭 <a href="#">전체보기</a></h2>
+      <div class="row"><div><div class="nm">강남 플래그십 매장</div><div class="ms">카페 · 베이커리</div></div><span class="b">신규</span></div>
+      <div class="row"><div><div class="nm">분당 카페 리뉴얼</div><div class="ms">음식점</div></div><span class="b" style="background:var(--success-tint);color:var(--success)">수락됨</span></div>
+      <div class="row"><div><div class="nm">일산 병원 대기실</div><div class="ms">병원 · 의원</div></div><span class="b" style="background:var(--success-tint);color:var(--success)">견적 제출</span></div>
+    </div>
+    <div class="card">
+      <h2>빠른 작업</h2>
+      <div class="ql"><a href="#">＋ 포트폴리오 등록</a><a href="#">신규 요청 보기</a><a href="#">진행 프로젝트</a></div>
+    </div>
+  </div>
+</div>
+</body></html>

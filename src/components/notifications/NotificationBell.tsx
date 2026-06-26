@@ -81,7 +81,7 @@ export default function NotificationBell({ userId, initialUnreadCount, initialNo
       <button
         type="button"
         onClick={() => setIsOpen((o) => !o)}
-        className="relative rounded-full p-1.5 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+        className="relative rounded-full p-1.5 text-ink-muted hover:bg-surface-muted hover:text-ink"
         aria-label="알림"
       >
         <svg
@@ -99,45 +99,45 @@ export default function NotificationBell({ userId, initialUnreadCount, initialNo
           />
         </svg>
         {unreadCount > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+          <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-semibold text-white">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-gray-200 bg-white shadow-lg">
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-            <span className="text-sm font-semibold text-gray-900">알림</span>
+        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-card border border-border bg-white shadow-lg">
+          <div className="flex items-center justify-between border-b border-border px-4 py-3">
+            <span className="text-sm font-medium text-ink">알림</span>
             {unreadCount > 0 && (
-              <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+              <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-danger">
                 {unreadCount}개 미확인
               </span>
             )}
           </div>
           <div className="max-h-80 overflow-y-auto">
             {notifications.length === 0 ? (
-              <p className="py-8 text-center text-sm text-gray-400">알림이 없습니다.</p>
+              <p className="py-8 text-center text-sm text-ink-subtle">알림이 없습니다.</p>
             ) : (
               notifications.map((notif) => (
                 <button
                   key={notif.id}
                   type="button"
                   onClick={() => handleNotificationClick(notif)}
-                  className={`w-full px-4 py-3 text-left transition-colors hover:bg-gray-50 ${
-                    !notif.read_at ? 'bg-indigo-50' : ''
+                  className={`w-full px-4 py-3 text-left transition-colors hover:bg-surface-muted ${
+                    !notif.read_at ? 'bg-brand-tint' : ''
                   }`}
                 >
                   <div className="flex items-start gap-2">
                     {!notif.read_at && (
-                      <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-indigo-500" />
+                      <span className="mt-1.5 h-2 w-2 flex-shrink-0 rounded-full bg-brand" />
                     )}
                     <div className={!notif.read_at ? '' : 'pl-4'}>
-                      <p className="text-sm font-medium text-gray-900">{notif.title}</p>
+                      <p className="text-sm font-medium text-ink">{notif.title}</p>
                       {notif.body && (
-                        <p className="mt-0.5 line-clamp-1 text-xs text-gray-500">{notif.body}</p>
+                        <p className="mt-0.5 line-clamp-1 text-xs text-ink-muted">{notif.body}</p>
                       )}
-                      <p className="mt-1 text-xs text-gray-400">
+                      <p className="mt-1 text-xs text-ink-subtle">
                         {formatRelativeTime(notif.created_at)}
                       </p>
                     </div>
@@ -146,10 +146,10 @@ export default function NotificationBell({ userId, initialUnreadCount, initialNo
               ))
             )}
           </div>
-          <div className="border-t border-gray-100 px-4 py-2">
+          <div className="border-t border-border px-4 py-2">
             <a
               href="/notifications"
-              className="text-xs text-indigo-600 hover:underline"
+              className="text-xs text-brand hover:underline"
               onClick={() => setIsOpen(false)}
             >
               전체 알림 보기 →

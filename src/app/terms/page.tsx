@@ -16,12 +16,12 @@ export default function TermsPage() {
         </div>
 
         <div className="rounded-2xl bg-white p-8 shadow-sm">
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">이용약관</h1>
+          <h1 className="mb-2 text-2xl font-semibold text-gray-900">이용약관</h1>
           <p className="mb-8 text-sm text-gray-400">시행일: 2026년 6월 1일</p>
 
           <div className="space-y-8 text-sm leading-relaxed text-gray-700">
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">제1조 (목적)</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">제1조 (목적)</h2>
               <p>
                 본 약관은 소핏(이하 "회사")이 운영하는 쇼파·빌트인 발주 매칭 플랫폼 소핏(sofit, 이하 "서비스")의
                 이용과 관련하여 회사와 이용자 사이의 권리, 의무 및 책임 사항을 규정함을 목적으로 합니다.
@@ -29,7 +29,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">제2조 (정의)</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">제2조 (정의)</h2>
               <ul className="space-y-2 pl-4">
                 <li>① "서비스"란 회사가 제공하는 쇼파·빌트인 시공 견적 요청 및 공장 매칭 플랫폼 일체를 의미합니다.</li>
                 <li>② "이용자"란 본 약관에 동의하고 회사가 제공하는 서비스를 이용하는 모든 자를 말합니다.</li>
@@ -40,7 +40,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">제3조 (약관의 효력 및 변경)</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">제3조 (약관의 효력 및 변경)</h2>
               <ul className="space-y-2 pl-4">
                 <li>① 본 약관은 서비스 화면에 게시함으로써 효력을 발생합니다.</li>
                 <li>② 회사는 관련 법령을 위반하지 않는 범위에서 약관을 변경할 수 있으며, 변경 시 적용 일자와 변경 사유를 명시하여 서비스 내 공지합니다.</li>
@@ -49,7 +49,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">제4조 (서비스 이용계약의 체결)</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">제4조 (서비스 이용계약의 체결)</h2>
               <ul className="space-y-2 pl-4">
                 <li>① 이용계약은 이용자가 본 약관에 동의하고 소셜 로그인(카카오, 네이버)을 통해 회원가입을 완료한 시점에 성립합니다.</li>
                 <li>② 회사는 다음 각 호에 해당하는 경우 이용신청을 거부하거나 사후에 이용계약을 해지할 수 있습니다.
@@ -63,7 +63,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">제5조 (서비스의 제공 및 변경)</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">제5조 (서비스의 제공 및 변경)</h2>
               <ul className="space-y-2 pl-4">
                 <li>① 회사는 다음 서비스를 제공합니다.
                   <ul className="mt-2 space-y-1 pl-4">
@@ -79,7 +79,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">제6조 (이용자의 의무)</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">제6조 (이용자의 의무)</h2>
               <ul className="space-y-2 pl-4">
                 <li>① 이용자는 다음 행위를 해서는 안 됩니다.
                   <ul className="mt-2 space-y-1 pl-4">
@@ -96,7 +96,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">제7조 (게시물 및 업로드 파일)</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">제7조 (게시물 및 업로드 파일)</h2>
               <ul className="space-y-2 pl-4">
                 <li>① 이용자가 서비스에 업로드한 도면, 사진, 텍스트 등 콘텐츠의 저작권은 해당 이용자에게 귀속됩니다.</li>
                 <li>② 이용자는 회사가 서비스 운영·개선·홍보 목적으로 해당 콘텐츠를 사용할 수 있도록 비독점적 라이선스를 회사에 부여합니다.</li>
@@ -105,7 +105,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">제8조 (책임의 한계)</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">제8조 (책임의 한계)</h2>
               <ul className="space-y-2 pl-4">
                 <li>① 회사는 고객과 공장 간의 계약 체결 및 이행에 직접적으로 관여하지 않으며, 그로 인한 분쟁에 대해 책임을 지지 않습니다.</li>
                 <li>② 회사는 서비스의 기술적 장애, 천재지변, 불가항력으로 인한 손해에 대해 책임을 지지 않습니다.</li>
@@ -114,7 +114,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">제9조 (개인정보보호)</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">제9조 (개인정보보호)</h2>
               <p>
                 회사는 관련 법령에 따라 이용자의 개인정보를 보호합니다. 개인정보의 수집·이용·보관·파기 등에
                 관한 사항은{' '}
@@ -124,7 +124,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">제10조 (분쟁해결 및 준거법)</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">제10조 (분쟁해결 및 준거법)</h2>
               <ul className="space-y-2 pl-4">
                 <li>① 서비스 이용과 관련한 분쟁은 당사자 간 협의를 우선으로 합니다.</li>
                 <li>② 협의로 해결되지 않는 경우 민사소송법에 의한 관할 법원에 소를 제기할 수 있습니다.</li>
@@ -133,7 +133,7 @@ export default function TermsPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">제11조 (서비스 탈퇴 및 계정 삭제)</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">제11조 (서비스 탈퇴 및 계정 삭제)</h2>
               <ul className="space-y-2 pl-4">
                 <li>① 이용자는 언제든지 서비스 내 "계정 삭제" 기능을 통해 탈퇴를 요청할 수 있습니다.</li>
                 <li>② 탈퇴 시 개인정보는 개인정보처리방침에서 정한 기간 동안 보관 후 파기됩니다.</li>

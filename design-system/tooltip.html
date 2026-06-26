@@ -1,0 +1,21 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tooltip</title>
+<style>
+:root{--ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;--canvas:#F6F8FB;--surface:#FFFFFF;--border:#E3E8EE;--accent:#5469D4;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:60px 40px}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:0 0 40px}
+.row{display:flex;gap:60px}
+.anchor{position:relative;display:inline-flex}
+.chip{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 13px;border:1px solid var(--border);background:var(--surface);border-radius:8px;font-size:13px;font-weight:600;color:var(--ink-muted)}
+.q{width:16px;height:16px;border-radius:50%;background:var(--surface);border:1px solid var(--border);color:var(--ink-subtle);font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.tip{position:absolute;bottom:calc(100% + 9px);left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-size:12px;font-weight:500;padding:7px 10px;border-radius:7px;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.18)}
+.tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--ink)}
+</style></head><body>
+<h2>Tooltip</h2>
+<div class="row">
+  <div class="anchor"><div class="tip">마진은 고객에게 보이지 않습니다</div><span class="chip">마진 <span class="q">?</span></span></div>
+  <div class="anchor"><div class="tip">승인 후 고객에게 매칭됩니다</div><span class="chip">승인 대기 <span class="q">?</span></span></div>
+</div>
+</body></html>

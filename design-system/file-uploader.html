@@ -1,0 +1,34 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>File uploader</title>
+<style>
+:root{--ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;--canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F7F9FC;--border:#E3E8EE;--border-strong:#D5DBE3;--accent:#5469D4;--accent-tint:#EDEFFB;--success:#1A7F64;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:0 0 16px}
+.wrap{max-width:440px}
+.drop{border:1.5px dashed var(--border-strong);border-radius:12px;background:var(--surface);padding:28px;text-align:center;cursor:pointer}
+.drop:hover{border-color:var(--accent);background:#FBFBFE}
+.drop .ic{font-size:26px}
+.drop .t{font-size:14px;font-weight:600;margin-top:8px}
+.drop .h{font-size:12px;color:var(--ink-subtle);margin-top:4px}
+.list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+.file{display:flex;align-items:center;gap:11px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 12px}
+.thumb{width:38px;height:38px;border-radius:7px;background:var(--surface-muted);background-size:cover;flex-shrink:0;background-image:linear-gradient(135deg,#E3E8EE,#CBD3DE)}
+.fn{flex:1;min-width:0}
+.fn .n{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fn .s{font-size:12px;color:var(--ink-subtle)}
+.done{font-size:12px;color:var(--success);font-weight:600}
+.bar{height:4px;border-radius:999px;background:var(--surface-muted);overflow:hidden;margin-top:4px}
+.bar i{display:block;height:100%;width:64%;background:var(--accent)}
+.x{color:var(--ink-subtle);cursor:pointer;font-size:15px}
+</style></head><body>
+<h2>파일 업로더 (드래그앤드롭 · 미리보기 · 진행)</h2>
+<div class="wrap">
+  <div class="drop"><div class="ic">⬆️</div><div class="t">파일을 끌어다 놓거나 클릭해서 업로드</div><div class="h">jpg, png, pdf, dwg · 최대 20MB</div></div>
+  <div class="list">
+    <div class="file"><div class="thumb"></div><div class="fn"><div class="n">매장_도면_01.pdf</div><div class="s">2.4MB · 업로드 완료</div></div><span class="done">✓</span></div>
+    <div class="file"><div class="thumb"></div><div class="fn"><div class="n">참고이미지_거실.jpg</div><div class="bar"><i></i></div></div><span class="x">×</span></div>
+  </div>
+</div>
+</body></html>

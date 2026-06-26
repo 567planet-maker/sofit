@@ -16,7 +16,7 @@ export default function PrivacyPage() {
         </div>
 
         <div className="rounded-2xl bg-white p-8 shadow-sm">
-          <h1 className="mb-2 text-2xl font-bold text-gray-900">개인정보처리방침</h1>
+          <h1 className="mb-2 text-2xl font-semibold text-gray-900">개인정보처리방침</h1>
           <p className="mb-8 text-sm text-gray-400">시행일: 2026년 6월 1일</p>
 
           <div className="space-y-8 text-sm leading-relaxed text-gray-700">
@@ -26,7 +26,7 @@ export default function PrivacyPage() {
             </p>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">1. 수집하는 개인정보 항목</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">1. 수집하는 개인정보 항목</h2>
               <div className="space-y-3">
                 <div>
                   <p className="mb-1 font-medium text-gray-800">가. 회원가입 시 (소셜 로그인)</p>
@@ -61,7 +61,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">2. 개인정보의 수집 및 이용 목적</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">2. 개인정보의 수집 및 이용 목적</h2>
               <ul className="space-y-2 pl-4">
                 <li>① 회원 식별 및 서비스 이용 계약 이행</li>
                 <li>② 견적 요청 처리 및 파트너 공장 매칭</li>
@@ -73,7 +73,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">3. 개인정보의 보유 및 이용 기간</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">3. 개인정보의 보유 및 이용 기간</h2>
               <p className="mb-3">
                 원칙적으로 개인정보 수집·이용 목적이 달성된 후에는 지체 없이 파기합니다. 단, 관련 법령에 의해 보존할
                 필요가 있는 경우 아래와 같이 보관합니다.
@@ -114,7 +114,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">4. 개인정보의 파기</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">4. 개인정보의 파기</h2>
               <ul className="space-y-2 pl-4">
                 <li>① 전자파일 형태의 정보는 복구 불가능한 방법으로 영구 삭제합니다.</li>
                 <li>② 종이 문서는 분쇄 또는 소각하여 파기합니다.</li>
@@ -123,7 +123,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">5. 개인정보의 제3자 제공</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">5. 개인정보의 제3자 제공</h2>
               <p className="mb-2">
                 회사는 원칙적으로 이용자의 개인정보를 제3자에게 제공하지 않습니다. 다만, 아래 경우는 예외입니다.
               </p>
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">6. 개인정보처리의 위탁</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">6. 개인정보처리의 위탁</h2>
               <p className="mb-3">회사는 서비스 제공을 위해 아래와 같이 개인정보 처리를 위탁합니다.</p>
               <div className="overflow-x-auto">
                 <table className="w-full border-collapse text-xs">
@@ -163,7 +163,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">7. 국외 이전</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">7. 국외 이전</h2>
               <p>
                 회사는 서비스 운영을 위해 이용자의 개인정보를 해외(일본, 미국)에 소재한 서버에 저장·처리합니다.
                 해당 서버들은 각 국가의 데이터 보호 법규를 준수하며, 회사는 이전되는 정보의 안전한 관리를 위해
@@ -172,7 +172,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">8. 정보주체의 권리</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">8. 정보주체의 권리</h2>
               <p className="mb-2">이용자는 언제든지 다음 권리를 행사할 수 있습니다.</p>
               <ul className="space-y-2 pl-4">
                 <li>① 개인정보 열람 요청</li>
@@ -186,7 +186,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">9. 쿠키 및 자동 수집 도구</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">9. 쿠키 및 자동 수집 도구</h2>
               <ul className="space-y-2 pl-4">
                 <li>① 서비스는 로그인 세션 유지를 위해 쿠키를 사용합니다.</li>
                 <li>② 브라우저 설정에서 쿠키 저장을 거부할 수 있으나, 이 경우 로그인이 불가능합니다.</li>
@@ -194,7 +194,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">10. 개인정보보호 책임자</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">10. 개인정보보호 책임자</h2>
               <div className="rounded-lg bg-gray-50 p-4">
                 <p className="font-medium text-gray-800">소핏 운영팀</p>
                 <p className="mt-1 text-gray-500">문의: 서비스 내 채팅</p>
@@ -203,7 +203,7 @@ export default function PrivacyPage() {
             </section>
 
             <section>
-              <h2 className="mb-3 text-base font-semibold text-gray-900">11. 권리구제 방법</h2>
+              <h2 className="mb-3 text-base font-medium text-gray-900">11. 권리구제 방법</h2>
               <p>
                 개인정보 침해로 인한 피해를 구제받기 위해 아래 기관에 분쟁 해결 또는 상담을 신청할 수 있습니다.
               </p>

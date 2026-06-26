@@ -48,7 +48,7 @@ export default async function PortfoliosPage({
       <main className="min-h-screen bg-gray-50 px-4 py-10">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">포트폴리오</h1>
+            <h1 className="text-3xl font-semibold text-gray-900">포트폴리오</h1>
             <p className="mt-1 text-gray-500">파트너 공장의 실제 작업 사례입니다.</p>
           </div>
 
@@ -93,7 +93,7 @@ export default async function PortfoliosPage({
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-semibold text-gray-900">
+                        <p className="font-medium text-gray-900">
                           {p.factories?.company_name ?? '공장'}
                         </p>
                         {p.factories?.location && (

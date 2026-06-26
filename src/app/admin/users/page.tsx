@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { Tabs, PageHeader, EmptyState, Badge, type TabItem, type BadgeTone } from '@/components/ui'
 import type { UserRole, FactoryStatus } from '@/types'
 
-const ROLE_MAP: Record<UserRole, { label: string; className: string }> = {
-  customer: { label: '고객', className: 'bg-blue-50 text-blue-700' },
-  factory: { label: '공장', className: 'bg-purple-50 text-purple-700' },
-  admin: { label: '관리자', className: 'bg-gray-100 text-gray-700' },
+const ROLE_MAP: Record<UserRole, { label: string; tone: BadgeTone }> = {
+  customer: { label: '고객', tone: 'info' },
+  factory: { label: '공장', tone: 'purple' },
+  admin: { label: '관리자', tone: 'neutral' },
 }
 
 const FACTORY_STATUS_MAP: Record<FactoryStatus, string> = {
@@ -59,7 +60,7 @@ export default async function AdminUsersPage({
     factoryMap[f.user_id] = f
   }
 
-  const TABS = [
+  const TABS: TabItem[] = [
     { label: '전체', value: 'all' },
     { label: '고객', value: 'customer' },
     { label: '공장', value: 'factory' },
@@ -68,79 +69,58 @@ export default async function AdminUsersPage({
 
   return (
     <div className="p-8">
-      <h1 className="mb-6 text-xl font-bold text-gray-900">사용자 관리</h1>
+      <PageHeader title="사용자 관리" description="가입한 고객·공장·관리자 계정을 확인합니다." />
 
-      {/* 탭 */}
-      <div className="mb-6 flex gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1">
-        {TABS.map((t) => (
-          <Link
-            key={t.value}
-            href={`/admin/users?role=${t.value}`}
-            className={`flex-shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              roleFilter === t.value
-                ? 'bg-white text-indigo-700 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {t.label}
-          </Link>
-        ))}
-      </div>
+      <Tabs items={TABS} active={roleFilter} basePath="/admin/users" paramName="role" className="mb-6" />
 
       {/* 목록 */}
       {!users || users.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-200 py-16 text-center">
-          <p className="text-gray-400">사용자가 없습니다.</p>
-        </div>
+        <EmptyState title="사용자가 없습니다." />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-card border border-border bg-surface shadow-card">
           <table className="w-full text-sm">
-            <thead className="border-b border-gray-100 bg-gray-50">
+            <thead className="border-b border-border bg-surface-muted">
               <tr>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500">가입일</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500">이름</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500">이메일</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500">역할</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500">추가 정보</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">가입일</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">이름</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">이메일</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">역할</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">추가 정보</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {(users as any[]).map((u) => {
-                const roleInfo = ROLE_MAP[u.role as UserRole] ?? { label: u.role, className: 'bg-gray-100 text-gray-600' }
+                const roleInfo = ROLE_MAP[u.role as UserRole] ?? { label: u.role, tone: 'neutral' as BadgeTone }
                 const factory = factoryMap[u.id]
                 return (
-                  <tr key={u.id} className="hover:bg-gray-50">
-                    <td className="px-5 py-4 text-gray-500">{formatDate(u.created_at)}</td>
-                    <td className="px-5 py-4 font-medium text-gray-900">{u.name ?? '-'}</td>
-                    <td className="px-5 py-4 text-gray-600">{u.email ?? '-'}</td>
+                  <tr key={u.id} className="hover:bg-surface-muted">
+                    <td className="px-5 py-4 text-ink-muted">{formatDate(u.created_at)}</td>
+                    <td className="px-5 py-4 font-medium text-ink">{u.name ?? '-'}</td>
+                    <td className="px-5 py-4 text-ink-muted">{u.email ?? '-'}</td>
                     <td className="px-5 py-4">
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${roleInfo.className}`}
-                      >
-                        {roleInfo.label}
-                      </span>
+                      <Badge tone={roleInfo.tone}>{roleInfo.label}</Badge>
                     </td>
                     <td className="px-5 py-4">
                       {factory ? (
                         <Link
                           href={`/admin/factories/${factory.id}`}
-                          className="flex items-center gap-2 hover:underline"
+                          className="flex items-center gap-2 hover:text-brand"
                         >
-                          <span className="text-gray-700">{factory.company_name}</span>
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                          <span className="font-medium text-ink">{factory.company_name}</span>
+                          <Badge
+                            tone={
                               factory.status === 'active'
-                                ? 'bg-green-50 text-green-700'
+                                ? 'success'
                                 : factory.status === 'pending'
-                                  ? 'bg-yellow-50 text-yellow-700'
-                                  : 'bg-red-50 text-red-600'
-                            }`}
+                                  ? 'warning'
+                                  : 'danger'
+                            }
                           >
                             {FACTORY_STATUS_MAP[factory.status as FactoryStatus] ?? factory.status}
-                          </span>
+                          </Badge>
                         </Link>
                       ) : (
-                        <span className="text-gray-400">-</span>
+                        <span className="text-ink-subtle">-</span>
                       )}
                     </td>
                   </tr>

@@ -2,7 +2,9 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import ChatRoom from '@/components/chat/ChatRoom'
+import ChatHeaderBar from '@/components/chat/ChatHeaderBar'
 import type { ChatMessageWithSender } from '@/types'
+// 좌측 채팅방 목록은 부모 layout.tsx 에서 렌더링됩니다.
 
 const ROOM_TYPE_LABEL: Record<string, string> = {
   customer_sofit: '소핏 상담',
@@ -54,28 +56,25 @@ export default async function CustomerChatRoomPage({
     .order('created_at', { ascending: true })
 
   return (
-    <div className="flex h-screen flex-col">
-      <div className="flex items-center gap-4 border-b border-gray-200 bg-white px-4 py-3">
-        <Link href="/customer/chat" className="text-sm text-indigo-500 hover:underline">
-          ← 채팅 목록
-        </Link>
-        <div className="flex-1 min-w-0">
-          <p className="truncate font-semibold text-gray-900">
+    <div className="flex h-[calc(100vh-4rem)] flex-col">
+      <ChatHeaderBar>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-medium text-ink">
             {ROOM_TYPE_LABEL[room.type] ?? '채팅'}
           </p>
-          <p className="truncate text-xs text-gray-500">
+          <p className="truncate text-xs text-ink-muted">
             {req?.site_name} · {req?.company_name}
           </p>
         </div>
         {req?.id && (
           <Link
             href={`/customer/requests/${req.id}`}
-            className="flex-shrink-0 text-xs text-indigo-600 hover:underline"
+            className="flex-shrink-0 text-xs text-brand hover:underline"
           >
             견적 보기 →
           </Link>
         )}
-      </div>
+      </ChatHeaderBar>
 
       <div className="flex-1 overflow-hidden">
         <ChatRoom

@@ -1,0 +1,76 @@
+<!-- @dsCard group="Layouts" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Detail Page</title>
+<style>
+:root{
+  --ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;
+  --canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F7F9FC;
+  --border:#E3E8EE;--accent:#5469D4;--accent-tint:#EDEFFB;
+  --success:#1A7F64;--success-tint:#E6F4EF;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:28px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:940px;margin:0 auto}
+.back{font-size:13px;color:var(--ink-subtle);text-decoration:none;display:inline-block;margin-bottom:14px}
+.head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.head h1{font-size:22px;font-weight:700;letter-spacing:-.02em;margin:0;display:flex;align-items:center;gap:10px}
+.b{display:inline-flex;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--accent-tint);color:var(--accent)}
+.actions{display:flex;gap:8px}
+.btn{height:36px;padding:0 14px;border-radius:6px;font-family:inherit;font-weight:600;font-size:13px;cursor:pointer;border:1px solid transparent}
+.btn.p{background:var(--accent);color:#fff}
+.btn.s{background:var(--surface);color:var(--ink);border-color:var(--border)}
+.grid{display:grid;grid-template-columns:1fr 300px;gap:18px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(26,31,54,.06)}
+.card h2{font-size:14px;font-weight:700;margin:0;padding:15px 18px;border-bottom:1px solid var(--border)}
+.card .body{padding:18px}
+.kv{display:flex;font-size:14px;padding:7px 0}
+.kv .k{width:96px;color:var(--ink-subtle);flex-shrink:0}
+.kv .v{color:var(--ink);font-weight:500}
+.gal{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.gal div{aspect-ratio:4/3;background:var(--surface-muted);border:1px solid var(--border);border-radius:7px}
+.side .card{margin-bottom:14px}
+.tl{position:relative;padding-left:18px}
+.tl .it{position:relative;padding:0 0 16px}
+.tl .it::before{content:"";position:absolute;left:-13px;top:4px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.tl .it::after{content:"";position:absolute;left:-9.5px;top:12px;bottom:0;width:1px;background:var(--border)}
+.tl .it:last-child::after{display:none}
+.tl .t{font-size:13px;font-weight:600}
+.tl .d{font-size:12px;color:var(--ink-subtle);margin-top:2px}
+.memo{font-size:13px;color:var(--ink-muted);line-height:1.6}
+</style></head>
+<body>
+<div class="wrap">
+  <a class="back" href="#">← 견적 요청 목록</a>
+  <div class="head">
+    <h1>강남 플래그십 매장 <span class="b">매칭중</span></h1>
+    <div class="actions"><button class="btn s">상태 변경</button><button class="btn p">공장 매칭</button></div>
+  </div>
+  <div class="grid">
+    <div class="main">
+      <div class="card" style="margin-bottom:18px">
+        <h2>현장 정보</h2>
+        <div class="body">
+          <div class="kv"><span class="k">업체명</span><span class="v">천일쇼파</span></div>
+          <div class="kv"><span class="k">업종</span><span class="v">카페 · 베이커리</span></div>
+          <div class="kv"><span class="k">현장 주소</span><span class="v">서울 강남구 테헤란로 …</span></div>
+          <div class="kv"><span class="k">희망 일정</span><span class="v">2026.07.20 시공 시작</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h2>첨부 도면 · 사진</h2>
+        <div class="body"><div class="gal"><div></div><div></div><div></div></div></div>
+      </div>
+    </div>
+    <div class="side">
+      <div class="card"><h2>상태 타임라인</h2><div class="body"><div class="tl">
+        <div class="it"><div class="t">매칭중</div><div class="d">06.26 11:20</div></div>
+        <div class="it"><div class="t">검토 완료</div><div class="d">06.26 09:40</div></div>
+        <div class="it"><div class="t">접수됨</div><div class="d">06.26 09:10</div></div>
+      </div></div></div>
+      <div class="card"><h2>관리자 메모</h2><div class="body"><p class="memo">천일쇼파 우선 배포. 자재 단가 확인 필요.</p></div></div>
+    </div>
+  </div>
+</div>
+</body></html>

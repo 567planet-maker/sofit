@@ -31,7 +31,7 @@ function CountUp({ end, suffix, active }: { end: number; suffix: string; active:
   }, [active, end])
 
   return (
-    <span className="text-6xl font-black text-sofit-blue sm:text-7xl">
+    <span className="text-6xl font-bold text-sofit-blue sm:text-7xl">
       {count}
       <span className="ml-1 text-4xl sm:text-5xl">{suffix}</span>
     </span>

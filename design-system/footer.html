@@ -1,0 +1,39 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Footer</title>
+<style>
+:root{
+  --ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;
+  --canvas:#F6F8FB;--surface:#FFFFFF;--border:#E3E8EE;--accent:#5469D4;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:32px;-webkit-font-smoothing:antialiased}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:0 0 12px}
+.ft{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:26px 28px}
+.top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:20px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.logo{font-size:17px;font-weight:700;color:var(--accent)}
+.logo .tag{display:block;font-size:12px;color:var(--ink-subtle);font-weight:500;margin-top:6px}
+.cols{display:flex;gap:48px}
+.col h4{font-size:12px;color:var(--ink-subtle);font-weight:700;margin:0 0 10px}
+.col a{display:block;font-size:13px;color:var(--ink-muted);text-decoration:none;margin-bottom:8px}
+.bot{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:18px;font-size:12px;color:var(--ink-subtle)}
+.bot a{color:var(--ink-muted);text-decoration:none;margin-right:16px}
+</style></head>
+<body>
+<h2>Footer</h2>
+<div class="ft">
+  <div class="top">
+    <div class="logo">소핏<span class="tag">맞춤 쇼파 견적 매칭 플랫폼</span></div>
+    <div class="cols">
+      <div class="col"><h4>서비스</h4><a>견적 요청</a><a>포트폴리오</a><a>공장 입점</a></div>
+      <div class="col"><h4>회사</h4><a>이용약관</a><a>개인정보처리방침</a><a>고객센터</a></div>
+    </div>
+  </div>
+  <div class="bot">
+    <div>© 2026 sofit. All rights reserved.</div>
+    <div><a>이용약관</a><a>개인정보처리방침</a></div>
+  </div>
+</div>
+</body></html>

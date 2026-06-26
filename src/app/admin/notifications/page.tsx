@@ -1,8 +1,8 @@
 export default function Page() {
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold">admin/notifications</h1>
-      <p className="text-gray-500 mt-2">준비 중...</p>
+      <h1 className="text-2xl font-semibold">admin/notifications</h1>
+      <p className="text-ink-muted mt-2">준비 중...</p>
     </div>
   )
 }

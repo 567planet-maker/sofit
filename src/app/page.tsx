@@ -36,7 +36,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <Header />
+      <Header contained />
       <main>
         {/* ── S1: Hero ── */}
         <section
@@ -125,10 +125,10 @@ export default async function HomePage() {
 
           {/* 중앙 텍스트 + CTA */}
           <div className="relative z-20 flex h-full flex-col items-center justify-center pb-28 pt-8 text-center" style={{ marginTop: '-2rem' }}>
-            <h1 className="text-[1.688rem] font-black leading-[1.1] tracking-tighter text-sofit-ink sm:text-[2.25rem] lg:text-[2.813rem]">
+            <h1 className="text-[1.688rem] font-bold leading-[1.1] tracking-tighter text-sofit-ink sm:text-[2.25rem] lg:text-[2.813rem]">
               인테리어의 모든 공정
               <br />
-              <span className="text-sofit-blue mr-2 font-black text-[2.25rem] sm:text-[2.813rem] lg:text-[3.75rem] relative top-[6px]" style={{ fontFamily: 'var(--font-noto-sans-kr)' }}>SOFIT</span>에서 쉽고 투명하게
+              <span className="text-sofit-blue mr-2 font-bold text-[2.25rem] sm:text-[2.813rem] lg:text-[3.75rem] relative top-[6px]" style={{ fontFamily: 'var(--font-noto-sans-kr)' }}>SOFIT</span>에서 쉽고 투명하게
             </h1>
             <p className="mx-auto mt-4 max-w-[24rem] text-[0.844rem] leading-relaxed text-sofit-ink/60">
               기획부터 완공까지, 검증된 협력업체를 한 곳에서 연결합니다.
@@ -136,14 +136,14 @@ export default async function HomePage() {
             <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
                 href="/customer/request"
-                className="flex items-center gap-2.5 rounded-full bg-sofit-blue px-6 py-3 text-[14px] font-semibold text-white shadow-lg transition-colors hover:bg-sofit-blue-hover"
+                className="flex items-center gap-2.5 rounded-full bg-sofit-blue px-6 py-3 text-[14px] font-medium text-white shadow-lg transition-colors hover:bg-sofit-blue-hover"
               >
                 <span style={{ paddingTop: '2px' }}>견적 무료로 요청하기</span>
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </Link>
               <Link
                 href="/portfolios"
-                className="flex items-center gap-2.5 rounded-full bg-gray-900 px-6 py-3 text-[14px] font-semibold text-white shadow-lg transition-colors hover:bg-gray-700"
+                className="flex items-center gap-2.5 rounded-full bg-gray-900 px-6 py-3 text-[14px] font-medium text-white shadow-lg transition-colors hover:bg-gray-700"
               >
                 <span style={{ paddingTop: '2px' }}>공장 포트폴리오 보기</span>
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
@@ -161,7 +161,7 @@ export default async function HomePage() {
 
         {/* ── S2: 페인 포인트 헤드라인 ── */}
         <section className="bg-white py-24 text-center">
-          <h2 className="text-3xl font-black leading-[1.5] tracking-tight text-sofit-ink sm:text-4xl">
+          <h2 className="text-3xl font-bold leading-[1.5] tracking-tight text-sofit-ink sm:text-4xl">
             <span className="text-sofit-blue">인테리어 발주,</span>
             <br />
             이런 경험 있으신가요?
@@ -174,7 +174,7 @@ export default async function HomePage() {
         {/* ── S3-1: 소핏 해결 헤드라인 ── */}
         <section className="flex items-center justify-center bg-white text-center" style={{ minHeight: '70vh' }}>
           <div>
-            <h2 className="text-3xl font-black leading-[1.5] tracking-tight text-sofit-ink sm:text-4xl">
+            <h2 className="text-3xl font-bold leading-[1.5] tracking-tight text-sofit-ink sm:text-4xl">
               이제 <span className="text-sofit-blue">소핏</span>이 해결합니다.
             </h2>
             <div className="mx-auto mt-2 flex flex-col gap-2">
@@ -224,16 +224,16 @@ export default async function HomePage() {
           <div className="mx-auto max-w-screen-xl">
             <div className="mb-12 flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="mb-2 text-sm font-semibold tracking-widest text-sofit-blue uppercase">
+                <p className="mb-2 text-sm font-medium tracking-widest text-sofit-blue uppercase">
                   파트너 공장
                 </p>
-                <h2 className="text-3xl font-bold text-sofit-ink sm:text-4xl">
+                <h2 className="text-3xl font-semibold text-sofit-ink sm:text-4xl">
                   검증된 공장의 실제 작업 사례
                 </h2>
               </div>
               <Link
                 href="/portfolios"
-                className="shrink-0 text-sm font-semibold text-sofit-blue hover:text-sofit-blue-hover"
+                className="shrink-0 text-sm font-medium text-sofit-blue hover:text-sofit-blue-hover"
               >
                 전체 보기 →
               </Link>
@@ -256,7 +256,7 @@ export default async function HomePage() {
                       />
                     </div>
                     <div className="p-4">
-                      <p className="font-semibold text-sofit-ink">
+                      <p className="font-medium text-sofit-ink">
                         {p.factories?.company_name ?? '공장'}
                       </p>
                       {p.factories?.location && (
@@ -288,7 +288,7 @@ export default async function HomePage() {
         {/* ── S8: 고객 CTA ── */}
         <section className="bg-sofit-blue px-4 py-32">
           <div className="mx-auto max-w-screen-xl text-center">
-            <h2 className="text-4xl font-bold text-white sm:text-5xl">
+            <h2 className="text-4xl font-semibold text-white sm:text-5xl">
               인테리어 발주, 지금 바로 시작하세요.
             </h2>
             <p className="mt-4 text-lg text-blue-200">
@@ -296,7 +296,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/customer/request"
-              className="mt-10 inline-block rounded-full bg-white px-10 py-4 text-base font-semibold text-sofit-blue shadow-lg transition-colors hover:bg-blue-50"
+              className="mt-10 inline-block rounded-full bg-white px-10 py-4 text-base font-medium text-sofit-blue shadow-lg transition-colors hover:bg-blue-50"
             >
               견적 무료로 요청하기
             </Link>
@@ -307,10 +307,10 @@ export default async function HomePage() {
         <section className="bg-sofit-black px-4 py-24">
           <div className="mx-auto max-w-screen-xl">
             <div className="mb-16 text-center">
-              <p className="mb-3 text-sm font-semibold tracking-widest text-gray-500 uppercase">
+              <p className="mb-3 text-sm font-medium tracking-widest text-gray-500 uppercase">
                 파트너 공장
               </p>
-              <h2 className="text-4xl font-bold text-white sm:text-5xl">
+              <h2 className="text-4xl font-semibold text-white sm:text-5xl">
                 소핏 파트너 공장으로 합류하세요.
               </h2>
               <p className="mt-4 text-sofit-gray">
@@ -337,7 +337,7 @@ export default async function HomePage() {
                   key={item.title}
                   className="rounded-2xl border border-gray-800 bg-transparent p-8 transition-colors hover:border-gray-600"
                 >
-                  <h3 className="mb-3 text-lg font-bold text-white">{item.title}</h3>
+                  <h3 className="mb-3 text-lg font-semibold text-white">{item.title}</h3>
                   <p className="text-sm leading-relaxed text-gray-400">{item.desc}</p>
                 </div>
               ))}
@@ -346,7 +346,7 @@ export default async function HomePage() {
             <div className="mt-12 text-center">
               <Link
                 href="/login"
-                className="inline-block rounded-full border border-white/25 px-8 py-4 text-sm font-semibold text-white transition-colors hover:border-white/50 hover:bg-white/10"
+                className="inline-block rounded-full border border-white/25 px-8 py-4 text-sm font-medium text-white transition-colors hover:border-white/50 hover:bg-white/10"
               >
                 공장으로 가입하기
               </Link>
@@ -358,7 +358,7 @@ export default async function HomePage() {
         <footer className="border-t border-gray-100 bg-white px-4 py-12">
           <div className="mx-auto max-w-screen-xl">
             <div className="flex flex-col items-start justify-between gap-8 sm:flex-row sm:items-center">
-              <p className="text-lg font-bold text-sofit-ink">소핏 (SOFIT)</p>
+              <p className="text-lg font-semibold text-sofit-ink">소핏 (SOFIT)</p>
               <div className="flex gap-6 text-sm text-sofit-gray">
                 <Link href="/terms" className="hover:text-sofit-ink">
                   이용약관

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 
 const ROOM_TYPE_MAP: Record<string, { label: string; className: string }> = {
-  customer_sofit: { label: '고객↔소핏', className: 'bg-indigo-50 text-indigo-700' },
+  customer_sofit: { label: '고객↔소핏', className: 'bg-brand-tint text-brand' },
   customer_factory: { label: '고객↔공장', className: 'bg-teal-50 text-teal-700' },
   factory_sofit: { label: '공장↔소핏', className: 'bg-purple-50 text-purple-700' },
 }
@@ -67,18 +67,18 @@ export default async function AdminChatsPage() {
 
   return (
     <div className="p-8">
-      <h1 className="mb-6 text-xl font-bold text-gray-900">채팅 통합 뷰</h1>
+      <h1 className="mb-6 text-xl font-semibold text-ink">채팅 통합 뷰</h1>
 
       {sorted.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-200 py-16 text-center">
-          <p className="text-gray-400">채팅방이 없습니다.</p>
+        <div className="rounded-card border border-dashed border-border py-16 text-center">
+          <p className="text-ink-subtle">채팅방이 없습니다.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-card border border-border bg-white shadow-card">
           {sorted.map((room, i) => {
             const req = (room as any).quote_requests
             const lastMsg = room.lastMsg as any
-            const typeInfo = ROOM_TYPE_MAP[room.type] ?? { label: room.type, className: 'bg-gray-100 text-gray-600' }
+            const typeInfo = ROOM_TYPE_MAP[room.type] ?? { label: room.type, className: 'bg-surface-muted text-ink-muted' }
             const isUnanswered =
               lastMsg && lastMsg.users?.role !== 'admin' && room.type === 'customer_sofit'
 
@@ -86,9 +86,9 @@ export default async function AdminChatsPage() {
               <Link
                 key={room.id}
                 href={`/admin/chats/${room.id}`}
-                className={`flex items-center justify-between px-5 py-4 hover:bg-gray-50 ${
-                  i > 0 ? 'border-t border-gray-100' : ''
-                } ${isUnanswered ? 'bg-indigo-50/30' : ''}`}
+                className={`flex items-center justify-between px-5 py-4 hover:bg-surface-muted ${
+                  i > 0 ? 'border-t border-border' : ''
+                } ${isUnanswered ? 'bg-brand-tint/30' : ''}`}
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -98,26 +98,26 @@ export default async function AdminChatsPage() {
                       {typeInfo.label}
                     </span>
                     {isUnanswered && (
-                      <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-bold text-white">
+                      <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-semibold text-white">
                         미답변
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 truncate font-medium text-gray-900">
+                  <p className="mt-1 truncate font-medium text-ink">
                     {req?.site_name ?? '(현장 정보 없음)'}
                   </p>
                   {req?.company_name && (
-                    <p className="truncate text-xs text-gray-500">{req.company_name}</p>
+                    <p className="truncate text-xs text-ink-muted">{req.company_name}</p>
                   )}
                   {lastMsg?.content && (
-                    <p className="mt-1 truncate text-sm text-gray-400">{lastMsg.content}</p>
+                    <p className="mt-1 truncate text-sm text-ink-subtle">{lastMsg.content}</p>
                   )}
                 </div>
                 <div className="ml-4 flex-shrink-0 text-right">
                   {lastMsg?.created_at && (
-                    <p className="text-xs text-gray-400">{formatDate(lastMsg.created_at)}</p>
+                    <p className="text-xs text-ink-subtle">{formatDate(lastMsg.created_at)}</p>
                   )}
-                  <p className="mt-1 text-xs text-indigo-600">보기 →</p>
+                  <p className="mt-1 text-xs text-brand">보기 →</p>
                 </div>
               </Link>
             )

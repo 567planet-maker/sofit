@@ -1,0 +1,29 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stepper</title>
+<style>
+:root{--ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;--canvas:#F6F8FB;--surface:#FFFFFF;--border:#E3E8EE;--accent:#5469D4;--accent-tint:#EDEFFB;--success:#1A7F64;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:0 0 18px}
+.steps{display:flex;align-items:flex-start;max-width:640px}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.step::before,.step::after{content:"";position:absolute;top:15px;height:2px;width:50%;background:var(--border)}
+.step::before{left:0}.step::after{right:0}
+.step:first-child::before,.step:last-child::after{display:none}
+.step.done::before,.step.done::after,.step.cur::before{background:var(--accent)}
+.dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:var(--surface);border:2px solid var(--border);color:var(--ink-subtle);position:relative;z-index:1}
+.done .dot{background:var(--accent);border-color:var(--accent);color:#fff}
+.cur .dot{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 4px var(--accent-tint)}
+.lbl{font-size:12px;margin-top:9px;color:var(--ink-subtle);font-weight:600;text-align:center}
+.done .lbl,.cur .lbl{color:var(--ink)}
+</style></head><body>
+<h2>Stepper — 견적 요청 5단계 (3단계 진행 중)</h2>
+<div class="steps">
+  <div class="step done"><div class="dot">✓</div><div class="lbl">현장 정보</div></div>
+  <div class="step done"><div class="dot">✓</div><div class="lbl">제품 정보</div></div>
+  <div class="step cur"><div class="dot">3</div><div class="lbl">규격·도면</div></div>
+  <div class="step"><div class="dot">4</div><div class="lbl">자재·사진</div></div>
+  <div class="step"><div class="dot">5</div><div class="lbl">일정·확인</div></div>
+</div>
+</body></html>

@@ -1,0 +1,24 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skeleton</title>
+<style>
+:root{--ink:#1A1F36;--ink-subtle:#8792A2;--canvas:#F6F8FB;--surface:#FFFFFF;--border:#E3E8EE;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:0 0 16px}
+.list{max-width:480px;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;display:flex;gap:14px;align-items:center}
+.sk{background:linear-gradient(90deg,#EEF1F5 25%,#E2E7ED 37%,#EEF1F5 63%);background-size:400% 100%;animation:sh 1.4s ease infinite;border-radius:6px}
+@keyframes sh{0%{background-position:100% 0}100%{background-position:0 0}}
+.av{width:44px;height:44px;border-radius:50%;flex-shrink:0}
+.l1{height:14px;width:60%;margin-bottom:9px}
+.l2{height:12px;width:40%}
+.badge{width:56px;height:22px;border-radius:999px;margin-left:auto}
+</style></head><body>
+<h2>Skeleton (로딩 상태)</h2>
+<div class="list">
+  <div class="card"><div class="sk av"></div><div style="flex:1"><div class="sk l1"></div><div class="sk l2"></div></div><div class="sk badge"></div></div>
+  <div class="card"><div class="sk av"></div><div style="flex:1"><div class="sk l1"></div><div class="sk l2"></div></div><div class="sk badge"></div></div>
+  <div class="card"><div class="sk av"></div><div style="flex:1"><div class="sk l1"></div><div class="sk l2"></div></div><div class="sk badge"></div></div>
+</div>
+</body></html>

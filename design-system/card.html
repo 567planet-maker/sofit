@@ -1,0 +1,52 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card</title>
+<style>
+:root{
+  --ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;
+  --canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F0F3F8;
+  --border:#E3E8EE;--accent:#5469D4;--accent-tint:#EDEFFB;
+  --success:#1A7F64;--success-tint:#E6F4EF;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px;-webkit-font-smoothing:antialiased}
+h1{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-subtle);font-weight:600;margin:0 0 24px}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:24px 0 12px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(26,31,54,.06)}
+.list{max-width:520px;display:flex;flex-direction:column;gap:12px}
+.row-card{padding:18px;display:flex;justify-content:space-between;align-items:center;transition:box-shadow .12s,border-color .12s;cursor:pointer}
+.row-card:hover{box-shadow:0 4px 14px rgba(26,31,54,.10);border-color:#D5DBE3}
+.row-card .title{font-size:15px;font-weight:600}
+.row-card .sub{font-size:13px;color:var(--ink-muted);margin-top:3px}
+.row-card .meta{font-size:12px;color:var(--ink-subtle);margin-top:5px}
+.badge{display:inline-flex;align-items:center;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--success-tint);color:var(--success)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:520px}
+.stat{padding:18px}
+.stat .k{font-size:12px;color:var(--ink-subtle);font-weight:600}
+.stat .v{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-top:8px}
+.stat .v .u{font-size:13px;color:var(--ink-subtle);font-weight:600;margin-left:3px}
+</style></head>
+<body>
+<h1>Card</h1>
+
+<h2>List row (목록 카드)</h2>
+<div class="list">
+  <div class="card row-card">
+    <div><div class="title">강남 플래그십 매장</div><div class="sub">천일쇼파</div><div class="meta">2026.06.26</div></div>
+    <span class="badge">계약완료</span>
+  </div>
+  <div class="card row-card">
+    <div><div class="title">분당 카페 리뉴얼</div><div class="sub">우리가구</div><div class="meta">2026.06.24</div></div>
+    <span class="badge" style="background:var(--accent-tint);color:var(--accent)">매칭중</span>
+  </div>
+</div>
+
+<h2>Stat (통계 카드)</h2>
+<div class="stats">
+  <div class="card stat"><div class="k">신규 매칭</div><div class="v">3<span class="u">건</span></div></div>
+  <div class="card stat"><div class="k">진행중</div><div class="v">7<span class="u">건</span></div></div>
+  <div class="card stat"><div class="k">제출 견적</div><div class="v">12<span class="u">건</span></div></div>
+</div>
+</body></html>

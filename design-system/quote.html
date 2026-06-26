@@ -1,0 +1,52 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quote sheet</title>
+<style>
+:root{
+  --ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;
+  --canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F7F9FC;
+  --border:#E3E8EE;--accent:#5469D4;--accent-tint:#EDEFFB;
+  --success:#1A7F64;--success-tint:#E6F4EF;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:32px;-webkit-font-smoothing:antialiased}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:0 0 12px}
+.sheet{max-width:440px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 1px rgba(0,0,0,.03),0 4px 14px rgba(26,31,54,.08)}
+.hd{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start}
+.hd .fc{font-size:16px;font-weight:700}
+.hd .meta{font-size:12px;color:var(--ink-subtle);margin-top:3px}
+.ver{font-size:11px;font-weight:700;background:var(--accent-tint);color:var(--accent);padding:3px 9px;border-radius:999px}
+.items{padding:8px 22px}
+.li{display:flex;justify-content:space-between;font-size:14px;padding:9px 0;border-bottom:1px solid var(--border)}
+.li .k{color:var(--ink-muted)}
+.li .v{font-weight:600;font-variant-numeric:tabular-nums}
+.total{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;background:var(--surface-muted);border-top:1px solid var(--border)}
+.total .k{font-size:14px;font-weight:600}
+.total .v{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.foot{padding:16px 22px;display:flex;flex-direction:column;gap:10px}
+.due{display:flex;justify-content:space-between;font-size:13px;color:var(--ink-muted)}
+.due b{color:var(--ink)}
+.cta{height:46px;border-radius:9px;background:var(--accent);color:#fff;border:none;font-family:inherit;font-weight:700;font-size:15px;cursor:pointer}
+.note{font-size:12px;color:var(--ink-subtle);text-align:center}
+</style></head>
+<body>
+<h2>견적서 (항목 · 총액 · 계약 버튼)</h2>
+<div class="sheet">
+  <div class="hd"><div><div class="fc">천일쇼파</div><div class="meta">제출 2026.06.26</div></div><span class="ver">v2 · 최신</span></div>
+  <div class="items">
+    <div class="li"><span class="k">재료비</span><span class="v">₩6,800,000</span></div>
+    <div class="li"><span class="k">인건비</span><span class="v">₩3,200,000</span></div>
+    <div class="li"><span class="k">배송비</span><span class="v">₩450,000</span></div>
+    <div class="li"><span class="k">설치비</span><span class="v">₩1,200,000</span></div>
+    <div class="li"><span class="k">마진</span><span class="v">₩750,000</span></div>
+  </div>
+  <div class="total"><span class="k">총액 (VAT 별도)</span><span class="v">₩12,400,000</span></div>
+  <div class="foot">
+    <div class="due">납기 <b>주문 후 28일</b></div>
+    <button class="cta">이 견적서로 계약하기</button>
+    <div class="note">계약 시 공장에 즉시 알림이 전송됩니다.</div>
+  </div>
+</div>
+</body></html>

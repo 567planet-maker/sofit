@@ -31,11 +31,11 @@ export default async function QuoteRequestPage() {
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gray-50">
-        <div className="border-b border-gray-100 bg-white px-4 py-5">
+      <main className="min-h-screen bg-surface-muted">
+        <div className="border-b border-border bg-white px-4 py-5">
           <div className="mx-auto max-w-2xl">
-            <h1 className="text-2xl font-bold text-gray-900">견적 요청</h1>
-            <p className="mt-1 text-sm text-gray-500">
+            <h1 className="text-2xl font-semibold text-ink">견적 요청</h1>
+            <p className="mt-1 text-sm text-ink-muted">
               아래 폼을 작성하시면 소핏 담당자가 영업일 기준 1~2일 내 연락드립니다.
             </p>
           </div>

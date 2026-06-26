@@ -73,15 +73,15 @@ export default async function AdminMatchPage({
       <div className="mb-6">
         <Link
           href={`/admin/requests/${requestId}`}
-          className="mb-2 block text-sm text-indigo-500 hover:underline"
+          className="mb-2 block text-sm text-brand hover:underline"
         >
           ← {req.site_name}
         </Link>
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold text-gray-900">공장 매칭 관리</h1>
+          <h1 className="text-xl font-semibold text-ink">공장 매칭 관리</h1>
           <StatusBadge status={req.status as QuoteRequestStatus} />
         </div>
-        <p className="mt-0.5 text-sm text-gray-500">{req.company_name}</p>
+        <p className="mt-0.5 text-sm text-ink-muted">{req.company_name}</p>
       </div>
 
       <MatchClient

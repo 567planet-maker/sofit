@@ -42,9 +42,9 @@ export default async function NotificationsPage() {
     <div className="mx-auto max-w-2xl px-4 py-8">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">알림</h1>
+          <h1 className="text-2xl font-semibold text-ink">알림</h1>
           {unreadCount > 0 && (
-            <p className="mt-1 text-sm text-gray-500">읽지 않은 알림 {unreadCount}개</p>
+            <p className="mt-1 text-sm text-ink-muted">읽지 않은 알림 {unreadCount}개</p>
           )}
         </div>
         {unreadCount > 0 && (
@@ -54,7 +54,7 @@ export default async function NotificationsPage() {
               await markAllNotificationsRead()
             }}
           >
-            <button type="submit" className="text-sm text-indigo-600 hover:underline">
+            <button type="submit" className="text-sm text-brand hover:underline">
               모두 읽음 처리
             </button>
           </form>
@@ -62,17 +62,17 @@ export default async function NotificationsPage() {
       </div>
 
       {!notifications || notifications.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white py-16 text-center">
-          <p className="text-gray-400">알림이 없습니다.</p>
+        <div className="rounded-card border border-border bg-white py-16 text-center">
+          <p className="text-ink-subtle">알림이 없습니다.</p>
         </div>
       ) : (
-        <div className="divide-y divide-gray-100 overflow-hidden rounded-xl border border-gray-200 bg-white">
+        <div className="divide-y divide-border overflow-hidden rounded-card border border-border bg-white">
           {notifications.map((notif) => (
             <a
               key={notif.id}
               href={notif.link ?? '#'}
-              className={`flex items-start gap-4 px-5 py-4 transition-colors hover:bg-gray-50 ${
-                !notif.read_at ? 'bg-indigo-50' : ''
+              className={`flex items-start gap-4 px-5 py-4 transition-colors hover:bg-surface-muted ${
+                !notif.read_at ? 'bg-brand-tint' : ''
               }`}
             >
               <span className="mt-0.5 flex-shrink-0 text-lg">
@@ -80,15 +80,15 @@ export default async function NotificationsPage() {
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <p className="text-sm font-medium text-gray-900">{notif.title}</p>
+                  <p className="text-sm font-medium text-ink">{notif.title}</p>
                   {!notif.read_at && (
-                    <span className="h-2 w-2 flex-shrink-0 rounded-full bg-indigo-500" />
+                    <span className="h-2 w-2 flex-shrink-0 rounded-full bg-brand" />
                   )}
                 </div>
                 {notif.body && (
-                  <p className="mt-0.5 truncate text-sm text-gray-500">{notif.body}</p>
+                  <p className="mt-0.5 truncate text-sm text-ink-muted">{notif.body}</p>
                 )}
-                <p className="mt-1 text-xs text-gray-400">{formatTime(notif.created_at)}</p>
+                <p className="mt-1 text-xs text-ink-subtle">{formatTime(notif.created_at)}</p>
               </div>
             </a>
           ))}

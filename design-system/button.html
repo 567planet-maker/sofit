@@ -1,0 +1,58 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Button</title>
+<style>
+:root{
+  --ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;
+  --canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F0F3F8;
+  --border:#E3E8EE;--border-strong:#D5DBE3;
+  --accent:#5469D4;--accent-hover:#4456C7;--accent-tint:#EDEFFB;
+  --danger:#C0123C;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px;-webkit-font-smoothing:antialiased}
+h1{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-subtle);font-weight:600;margin:0 0 24px}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:24px 0 12px}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.btn{font-family:inherit;font-weight:600;border-radius:6px;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:all .12s;white-space:nowrap;line-height:1}
+.btn:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(84,105,212,.35)}
+.sz-sm{height:34px;padding:0 13px;font-size:13px}
+.sz-md{height:40px;padding:0 18px;font-size:14px}
+.sz-lg{height:46px;padding:0 22px;font-size:15px}
+.primary{background:var(--accent);color:#fff;box-shadow:0 1px 1px rgba(26,31,54,.12)}
+.primary:hover{background:var(--accent-hover)}
+.secondary{background:var(--surface);color:var(--ink);border-color:var(--border-strong);box-shadow:0 1px 1px rgba(26,31,54,.04)}
+.secondary:hover{background:var(--surface-muted)}
+.ghost{background:transparent;color:var(--ink-muted)}
+.ghost:hover{background:var(--surface-muted);color:var(--ink)}
+.danger{background:var(--danger);color:#fff}
+.disabled{opacity:.45;pointer-events:none}
+</style></head>
+<body>
+<h1>Button</h1>
+
+<h2>Variants — md</h2>
+<div class="row">
+  <button class="btn sz-md primary">견적 요청하기</button>
+  <button class="btn sz-md secondary">취소</button>
+  <button class="btn sz-md ghost">나중에</button>
+  <button class="btn sz-md danger">삭제</button>
+  <button class="btn sz-md primary disabled">제출 중…</button>
+</div>
+
+<h2>Sizes — primary</h2>
+<div class="row">
+  <button class="btn sz-sm primary">+ 새 견적</button>
+  <button class="btn sz-md primary">+ 새 견적</button>
+  <button class="btn sz-lg primary">+ 새 견적</button>
+</div>
+
+<h2>Sizes — secondary</h2>
+<div class="row">
+  <button class="btn sz-sm secondary">상세보기</button>
+  <button class="btn sz-md secondary">상세보기</button>
+  <button class="btn sz-lg secondary">상세보기</button>
+</div>
+</body></html>

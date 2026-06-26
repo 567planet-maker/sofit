@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import QuoteVersionCard, { type QuoteVersion, type FactoryInfo } from './QuoteVersionCard'
+import { EmptyState } from '@/components/ui'
 
 type QuoteRow = QuoteVersion & {
   matches: {
@@ -94,23 +95,23 @@ export default async function CustomerQuotesPage({
     <div className="mx-auto max-w-3xl px-4 py-10">
       <Link
         href={`/customer/requests/${requestId}`}
-        className="mb-4 block text-sm text-indigo-500 hover:underline"
+        className="mb-4 block text-sm text-ink-subtle hover:text-brand"
       >
         ← {request.site_name}
       </Link>
-      <h1 className="mb-6 text-xl font-bold text-gray-900">공장 견적서</h1>
+      <h1 className="mb-6 text-xl font-semibold tracking-tight text-ink">공장 견적서</h1>
 
       {request.status === 'contracted' && (
-        <div className="mb-4 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 text-sm text-indigo-700">
+        <div className="mb-4 rounded-control border border-success/20 bg-success-tint px-4 py-3 text-sm font-medium text-success">
           계약이 확정되었습니다. 소핏 담당자가 이후 진행을 안내드립니다.
         </div>
       )}
 
       {factoryGroups.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-200 py-16 text-center">
-          <p className="text-gray-400">아직 도착한 견적서가 없습니다.</p>
-          <p className="mt-1 text-sm text-gray-300">공장 견적 검토 후 이 페이지에 표시됩니다.</p>
-        </div>
+        <EmptyState
+          title="아직 도착한 견적서가 없습니다."
+          description="공장 견적 검토 후 이 페이지에 표시됩니다."
+        />
       ) : (
         <div className="space-y-4">
           {factoryGroups.map((group, idx) => (
@@ -128,7 +129,7 @@ export default async function CustomerQuotesPage({
       )}
 
       {canAccept && factoryGroups.length > 0 && (
-        <p className="mt-6 text-center text-xs text-gray-400">
+        <p className="mt-6 text-center text-xs text-ink-subtle">
           원하는 공장의 견적서에서 &quot;이 견적서로 계약하기&quot;를 누르시면 계약이 확정됩니다.
         </p>
       )}

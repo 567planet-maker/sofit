@@ -1,0 +1,51 @@
+<!-- @dsCard group="Layouts" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wizard Page</title>
+<style>
+:root{--ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;--canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F7F9FC;--border:#E3E8EE;--border-strong:#D5DBE3;--accent:#5469D4;--accent-tint:#EDEFFB;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:30px 20px}
+.wrap{max-width:600px;margin:0 auto}
+/* stepper */
+.steps{display:flex;margin-bottom:26px}
+.step{flex:1;display:flex;flex-direction:column;align-items:center;position:relative}
+.step::before,.step::after{content:"";position:absolute;top:14px;height:2px;width:50%;background:var(--border)}
+.step::before{left:0}.step::after{right:0}
+.step:first-child::before,.step:last-child::after{display:none}
+.step.done::before,.step.done::after,.step.cur::before{background:var(--accent)}
+.dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--surface);border:2px solid var(--border);color:var(--ink-subtle);z-index:1}
+.done .dot{background:var(--accent);border-color:var(--accent);color:#fff}
+.cur .dot{border-color:var(--accent);color:var(--accent);box-shadow:0 0 0 4px var(--accent-tint)}
+.lbl{font-size:11px;margin-top:7px;color:var(--ink-subtle);font-weight:600}
+.cur .lbl,.done .lbl{color:var(--ink)}
+/* card */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(26,31,54,.06);padding:26px}
+.card h1{font-size:19px;font-weight:700;margin:0 0 4px}
+.card .sub{font-size:13px;color:var(--ink-muted);margin:0 0 22px}
+.field{margin-bottom:16px}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+.ctrl{width:100%;height:42px;padding:0 12px;font-family:inherit;font-size:14px;border:1px solid var(--border-strong);border-radius:7px}
+.ctrl:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(84,105,212,.18)}
+.nav{display:flex;justify-content:space-between;margin-top:24px}
+.btn{height:44px;padding:0 22px;border-radius:9px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;border:1px solid transparent}
+.prev{background:var(--surface);border-color:var(--border);color:var(--ink-muted)}
+.next{background:var(--accent);color:#fff}
+</style></head><body>
+<div class="wrap">
+  <div class="steps">
+    <div class="step done"><div class="dot">✓</div><div class="lbl">현장</div></div>
+    <div class="step done"><div class="dot">✓</div><div class="lbl">제품</div></div>
+    <div class="step cur"><div class="dot">3</div><div class="lbl">규격·도면</div></div>
+    <div class="step"><div class="dot">4</div><div class="lbl">자재</div></div>
+    <div class="step"><div class="dot">5</div><div class="lbl">확인</div></div>
+  </div>
+  <div class="card">
+    <h1>규격 · 도면</h1>
+    <p class="sub">제작할 가구의 규격과 도면을 입력해 주세요.</p>
+    <div class="field"><label>가로 (mm)</label><input class="ctrl" placeholder="예) 2400"></div>
+    <div class="field"><label>세로 (mm)</label><input class="ctrl" placeholder="예) 800"></div>
+    <div class="field"><label>도면 첨부</label><input class="ctrl" placeholder="파일 선택 (pdf, dwg)"></div>
+    <div class="nav"><button class="btn prev">이전</button><button class="btn next">다음 단계</button></div>
+  </div>
+</div>
+</body></html>

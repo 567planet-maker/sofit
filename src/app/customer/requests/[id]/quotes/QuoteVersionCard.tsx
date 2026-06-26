@@ -53,10 +53,10 @@ function formatKrw(n: number) {
 }
 
 function DiffCell({ diff }: { diff: number }) {
-  if (diff === 0) return <span className="text-gray-300">—</span>
+  if (diff === 0) return <span className="text-ink-subtle">—</span>
   if (diff > 0)
-    return <span className="font-medium text-orange-500">+{formatKrw(diff)}원 ↑</span>
-  return <span className="font-medium text-green-600">{formatKrw(diff)}원 ↓</span>
+    return <span className="font-medium text-danger">+{formatKrw(diff)}원 ↑</span>
+  return <span className="font-medium text-success">{formatKrw(diff)}원 ↓</span>
 }
 
 export default function QuoteVersionCard({ factory, quotes, isLowest, requestId, matchId, canAccept }: Props) {
@@ -83,28 +83,28 @@ export default function QuoteVersionCard({ factory, quotes, isLowest, requestId,
 
   return (
     <div
-      className={`rounded-2xl border bg-white p-5 shadow-sm ${
+      className={`rounded-card border bg-surface p-5 shadow-card ${
         isAccepted
-          ? 'border-indigo-400 ring-2 ring-indigo-300'
+          ? 'border-brand ring-2 ring-brand/30'
           : isLowest
-          ? 'border-indigo-200 ring-1 ring-indigo-200'
-          : 'border-gray-100'
+          ? 'border-brand-tint-strong ring-1 ring-brand-tint'
+          : 'border-border'
       }`}
     >
       {isAccepted && (
-        <span className="mb-3 inline-block rounded-full bg-indigo-600 px-2.5 py-0.5 text-xs font-medium text-white">
+        <span className="mb-3 inline-block rounded-full bg-brand px-2.5 py-0.5 text-xs font-medium text-white">
           계약 확정
         </span>
       )}
       {!isAccepted && isLowest && (
-        <span className="mb-3 inline-block rounded-full bg-indigo-100 px-2.5 py-0.5 text-xs font-medium text-indigo-700">
+        <span className="mb-3 inline-block rounded-full bg-brand-tint px-2.5 py-0.5 text-xs font-medium text-brand">
           최저가
         </span>
       )}
 
       {/* 버전 배지 */}
       {latest.version > 1 && (
-        <span className="mb-3 ml-2 inline-block rounded-full bg-yellow-50 px-2.5 py-0.5 text-xs font-medium text-yellow-700">
+        <span className="mb-3 ml-2 inline-block rounded-full bg-warning-tint px-2.5 py-0.5 text-xs font-medium text-warning">
           수정 견적서 v{latest.version}
         </span>
       )}
@@ -112,49 +112,49 @@ export default function QuoteVersionCard({ factory, quotes, isLowest, requestId,
       {/* 공장 정보 */}
       <div className="mb-4 flex items-start justify-between gap-4">
         <div>
-          <p className="font-semibold text-gray-900">{factory.company_name}</p>
+          <p className="font-medium text-ink">{factory.company_name}</p>
           {factory.location && (
-            <p className="mt-0.5 text-sm text-gray-500">{factory.location}</p>
+            <p className="mt-0.5 text-sm text-ink-subtle">{factory.location}</p>
           )}
           {factory.rating_avg > 0 && (
-            <p className="mt-0.5 text-sm text-yellow-600">
+            <p className="mt-0.5 text-sm text-warning">
               ★ {factory.rating_avg.toFixed(1)}
             </p>
           )}
         </div>
         <Link
           href={`/portfolios?factory=${factory.id}`}
-          className="flex-shrink-0 rounded-lg border border-gray-200 px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-50"
+          className="flex-shrink-0 rounded-lg border border-border px-3 py-1.5 text-xs text-ink-muted hover:bg-surface-muted"
         >
           포트폴리오 보기
         </Link>
       </div>
 
       {/* 총액·납기 요약 */}
-      <div className="grid grid-cols-2 gap-4 rounded-xl bg-gray-50 p-4">
+      <div className="grid grid-cols-2 gap-4 rounded-card bg-surface-muted p-4">
         <div>
-          <p className="text-xs text-gray-500">견적 금액</p>
-          <p className="mt-0.5 text-lg font-bold text-gray-900">
+          <p className="text-xs text-ink-subtle">견적 금액</p>
+          <p className="mt-0.5 text-lg font-semibold text-ink">
             {formatKrw(latest.total_cost)}원
           </p>
           {previous && previous.total_cost !== latest.total_cost && (
             <p className="mt-0.5 text-xs">
               <DiffCell diff={latest.total_cost - previous.total_cost} />
-              <span className="ml-1 text-gray-400">
+              <span className="ml-1 text-ink-subtle">
                 (v{previous.version}: {formatKrw(previous.total_cost)}원)
               </span>
             </p>
           )}
         </div>
         <div>
-          <p className="text-xs text-gray-500">납기</p>
-          <p className="mt-0.5 text-lg font-bold text-gray-900">
+          <p className="text-xs text-ink-subtle">납기</p>
+          <p className="mt-0.5 text-lg font-semibold text-ink">
             {latest.delivery_days != null ? `${latest.delivery_days}일` : '미정'}
           </p>
           {previous &&
             previous.delivery_days !== latest.delivery_days &&
             previous.delivery_days != null && (
-              <p className="mt-0.5 text-xs text-gray-400">
+              <p className="mt-0.5 text-xs text-ink-subtle">
                 v{previous.version}: {previous.delivery_days}일
               </p>
             )}
@@ -163,7 +163,7 @@ export default function QuoteVersionCard({ factory, quotes, isLowest, requestId,
 
       {/* 메모 */}
       {latest.note && (
-        <p className="mt-3 rounded-lg border border-gray-100 bg-white p-3 text-sm text-gray-600">
+        <p className="mt-3 rounded-lg border border-border bg-surface p-3 text-sm text-ink-muted">
           {latest.note}
         </p>
       )}
@@ -173,7 +173,7 @@ export default function QuoteVersionCard({ factory, quotes, isLowest, requestId,
         <div className="mt-4">
           <button
             onClick={() => setShowDiff(!showDiff)}
-            className="flex items-center gap-1 text-sm text-indigo-500 hover:text-indigo-700"
+            className="flex items-center gap-1 text-sm text-brand hover:text-brand"
           >
             <span className="text-xs">{showDiff ? '▲' : '▼'}</span>
             {showDiff
@@ -182,36 +182,36 @@ export default function QuoteVersionCard({ factory, quotes, isLowest, requestId,
           </button>
 
           {showDiff && (
-            <div className="mt-3 overflow-hidden rounded-xl border border-gray-100">
+            <div className="mt-3 overflow-hidden rounded-card border border-border">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50">
+                <thead className="bg-surface-muted">
                   <tr>
-                    <th className="py-2 pl-4 text-left text-xs font-medium text-gray-500">
+                    <th className="py-2 pl-4 text-left text-xs font-medium text-ink-subtle">
                       항목
                     </th>
-                    <th className="py-2 text-right text-xs font-medium text-gray-500">
+                    <th className="py-2 text-right text-xs font-medium text-ink-subtle">
                       v{previous!.version}
                     </th>
-                    <th className="py-2 text-right text-xs font-medium text-gray-500">
+                    <th className="py-2 text-right text-xs font-medium text-ink-subtle">
                       v{latest.version}
                     </th>
-                    <th className="py-2 pr-4 text-right text-xs font-medium text-gray-500">
+                    <th className="py-2 pr-4 text-right text-xs font-medium text-ink-subtle">
                       변동
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-border">
                   {COST_FIELDS.map(({ key, label }) => {
                     const prevVal = previous![key] as number
                     const currVal = latest[key] as number
                     const diff = currVal - prevVal
                     return (
-                      <tr key={key} className={diff !== 0 ? 'bg-yellow-50/40' : ''}>
-                        <td className="py-2 pl-4 text-gray-600">{label}</td>
-                        <td className="py-2 text-right text-gray-400">
+                      <tr key={key} className={diff !== 0 ? 'bg-warning-tint/40' : ''}>
+                        <td className="py-2 pl-4 text-ink-muted">{label}</td>
+                        <td className="py-2 text-right text-ink-subtle">
                           {prevVal > 0 ? `${formatKrw(prevVal)}원` : '—'}
                         </td>
-                        <td className="py-2 text-right text-gray-800">
+                        <td className="py-2 text-right text-ink">
                           {currVal > 0 ? `${formatKrw(currVal)}원` : '—'}
                         </td>
                         <td className="py-2 pr-4 text-right">
@@ -221,12 +221,12 @@ export default function QuoteVersionCard({ factory, quotes, isLowest, requestId,
                     )
                   })}
                   {/* 합계 행 */}
-                  <tr className="border-t border-gray-200 bg-gray-50 font-medium">
-                    <td className="py-2.5 pl-4 text-gray-700">합계</td>
-                    <td className="py-2.5 text-right text-gray-500">
+                  <tr className="border-t border-border bg-surface-muted font-medium">
+                    <td className="py-2.5 pl-4 text-ink">합계</td>
+                    <td className="py-2.5 text-right text-ink-subtle">
                       {formatKrw(previous!.total_cost)}원
                     </td>
-                    <td className="py-2.5 text-right text-gray-900">
+                    <td className="py-2.5 text-right text-ink">
                       {formatKrw(latest.total_cost)}원
                     </td>
                     <td className="py-2.5 pr-4 text-right">
@@ -240,40 +240,40 @@ export default function QuoteVersionCard({ factory, quotes, isLowest, requestId,
         </div>
       )}
 
-      <p className="mt-3 text-xs text-gray-400">
+      <p className="mt-3 text-xs text-ink-subtle">
         {new Date(latest.created_at).toLocaleDateString('ko-KR')} 제출
       </p>
 
       {/* 수락 UI */}
       {isAccepted ? (
-        <div className="mt-4 rounded-xl bg-indigo-50 px-4 py-3 text-center text-sm font-medium text-indigo-700">
+        <div className="mt-4 rounded-card bg-brand-tint px-4 py-3 text-center text-sm font-medium text-brand">
           이 견적서로 계약이 확정되었습니다
         </div>
       ) : canAccept ? (
         confirming ? (
-          <div className="mt-4 space-y-3 rounded-xl border border-indigo-200 bg-indigo-50/50 p-4">
-            <p className="text-sm text-gray-700">
-              <span className="font-semibold">{factory.company_name}</span>의 견적서로
+          <div className="mt-4 space-y-3 rounded-card border border-brand-tint-strong bg-brand-tint/50 p-4">
+            <p className="text-sm text-ink">
+              <span className="font-medium">{factory.company_name}</span>의 견적서로
               계약을 확정하시겠습니까?
             </p>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-ink-subtle">
               확정 후에는 취소하기 어렵습니다. 소핏 담당자가 이후 진행을 안내드립니다.
             </p>
             {acceptError && (
-              <p className="text-xs text-red-500">{acceptError}</p>
+              <p className="text-xs text-danger">{acceptError}</p>
             )}
             <div className="flex gap-2">
               <button
                 onClick={handleAccept}
                 disabled={isPending}
-                className="flex-1 rounded-xl bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                className="flex-1 rounded-card bg-brand py-2.5 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-50"
               >
                 {isPending ? '처리 중...' : '네, 계약 확정'}
               </button>
               <button
                 onClick={() => { setConfirming(false); setAcceptError(null) }}
                 disabled={isPending}
-                className="flex-1 rounded-xl border border-gray-200 bg-white py-2.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                className="flex-1 rounded-card border border-border bg-surface py-2.5 text-sm text-ink-muted hover:bg-surface-muted disabled:opacity-50"
               >
                 취소
               </button>
@@ -282,7 +282,7 @@ export default function QuoteVersionCard({ factory, quotes, isLowest, requestId,
         ) : (
           <button
             onClick={() => setConfirming(true)}
-            className="mt-4 w-full rounded-xl bg-indigo-600 py-3 text-sm font-semibold text-white hover:bg-indigo-700"
+            className="mt-4 w-full rounded-card bg-brand py-3 text-sm font-medium text-white hover:bg-brand-hover"
           >
             이 견적서로 계약하기
           </button>

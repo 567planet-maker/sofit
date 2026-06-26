@@ -1,0 +1,50 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chat</title>
+<style>
+:root{
+  --ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;
+  --canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F0F3F8;
+  --border:#E3E8EE;--accent:#5469D4;--accent-tint:#EDEFFB;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:32px;-webkit-font-smoothing:antialiased}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:0 0 12px}
+.room{max-width:520px;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(26,31,54,.06)}
+.rhd{display:flex;align-items:center;gap:10px;padding:13px 18px;border-bottom:1px solid var(--border)}
+.rhd .av{width:34px;height:34px;border-radius:50%;background-image:linear-gradient(135deg,#5FBE9B,#1A7F64)}
+.rhd .nm{font-size:14px;font-weight:700}
+.rhd .st{font-size:12px;color:#1A7F64;font-weight:600}
+.body{padding:18px;background:var(--canvas);display:flex;flex-direction:column;gap:14px;min-height:260px}
+.day{align-self:center;font-size:11px;color:var(--ink-subtle);background:var(--surface);border:1px solid var(--border);padding:3px 10px;border-radius:999px}
+.msg{display:flex;gap:9px;max-width:78%}
+.msg .av{width:30px;height:30px;border-radius:50%;background-image:linear-gradient(135deg,#5FBE9B,#1A7F64);flex-shrink:0}
+.bubble{padding:10px 13px;border-radius:14px;font-size:14px;line-height:1.45}
+.in .bubble{background:var(--surface);border:1px solid var(--border);border-top-left-radius:4px}
+.tm{font-size:11px;color:var(--ink-subtle);align-self:flex-end}
+.out{align-self:flex-end;flex-direction:row-reverse}
+.out .bubble{background:var(--accent);color:#fff;border-top-right-radius:4px}
+.out .tm{color:var(--ink-subtle)}
+.att{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600}
+.att .ic{width:26px;height:26px;border-radius:6px;background:var(--accent-tint);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px}
+.input{display:flex;align-items:center;gap:8px;padding:12px 14px;border-top:1px solid var(--border)}
+.input .plus{width:38px;height:38px;border-radius:9px;border:1px solid var(--border);color:var(--ink-muted);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.input .ti{flex:1;height:40px;border:1px solid var(--border);border-radius:10px;padding:0 13px;font-family:inherit;font-size:14px}
+.input .send{height:40px;padding:0 16px;border-radius:10px;background:var(--accent);color:#fff;border:none;font-weight:600;font-size:14px;font-family:inherit}
+</style></head>
+<body>
+<h2>Chat — 채팅방 (말풍선 · 첨부 · 입력창)</h2>
+<div class="room">
+  <div class="rhd"><div class="av"></div><div style="flex:1"><div class="nm">천일쇼파</div><div class="st">● 온라인</div></div></div>
+  <div class="body">
+    <div class="day">2026년 6월 26일</div>
+    <div class="msg in"><div class="av"></div><div><div class="bubble">안녕하세요! 도면 잘 받았습니다. 자재는 어떤 톤으로 생각하세요?</div></div></div>
+    <div class="msg out"><div><div class="bubble">원목 느낌으로 따뜻하게 갔으면 좋겠어요. 참고 이미지 보낼게요.</div></div><span class="tm">11:02</span></div>
+    <div class="msg out"><div><div class="att"><span class="ic">📎</span> 매장_참고_01.jpg</div></div><span class="tm">11:02</span></div>
+    <div class="msg in"><div class="av"></div><div><div class="bubble">좋네요. 견적서에 반영해서 보내드리겠습니다.</div></div></div>
+  </div>
+  <div class="input"><div class="plus">＋</div><input class="ti" placeholder="메시지를 입력하세요…"><button class="send">전송</button></div>
+</div>
+</body></html>

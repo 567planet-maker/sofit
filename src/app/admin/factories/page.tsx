@@ -1,19 +1,20 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { Tabs, PageHeader, EmptyState, Badge, type TabItem, type BadgeTone } from '@/components/ui'
 import type { FactoryStatus } from '@/types'
 
-const TABS: { label: string; value: string }[] = [
+const TABS: TabItem[] = [
   { label: '승인 대기', value: 'pending' },
   { label: '활성', value: 'active' },
   { label: '정지', value: 'suspended' },
   { label: '반려', value: 'rejected' },
 ]
 
-const STATUS_MAP: Record<FactoryStatus, { label: string; className: string }> = {
-  pending: { label: '승인 대기', className: 'bg-yellow-50 text-yellow-700' },
-  active: { label: '활성', className: 'bg-green-50 text-green-700' },
-  suspended: { label: '정지', className: 'bg-gray-100 text-gray-500' },
-  rejected: { label: '반려', className: 'bg-red-50 text-red-600' },
+const STATUS_MAP: Record<FactoryStatus, { label: string; tone: BadgeTone }> = {
+  pending: { label: '승인 대기', tone: 'warning' },
+  active: { label: '활성', tone: 'success' },
+  suspended: { label: '정지', tone: 'neutral' },
+  rejected: { label: '반려', tone: 'danger' },
 }
 
 function formatDate(iso: string) {
@@ -40,66 +41,42 @@ export default async function AdminFactoriesPage({
 
   return (
     <div className="p-8">
-      <h1 className="mb-6 text-xl font-bold text-gray-900">공장 관리</h1>
+      <PageHeader title="공장 관리" description="입점 신청을 검수하고 공장 상태를 관리합니다." />
 
-      {/* 탭 */}
-      <div className="mb-6 flex gap-1 overflow-x-auto rounded-xl bg-gray-100 p-1">
-        {TABS.map((t) => (
-          <Link
-            key={t.value}
-            href={`/admin/factories?status=${t.value}`}
-            className={`flex-shrink-0 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-              tab === t.value
-                ? 'bg-white text-indigo-700 shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            {t.label}
-          </Link>
-        ))}
-      </div>
+      <Tabs items={TABS} active={tab} basePath="/admin/factories" className="mb-6" />
 
       {/* 목록 */}
       {!factories || factories.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-gray-200 py-16 text-center">
-          <p className="text-gray-400">해당 상태의 공장이 없습니다.</p>
-        </div>
+        <EmptyState title="해당 상태의 공장이 없습니다." />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-card border border-border bg-surface shadow-card">
           <table className="w-full text-sm">
-            <thead className="border-b border-gray-100 bg-gray-50">
+            <thead className="border-b border-border bg-surface-muted">
               <tr>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500">등록일</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500">업체명</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500">위치</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500">대표자</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-gray-500">상태</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">등록일</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">업체명</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">위치</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">대표자</th>
+                <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">상태</th>
                 <th className="px-5 py-3"></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-border">
               {(factories as any[]).map((f) => {
                 const statusInfo = STATUS_MAP[f.status as FactoryStatus]
                 return (
-                  <tr key={f.id} className="hover:bg-gray-50">
-                    <td className="px-5 py-4 text-gray-500">{formatDate(f.created_at)}</td>
-                    <td className="px-5 py-4 font-medium text-gray-900">{f.company_name}</td>
-                    <td className="px-5 py-4 text-gray-500">{f.location ?? '-'}</td>
-                    <td className="px-5 py-4 text-gray-500">
+                  <tr key={f.id} className="hover:bg-surface-muted">
+                    <td className="px-5 py-4 text-ink-muted">{formatDate(f.created_at)}</td>
+                    <td className="px-5 py-4 font-medium text-ink">{f.company_name}</td>
+                    <td className="px-5 py-4 text-ink-muted">{f.location ?? '-'}</td>
+                    <td className="px-5 py-4 text-ink-muted">
                       {f.users?.name ?? f.users?.email ?? '-'}
                     </td>
                     <td className="px-5 py-4">
-                      <span
-                        className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${statusInfo.className}`}
-                      >
-                        {statusInfo.label}
-                      </span>
+                      <Badge tone={statusInfo.tone}>{statusInfo.label}</Badge>
                     </td>
                     <td className="px-5 py-4">
-                      <Link
-                        href={`/admin/factories/${f.id}`}
-                        className="text-indigo-600 hover:underline"
-                      >
+                      <Link href={`/admin/factories/${f.id}`} className="font-medium text-brand hover:text-brand-hover">
                         상세 →
                       </Link>
                     </td>

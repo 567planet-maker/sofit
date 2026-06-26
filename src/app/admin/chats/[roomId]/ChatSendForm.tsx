@@ -31,8 +31,8 @@ export default function ChatSendForm({ roomId }: { roomId: string }) {
   }
 
   return (
-    <div className="border-t border-gray-200 bg-white p-4">
-      {error && <p className="mb-2 text-sm text-red-600">{error}</p>}
+    <div className="border-t border-border bg-white p-4">
+      {error && <p className="mb-2 text-sm text-danger">{error}</p>}
       <div className="flex gap-3">
         <textarea
           value={content}
@@ -40,12 +40,12 @@ export default function ChatSendForm({ roomId }: { roomId: string }) {
           onKeyDown={handleKeyDown}
           placeholder="메시지 입력 (Ctrl+Enter로 전송)"
           rows={2}
-          className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-2.5 text-sm outline-none focus:border-indigo-400"
+          className="flex-1 resize-none rounded-card border border-border px-4 py-2.5 text-sm outline-none focus:border-brand"
         />
         <button
           onClick={handleSend}
           disabled={isPending || !content.trim()}
-          className="flex-shrink-0 rounded-xl bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-40"
+          className="flex-shrink-0 rounded-card bg-brand px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-40"
         >
           {isPending ? '전송 중...' : '전송'}
         </button>

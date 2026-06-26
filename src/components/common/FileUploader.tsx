@@ -182,12 +182,12 @@ export default function FileUploader({
         }}
         onDragLeave={() => setIsDragging(false)}
         onClick={() => !disabled && inputRef.current?.click()}
-        className={`cursor-pointer rounded-xl border-2 border-dashed p-6 text-center transition-colors ${
+        className={`cursor-pointer rounded-card border-2 border-dashed p-6 text-center transition-colors ${
           isDragging
-            ? 'border-indigo-400 bg-indigo-50'
+            ? 'border-brand bg-brand-tint'
             : disabled
-              ? 'cursor-not-allowed border-gray-100 bg-gray-50'
-              : 'border-gray-200 hover:border-indigo-300 hover:bg-gray-50'
+              ? 'cursor-not-allowed border-border bg-surface-muted'
+              : 'border-border hover:border-brand-tint-strong hover:bg-surface-muted'
         }`}
       >
         <input
@@ -200,9 +200,9 @@ export default function FileUploader({
           disabled={disabled}
         />
         <p className="text-2xl">📎</p>
-        <p className="mt-1 text-sm font-medium text-gray-600">{label}</p>
-        {hint && <p className="mt-0.5 text-xs text-gray-400">{hint}</p>}
-        <p className="mt-0.5 text-xs text-gray-400">최대 {maxSizeMb}MB</p>
+        <p className="mt-1 text-sm font-medium text-ink-muted">{label}</p>
+        {hint && <p className="mt-0.5 text-xs text-ink-subtle">{hint}</p>}
+        <p className="mt-0.5 text-xs text-ink-subtle">최대 {maxSizeMb}MB</p>
       </div>
 
       {items.length > 0 && (
@@ -210,7 +210,7 @@ export default function FileUploader({
           {items.map((item) => (
             <li
               key={item.id}
-              className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50 p-2.5"
+              className="flex items-center gap-3 rounded-lg border border-border bg-surface-muted p-2.5"
             >
               {item.previewUrl ? (
                 <img
@@ -219,24 +219,24 @@ export default function FileUploader({
                   className="h-10 w-10 flex-shrink-0 rounded object-cover"
                 />
               ) : (
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded bg-gray-200 text-xs font-bold text-gray-500">
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded bg-border text-xs font-semibold text-ink-muted">
                   {ext(item.file.name)}
                 </div>
               )}
 
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-700">{item.file.name}</p>
-                <p className="text-xs text-gray-400">
+                <p className="truncate text-sm font-medium text-ink">{item.file.name}</p>
+                <p className="text-xs text-ink-subtle">
                   {(item.file.size / 1024 / 1024).toFixed(1)}MB
                 </p>
                 {item.error && <p className="text-xs text-red-500">{item.error}</p>}
               </div>
 
               {item.isUploading && (
-                <span className="flex-shrink-0 text-xs text-indigo-500">업로드 중…</span>
+                <span className="flex-shrink-0 text-xs text-brand">업로드 중…</span>
               )}
               {!item.isUploading && item.uploadedPath && (
-                <span className="flex-shrink-0 text-xs text-green-600">✓ 완료</span>
+                <span className="flex-shrink-0 text-xs text-success">✓ 완료</span>
               )}
 
               <button
@@ -245,7 +245,7 @@ export default function FileUploader({
                   e.stopPropagation()
                   removeFile(item.id)
                 }}
-                className="flex-shrink-0 rounded p-1 text-gray-400 hover:bg-gray-200 hover:text-gray-600"
+                className="flex-shrink-0 rounded p-1 text-ink-subtle hover:bg-border hover:text-ink-muted"
                 aria-label="파일 삭제"
               >
                 ✕

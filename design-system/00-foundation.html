@@ -1,0 +1,99 @@
+<!-- @dsCard group="Foundation" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Foundation</title>
+<style>
+:root{
+  --ink:#1A1F36; --ink-muted:#4F566B; --ink-subtle:#8792A2;
+  --canvas:#F6F8FB; --surface:#FFFFFF; --surface-muted:#F0F3F8;
+  --border:#E3E8EE; --border-strong:#D5DBE3;
+  --accent:#5469D4; --accent-hover:#4456C7; --accent-tint:#EDEFFB;
+  --success:#1A7F64; --success-tint:#E6F4EF;
+  --warning:#9A6700; --warning-tint:#FBF3E0;
+  --danger:#C0123C; --danger-tint:#FCE8EC;
+  --radius-control:6px; --radius-card:10px; --radius-pill:999px;
+  --shadow-card:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(26,31,54,.06);
+  --shadow-pop:0 4px 14px rgba(26,31,54,.10);
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px;-webkit-font-smoothing:antialiased}
+h1{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-subtle);font-weight:600;margin:0 0 28px}
+section{margin-bottom:40px}
+h2{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-subtle);font-weight:600;margin:0 0 14px}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.sw{border:1px solid var(--border);border-radius:var(--radius-card);overflow:hidden;background:var(--surface)}
+.sw .chip{height:56px}
+.sw .meta{padding:9px 11px}
+.sw .name{font-size:12px;font-weight:600}
+.sw .hex{font-size:11px;color:var(--ink-subtle);font-family:ui-monospace,monospace;margin-top:2px}
+.type-row{display:flex;align-items:baseline;gap:16px;padding:10px 0;border-bottom:1px solid var(--border)}
+.type-row .lbl{width:90px;font-size:11px;color:var(--ink-subtle);font-family:ui-monospace,monospace}
+.t-h1{font-size:26px;font-weight:700;letter-spacing:-.02em}
+.t-h2{font-size:20px;font-weight:700;letter-spacing:-.01em}
+.t-title{font-size:16px;font-weight:600}
+.t-body{font-size:14px}
+.t-sm{font-size:13px;color:var(--ink-muted)}
+.t-cap{font-size:12px;color:var(--ink-subtle)}
+.scale{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.scale div{background:var(--accent-tint);border:1px solid var(--accent);border-radius:4px}
+.radii{display:flex;gap:16px}
+.radii div{width:72px;height:56px;background:var(--surface);border:1px solid var(--border-strong);display:flex;align-items:flex-end;justify-content:center;font-size:11px;color:var(--ink-subtle);padding-bottom:6px}
+.shadows{display:flex;gap:20px}
+.shadows div{width:120px;height:72px;background:var(--surface);border-radius:var(--radius-card);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-subtle)}
+</style></head>
+<body>
+<h1>sofit · Foundation (Stripe-tuned)</h1>
+
+<section>
+<h2>Color</h2>
+<div class="swatches">
+  <div class="sw"><div class="chip" style="background:#5469D4"></div><div class="meta"><div class="name">accent</div><div class="hex">#5469D4</div></div></div>
+  <div class="sw"><div class="chip" style="background:#4456C7"></div><div class="meta"><div class="name">accent-hover</div><div class="hex">#4456C7</div></div></div>
+  <div class="sw"><div class="chip" style="background:#EDEFFB"></div><div class="meta"><div class="name">accent-tint</div><div class="hex">#EDEFFB</div></div></div>
+  <div class="sw"><div class="chip" style="background:#1A1F36"></div><div class="meta"><div class="name">ink</div><div class="hex">#1A1F36</div></div></div>
+  <div class="sw"><div class="chip" style="background:#4F566B"></div><div class="meta"><div class="name">ink-muted</div><div class="hex">#4F566B</div></div></div>
+  <div class="sw"><div class="chip" style="background:#8792A2"></div><div class="meta"><div class="name">ink-subtle</div><div class="hex">#8792A2</div></div></div>
+  <div class="sw"><div class="chip" style="background:#F6F8FB;border-bottom:1px solid #E3E8EE"></div><div class="meta"><div class="name">canvas</div><div class="hex">#F6F8FB</div></div></div>
+  <div class="sw"><div class="chip" style="background:#E3E8EE"></div><div class="meta"><div class="name">border</div><div class="hex">#E3E8EE</div></div></div>
+  <div class="sw"><div class="chip" style="background:#1A7F64"></div><div class="meta"><div class="name">success</div><div class="hex">#1A7F64</div></div></div>
+  <div class="sw"><div class="chip" style="background:#9A6700"></div><div class="meta"><div class="name">warning</div><div class="hex">#9A6700</div></div></div>
+  <div class="sw"><div class="chip" style="background:#C0123C"></div><div class="meta"><div class="name">danger</div><div class="hex">#C0123C</div></div></div>
+</div>
+</section>
+
+<section>
+<h2>Typography</h2>
+<div class="type-row"><span class="lbl">h1 / 26·700</span><span class="t-h1">맞춤 쇼파 견적, 소핏</span></div>
+<div class="type-row"><span class="lbl">h2 / 20·700</span><span class="t-h2">견적 요청 목록</span></div>
+<div class="type-row"><span class="lbl">title / 16·600</span><span class="t-title">강남 매장 리뉴얼</span></div>
+<div class="type-row"><span class="lbl">body / 14·400</span><span class="t-body">현장 정보와 도면을 입력하면 공장이 견적을 보냅니다.</span></div>
+<div class="type-row"><span class="lbl">sm / 13</span><span class="t-sm">천일쇼파 · 2026.06.26</span></div>
+<div class="type-row"><span class="lbl">caption / 12</span><span class="t-cap">최근 업데이트 3분 전</span></div>
+</section>
+
+<section>
+<h2>Spacing (4px 기준)</h2>
+<div class="scale">
+  <div style="width:4px;height:4px"></div><div style="width:8px;height:8px"></div><div style="width:12px;height:12px"></div>
+  <div style="width:16px;height:16px"></div><div style="width:24px;height:24px"></div><div style="width:32px;height:32px"></div><div style="width:48px;height:48px"></div>
+</div>
+</section>
+
+<section>
+<h2>Radius</h2>
+<div class="radii">
+  <div style="border-radius:6px">control 6</div>
+  <div style="border-radius:10px">card 10</div>
+  <div style="border-radius:999px">pill</div>
+</div>
+</section>
+
+<section>
+<h2>Elevation</h2>
+<div class="shadows">
+  <div style="box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(26,31,54,.06)">card</div>
+  <div style="box-shadow:0 4px 14px rgba(26,31,54,.10)">pop</div>
+</div>
+</section>
+</body></html>

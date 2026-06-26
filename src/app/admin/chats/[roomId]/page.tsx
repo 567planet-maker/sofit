@@ -50,16 +50,16 @@ export default async function AdminChatRoomPage({
   return (
     <div className="flex h-screen flex-col">
       {/* 헤더 */}
-      <div className="flex items-center gap-4 border-b border-gray-200 bg-white px-6 py-4">
-        <Link href="/admin/chats" className="text-sm text-indigo-500 hover:underline">
+      <div className="flex items-center gap-4 border-b border-border bg-white px-6 py-4">
+        <Link href="/admin/chats" className="text-sm text-brand hover:underline">
           ← 채팅 목록
         </Link>
         <div className="flex-1">
-          <p className="font-semibold text-gray-900">{req?.site_name ?? '(현장 정보 없음)'}</p>
+          <p className="font-medium text-ink">{req?.site_name ?? '(현장 정보 없음)'}</p>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500">{req?.company_name}</span>
+            <span className="text-xs text-ink-muted">{req?.company_name}</span>
             {isReadOnly && (
-              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500">
+              <span className="rounded-full bg-surface-muted px-2 py-0.5 text-xs text-ink-muted">
                 읽기 전용 (고객↔공장 직접 채팅)
               </span>
             )}
@@ -68,7 +68,7 @@ export default async function AdminChatRoomPage({
         {req?.id && (
           <Link
             href={`/admin/requests/${req.id}`}
-            className="text-sm text-indigo-600 hover:underline"
+            className="text-sm text-brand hover:underline"
           >
             견적 상세 →
           </Link>
@@ -76,9 +76,9 @@ export default async function AdminChatRoomPage({
       </div>
 
       {/* 메시지 목록 */}
-      <div className="flex-1 overflow-y-auto bg-gray-50 px-6 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto bg-surface-muted px-6 py-4 space-y-4">
         {!messages || messages.length === 0 ? (
-          <p className="py-10 text-center text-sm text-gray-400">메시지가 없습니다.</p>
+          <p className="py-10 text-center text-sm text-ink-subtle">메시지가 없습니다.</p>
         ) : (
           (messages as any[]).map((msg) => {
             const isAdmin = msg.users?.role === 'admin'
@@ -92,14 +92,14 @@ export default async function AdminChatRoomPage({
                 key={msg.id}
                 className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
               >
-                <span className="mb-1 text-xs text-gray-400">{senderLabel}</span>
+                <span className="mb-1 text-xs text-ink-subtle">{senderLabel}</span>
                 <div
-                  className={`max-w-xs rounded-2xl px-4 py-2.5 text-sm lg:max-w-md ${
+                  className={`max-w-xs rounded-card px-4 py-2.5 text-sm lg:max-w-md ${
                     isMine
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-brand text-white'
                       : isAdmin
-                        ? 'bg-indigo-100 text-indigo-900'
-                        : 'bg-white text-gray-800 shadow-sm'
+                        ? 'bg-brand-tint text-brand'
+                        : 'bg-white text-ink shadow-card'
                   }`}
                 >
                   {msg.content && <p>{msg.content}</p>}
@@ -114,7 +114,7 @@ export default async function AdminChatRoomPage({
                     </a>
                   )}
                 </div>
-                <span className="mt-1 text-xs text-gray-400">{formatTime(msg.created_at)}</span>
+                <span className="mt-1 text-xs text-ink-subtle">{formatTime(msg.created_at)}</span>
               </div>
             )
           })
@@ -123,7 +123,7 @@ export default async function AdminChatRoomPage({
 
       {/* 메시지 입력 */}
       {isReadOnly ? (
-        <div className="border-t border-gray-200 bg-gray-100 px-6 py-4 text-center text-sm text-gray-500">
+        <div className="border-t border-border bg-surface-muted px-6 py-4 text-center text-sm text-ink-muted">
           고객과 공장이 직접 소통하는 채팅방입니다. 관리자는 읽기 전용으로 모니터링합니다.
         </div>
       ) : (

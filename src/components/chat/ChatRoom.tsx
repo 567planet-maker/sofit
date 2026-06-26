@@ -162,9 +162,9 @@ export default function ChatRoom({
 
   return (
     <div className="flex h-full flex-col">
-      <div ref={scrollRef} className="flex-1 overflow-y-auto bg-gray-50 px-4 py-4 space-y-4">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto bg-surface-muted px-4 py-4 space-y-4">
         {messages.length === 0 ? (
-          <p className="py-10 text-center text-sm text-gray-400">
+          <p className="py-10 text-center text-sm text-ink-subtle">
             {isReadOnly ? '메시지가 없습니다.' : '대화를 시작하세요.'}
           </p>
         ) : (
@@ -182,14 +182,14 @@ export default function ChatRoom({
                 key={msg.id}
                 className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
               >
-                {!isMine && <span className="mb-1 text-xs text-gray-400">{label}</span>}
+                {!isMine && <span className="mb-1 text-xs text-ink-subtle">{label}</span>}
                 <div
-                  className={`max-w-xs rounded-2xl px-4 py-2.5 text-sm lg:max-w-md ${
+                  className={`max-w-xs rounded-card px-4 py-2.5 text-sm lg:max-w-md ${
                     isMine
-                      ? 'bg-indigo-600 text-white'
+                      ? 'bg-brand text-white'
                       : isAdmin
-                        ? 'bg-indigo-100 text-indigo-900'
-                        : 'bg-white text-gray-800 shadow-sm'
+                        ? 'bg-brand-tint text-brand'
+                        : 'bg-white text-ink shadow-card'
                   }`}
                 >
                   {msg.content && (
@@ -200,13 +200,13 @@ export default function ChatRoom({
                       href={msg.file_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`text-sm underline ${isMine ? 'text-indigo-200' : 'text-indigo-600'}`}
+                      className={`text-sm underline ${isMine ? 'text-white/70' : 'text-brand'}`}
                     >
                       📎 {msg.file_name ?? '첨부파일'}
                     </a>
                   )}
                 </div>
-                <span className="mt-1 text-xs text-gray-400">{formatTime(msg.created_at)}</span>
+                <span className="mt-1 text-xs text-ink-subtle">{formatTime(msg.created_at)}</span>
               </div>
             )
           })
@@ -214,11 +214,11 @@ export default function ChatRoom({
       </div>
 
       {isReadOnly ? (
-        <div className="border-t border-gray-200 bg-gray-100 px-4 py-3 text-center text-sm text-gray-500">
+        <div className="border-t border-border bg-surface-muted px-4 py-3 text-center text-sm text-ink-muted">
           읽기 전용 채팅방입니다.
         </div>
       ) : (
-        <div className="border-t border-gray-200 bg-white px-4 py-3">
+        <div className="border-t border-border bg-white px-4 py-3">
           {error && <p className="mb-2 text-xs text-red-500">{error}</p>}
           <div className="flex items-end gap-2">
             <input
@@ -232,7 +232,7 @@ export default function ChatRoom({
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={isUploading || isPending}
-              className="flex-shrink-0 rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 disabled:opacity-40"
+              className="flex-shrink-0 rounded-lg p-2 text-ink-subtle hover:bg-surface-muted hover:text-ink-muted disabled:opacity-40"
               title="파일 첨부"
             >
               <svg
@@ -260,14 +260,14 @@ export default function ChatRoom({
               placeholder={isUploading ? '업로드 중...' : '메시지 입력 (Ctrl+Enter 전송)'}
               disabled={isPending || isUploading}
               rows={1}
-              className="flex-1 resize-none rounded-xl border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:opacity-50"
+              className="flex-1 resize-none rounded-card border border-border-strong px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50"
               style={{ minHeight: '40px', maxHeight: '120px' }}
             />
             <button
               type="button"
               onClick={handleSend}
               disabled={!input.trim() || isPending || isUploading}
-              className="flex-shrink-0 rounded-xl bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-40"
+              className="flex-shrink-0 rounded-card bg-brand px-4 py-2 text-sm font-medium text-white hover:bg-brand-hover disabled:opacity-40"
             >
               전송
             </button>

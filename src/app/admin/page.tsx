@@ -23,19 +23,18 @@ function StatCard({
   href: string
   urgent?: boolean
 }) {
+  const isUrgent = urgent && value > 0
   return (
     <Link
       href={href}
-      className={`rounded-2xl border p-5 shadow-sm transition-shadow hover:shadow-md ${
-        urgent && value > 0
-          ? 'border-red-200 bg-red-50'
-          : 'border-gray-100 bg-white'
+      className={`rounded-card border p-5 shadow-card transition-shadow hover:shadow-card-hover ${
+        isUrgent ? 'border-danger/30 bg-danger-tint' : 'border-border bg-surface'
       }`}
     >
-      <p className={`text-3xl font-bold ${urgent && value > 0 ? 'text-red-600' : 'text-gray-900'}`}>
+      <p className={`text-3xl font-semibold tracking-tight ${isUrgent ? 'text-danger' : 'text-ink'}`}>
         {value}
       </p>
-      <p className={`mt-1 text-sm ${urgent && value > 0 ? 'text-red-600' : 'text-gray-500'}`}>
+      <p className={`mt-1 text-sm font-medium ${isUrgent ? 'text-danger' : 'text-ink-muted'}`}>
         {label}
       </p>
     </Link>
@@ -82,7 +81,7 @@ export default async function AdminDashboard() {
 
   return (
     <div className="p-8">
-      <h1 className="mb-6 text-2xl font-bold text-gray-900">대시보드</h1>
+      <h1 className="mb-6 text-2xl font-semibold text-ink">대시보드</h1>
 
       {/* 요약 카드 */}
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-5">
@@ -118,29 +117,29 @@ export default async function AdminDashboard() {
       {/* 최근 견적 요청 */}
       <section>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="font-semibold text-gray-800">최근 견적 요청</h2>
-          <Link href="/admin/requests" className="text-sm text-indigo-600 hover:underline">
+          <h2 className="font-semibold text-ink">최근 견적 요청</h2>
+          <Link href="/admin/requests" className="text-sm font-medium text-brand hover:text-brand-hover">
             전체 보기 →
           </Link>
         </div>
-        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+        <div className="overflow-hidden rounded-card border border-border bg-surface shadow-card">
           {!recentRequests || recentRequests.length === 0 ? (
-            <p className="py-10 text-center text-sm text-gray-400">견적 요청이 없습니다.</p>
+            <p className="py-10 text-center text-sm text-ink-subtle">견적 요청이 없습니다.</p>
           ) : (
             recentRequests.map((req, i) => (
               <Link
                 key={req.id}
                 href={`/admin/requests/${req.id}`}
-                className={`flex items-center justify-between px-5 py-4 hover:bg-gray-50 ${
-                  i > 0 ? 'border-t border-gray-100' : ''
+                className={`flex items-center justify-between px-5 py-4 hover:bg-surface-muted ${
+                  i > 0 ? 'border-t border-border' : ''
                 }`}
               >
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-gray-900">{req.site_name}</p>
-                  <p className="truncate text-sm text-gray-500">{req.company_name}</p>
+                  <p className="truncate font-medium text-ink">{req.site_name}</p>
+                  <p className="truncate text-sm text-ink-muted">{req.company_name}</p>
                 </div>
                 <div className="ml-4 flex flex-shrink-0 items-center gap-3">
-                  <span className="text-xs text-gray-400">{formatDate(req.created_at)}</span>
+                  <span className="text-xs text-ink-subtle">{formatDate(req.created_at)}</span>
                   <StatusBadge status={req.status as QuoteRequestStatus} />
                 </div>
               </Link>

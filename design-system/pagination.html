@@ -1,0 +1,22 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pagination</title>
+<style>
+:root{--ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;--canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F0F3F8;--border:#E3E8EE;--accent:#5469D4;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:0 0 16px}
+.pg{display:inline-flex;gap:4px;align-items:center}
+.pg a{min-width:36px;height:36px;padding:0 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--ink-muted);text-decoration:none}
+.pg a:hover{background:var(--surface-muted)}
+.pg a.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.pg a.dis{color:var(--ink-subtle);opacity:.5;pointer-events:none}
+.pg .gap{color:var(--ink-subtle);padding:0 4px}
+.info{font-size:13px;color:var(--ink-subtle);margin-top:14px}
+</style></head><body>
+<h2>Pagination</h2>
+<div class="pg">
+  <a class="dis">‹</a><a class="on">1</a><a>2</a><a>3</a><span class="gap">…</span><a>12</a><a>›</a>
+</div>
+<div class="info">전체 234건 중 1–20 표시</div>
+</body></html>

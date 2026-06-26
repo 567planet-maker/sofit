@@ -1,0 +1,40 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Data table</title>
+<style>
+:root{
+  --ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;
+  --canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F7F9FC;
+  --border:#E3E8EE;--accent:#5469D4;--accent-tint:#EDEFFB;
+  --success:#1A7F64;--success-tint:#E6F4EF;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px;-webkit-font-smoothing:antialiased}
+h1{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-subtle);font-weight:600;margin:0 0 20px}
+.wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(26,31,54,.06);overflow:hidden;max-width:680px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+thead th{text-align:left;font-size:12px;font-weight:600;color:var(--ink-subtle);background:var(--surface-muted);padding:11px 16px;border-bottom:1px solid var(--border)}
+tbody td{padding:13px 16px;border-bottom:1px solid var(--border);color:var(--ink-muted)}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:var(--surface-muted)}
+td.name{font-weight:600;color:var(--ink)}
+td.num{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink)}
+.b{display:inline-flex;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--success-tint);color:var(--success)}
+.b.new{background:var(--accent-tint);color:var(--accent)}
+.hl{background:#FBFBFE}
+</style></head>
+<body>
+<h1>Data table (admin)</h1>
+<div class="wrap">
+<table>
+<thead><tr><th>접수일</th><th>업체명</th><th>현장명</th><th style="text-align:right">예상금액</th><th>상태</th></tr></thead>
+<tbody>
+<tr class="hl"><td>06.26</td><td class="name">천일쇼파</td><td>강남 플래그십 매장</td><td class="num">₩12,400,000</td><td><span class="b new">접수됨</span></td></tr>
+<tr><td>06.24</td><td class="name">우리가구</td><td>분당 카페 리뉴얼</td><td class="num">₩7,850,000</td><td><span class="b new" style="background:#EDEFFB;color:#5469D4">매칭중</span></td></tr>
+<tr><td>06.21</td><td class="name">한성목공</td><td>일산 병원 대기실</td><td class="num">₩21,300,000</td><td><span class="b">계약완료</span></td></tr>
+</tbody>
+</table>
+</div>
+</body></html>

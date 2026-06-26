@@ -1,0 +1,51 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Form fields</title>
+<style>
+:root{
+  --ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;
+  --canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F0F3F8;
+  --border:#E3E8EE;--border-strong:#D5DBE3;
+  --accent:#5469D4;--accent-tint:#EDEFFB;--danger:#C0123C;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px;-webkit-font-smoothing:antialiased}
+h1{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-subtle);font-weight:600;margin:0 0 24px}
+.panel{max-width:460px;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(26,31,54,.06);padding:24px}
+.field{margin-bottom:18px}
+label{display:block;font-size:13px;font-weight:600;margin-bottom:7px}
+label .req{color:var(--danger);margin-left:3px}
+.ctrl{width:100%;height:40px;padding:0 12px;font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--border-strong);border-radius:6px;transition:border .12s,box-shadow .12s}
+.ctrl::placeholder{color:var(--ink-subtle)}
+.ctrl:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(84,105,212,.18)}
+textarea.ctrl{height:auto;padding:10px 12px;resize:vertical;min-height:80px}
+select.ctrl{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M3 4.5L6 7.5L9 4.5' stroke='%238792A2' stroke-width='1.5' fill='none' stroke-linecap='round'/></svg>");background-repeat:no-repeat;background-position:right 12px center}
+.help{font-size:12px;color:var(--ink-subtle);margin-top:6px}
+.err .ctrl{border-color:var(--danger);box-shadow:0 0 0 3px rgba(192,18,60,.14)}
+.err .help{color:var(--danger)}
+</style></head>
+<body>
+<h1>Form fields</h1>
+<div class="panel">
+  <div class="field">
+    <label>현장명<span class="req">*</span></label>
+    <input class="ctrl" placeholder="예) 강남 플래그십 매장">
+  </div>
+  <div class="field">
+    <label>업종</label>
+    <select class="ctrl"><option>카페 · 베이커리</option><option>음식점</option><option>병원 · 의원</option></select>
+  </div>
+  <div class="field">
+    <label>요청 메모</label>
+    <textarea class="ctrl" placeholder="원하는 자재, 색감, 일정 등을 자유롭게 적어주세요."></textarea>
+    <p class="help">공장이 견적을 산정할 때 참고합니다.</p>
+  </div>
+  <div class="field err">
+    <label>연락처<span class="req">*</span></label>
+    <input class="ctrl" value="010-12">
+    <p class="help">올바른 휴대폰 번호를 입력해 주세요.</p>
+  </div>
+</div>
+</body></html>

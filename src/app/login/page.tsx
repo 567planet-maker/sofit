@@ -3,15 +3,15 @@ import { EmailAuthForm } from './EmailAuthForm'
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-canvas px-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">소핏</h1>
-          <p className="mt-2 text-sm text-gray-500">소파 견적 중개 플랫폼</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-brand">소핏</h1>
+          <p className="mt-2 text-sm text-ink-muted">맞춤 쇼파 견적 중개 플랫폼</p>
         </div>
 
-        <div className="rounded-2xl bg-white p-8 shadow-sm">
-          <h2 className="mb-6 text-center text-lg font-semibold text-gray-800">
+        <div className="rounded-card border border-border bg-surface p-8 shadow-card">
+          <h2 className="mb-6 text-center text-lg font-medium text-ink">
             로그인 / 회원가입
           </h2>
 
@@ -19,7 +19,7 @@ export default function LoginPage() {
             <form action={signInWithKakao}>
               <button
                 type="submit"
-                className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#FEE500] px-4 py-3 text-sm font-semibold text-[#191919] transition-opacity hover:opacity-90"
+                className="flex w-full items-center justify-center gap-3 rounded-card bg-[#FEE500] px-4 py-3 text-sm font-medium text-[#191919] transition-opacity hover:opacity-90"
               >
                 <KakaoIcon />
                 카카오로 시작하기
@@ -29,7 +29,7 @@ export default function LoginPage() {
             <form action={signInWithNaver}>
               <button
                 type="submit"
-                className="flex w-full items-center justify-center gap-3 rounded-xl bg-[#03C75A] px-4 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="flex w-full items-center justify-center gap-3 rounded-card bg-[#03C75A] px-4 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
               >
                 <NaverIcon />
                 네이버로 시작하기
@@ -39,7 +39,7 @@ export default function LoginPage() {
 
           <EmailAuthForm />
 
-          <p className="mt-6 text-center text-xs text-gray-400">
+          <p className="mt-6 text-center text-xs text-ink-subtle">
             로그인 시{' '}
             <a href="/terms" className="underline">이용약관</a>
             {' '}및{' '}

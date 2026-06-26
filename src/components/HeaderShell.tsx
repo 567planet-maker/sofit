@@ -12,7 +12,11 @@ export default function HeaderShell({ children }: { children: React.ReactNode })
   }, [])
 
   return (
-    <header className={`sticky top-0 z-50 bg-white transition-all duration-200 border-b ${scrolled ? 'border-gray-200' : 'border-transparent'}`}>
+    <header
+      className={`sticky top-0 z-50 border-b border-border bg-surface/80 backdrop-blur transition-shadow duration-200 ${
+        scrolled ? 'shadow-sm' : ''
+      }`}
+    >
       {children}
     </header>
   )

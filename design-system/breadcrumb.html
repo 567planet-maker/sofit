@@ -1,0 +1,19 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breadcrumb</title>
+<style>
+:root{--ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;--canvas:#F6F8FB;--accent:#5469D4;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}body{font-family:var(--font);color:var(--ink);background:var(--canvas);margin:0;padding:40px}
+h2{font-size:12px;color:var(--ink-subtle);font-weight:600;margin:0 0 16px}
+.bc{display:flex;align-items:center;gap:8px;font-size:13px}
+.bc a{color:var(--ink-subtle);text-decoration:none;font-weight:500}
+.bc a:hover{color:var(--accent)}
+.bc .sep{color:var(--border);font-size:12px}
+.bc .cur{color:var(--ink);font-weight:600}
+</style></head><body>
+<h2>Breadcrumb</h2>
+<nav class="bc">
+  <a>관리자</a><span class="sep">/</span><a>견적 요청</a><span class="sep">/</span><span class="cur">강남 플래그십 매장</span>
+</nav>
+</body></html>

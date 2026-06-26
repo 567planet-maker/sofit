@@ -1,0 +1,28 @@
+<!-- @dsCard group="Components" -->
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Modal</title>
+<style>
+:root{--ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;--surface:#FFFFFF;--surface-muted:#F0F3F8;--border:#E3E8EE;--accent:#5469D4;--font:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif}
+*{box-sizing:border-box}
+body{font-family:var(--font);color:var(--ink);margin:0;min-height:420px;background:rgba(26,31,54,.45);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{width:400px;background:var(--surface);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}
+.body{padding:26px 26px 20px}
+.ttl{font-size:18px;font-weight:700;letter-spacing:-.01em;margin:0 0 8px}
+.desc{font-size:14px;color:var(--ink-muted);line-height:1.55;margin:0}
+.box{margin-top:16px;background:var(--surface-muted);border-radius:9px;padding:13px 15px;font-size:14px;display:flex;justify-content:space-between}
+.box .v{font-weight:700}
+.foot{display:flex;gap:10px;padding:16px 26px;border-top:1px solid var(--border)}
+.btn{flex:1;height:44px;border-radius:9px;font-family:inherit;font-weight:700;font-size:14px;cursor:pointer;border:1px solid transparent}
+.cancel{background:var(--surface);border-color:var(--border);color:var(--ink-muted)}
+.confirm{background:var(--accent);color:#fff}
+</style></head><body>
+<div class="modal">
+  <div class="body">
+    <h3 class="ttl">이 견적서로 계약할까요?</h3>
+    <p class="desc">계약을 확정하면 공장에 즉시 알림이 전송되고, 다른 견적서는 더 이상 선택할 수 없습니다.</p>
+    <div class="box"><span>천일쇼파 · 총액</span><span class="v">₩12,400,000</span></div>
+  </div>
+  <div class="foot"><button class="btn cancel">취소</button><button class="btn confirm">계약 확정</button></div>
+</div>
+</body></html>

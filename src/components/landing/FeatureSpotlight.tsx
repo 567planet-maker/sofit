@@ -52,18 +52,18 @@ export default function FeatureSpotlight({
     <div
       className={`flex flex-1 flex-col justify-center transition-all duration-700 ease-out ${textSlide}`}
     >
-      <p className={`mb-4 text-sm font-semibold tracking-widest uppercase ${textColors.tag}`}>
+      <p className={`mb-4 text-sm font-medium tracking-widest uppercase ${textColors.tag}`}>
         {tag}
       </p>
       <h2
-        className={`whitespace-pre-line text-4xl font-bold leading-tight sm:text-5xl ${textColors.heading}`}
+        className={`whitespace-pre-line text-4xl font-semibold leading-tight sm:text-5xl ${textColors.heading}`}
       >
         {headline}
       </h2>
       <p className={`mt-6 text-lg leading-relaxed ${textColors.body}`}>{body}</p>
       <Link
         href={ctaHref}
-        className={`mt-8 self-start rounded-full px-6 py-3 text-sm font-semibold transition-colors ${
+        className={`mt-8 self-start rounded-full px-6 py-3 text-sm font-medium transition-colors ${
           dark
             ? 'border border-white/30 text-white hover:bg-white/10'
             : 'bg-sofit-blue text-white hover:bg-sofit-blue-hover'
