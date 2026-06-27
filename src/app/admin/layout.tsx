@@ -1,7 +1,9 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { loginHref } from '@/lib/auth/redirect'
 import SidebarNav, { type SidebarNavItem } from '@/components/common/SidebarNav'
+import Avatar from '@/components/ui/Avatar'
 import NotificationBell from '@/components/notifications/NotificationBell'
 import type { Notification } from '@/types'
 
@@ -10,15 +12,15 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect(await loginHref())
 
   const { data: userData } = await supabase
     .from('users')
-    .select('role, name')
+    .select('role, name, avatar_url')
     .eq('id', user.id)
     .single()
   if (!userData?.role) redirect('/onboarding')
-  if (userData.role === 'customer') redirect('/customer')
+  if (userData.role === 'customer') redirect('/customer/me')
   if (userData.role === 'factory') redirect('/factory')
   if (userData.role !== 'admin') redirect('/login')
 
@@ -64,14 +66,24 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         <div className="flex-1 overflow-y-auto px-3 py-4">
           <SidebarNav items={navItems} />
         </div>
-        <div className="border-t border-border px-5 py-3">
+        <div className="border-t border-border px-4 py-3">
           <Link
             href="/admin/me"
-            className="block text-xs font-medium text-ink-muted hover:text-ink"
+            className="flex items-center gap-2.5 rounded-control p-1 transition-colors hover:bg-surface-muted"
           >
-            {userData.name ?? user.email}
+            <Avatar
+              src={(userData.avatar_url as string | null) ?? null}
+              name={userData.name ?? null}
+              size="sm"
+            />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-ink">
+                {userData.name ?? user.email}
+              </p>
+              <p className="text-xs text-ink-subtle">관리자</p>
+            </div>
           </Link>
-          <div className="mt-1 flex items-center gap-3">
+          <div className="mt-2 flex items-center gap-3 pl-1">
             <Link href="/admin/me" className="text-xs text-ink-subtle hover:text-ink-muted">
               마이페이지
             </Link>

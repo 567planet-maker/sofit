@@ -1,7 +1,10 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import ChatRoomList, { type ChatRoomListItem } from '@/components/chat/ChatRoomList'
 import ChatHeaderBar from '@/components/chat/ChatHeaderBar'
 import SidebarNav from '@/components/common/SidebarNav'
+import UserChip from '@/components/account/UserChip'
+import { getCurrentProfile } from '@/lib/auth/current-user'
 import { FACTORY_MANAGE_NAV } from '../manageNav'
 
 function formatTime(iso: string) {
@@ -37,7 +40,9 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
 
   const { data: rooms } = await supabase
     .from('chat_rooms')
-    .select('id, type, request_id, match_id, created_at, quote_requests(id, site_name)')
+    .select(
+      'id, type, request_id, match_id, created_at, quote_requests(id, site_name, customers(users(name, avatar_url)))',
+    )
     .in('match_id', matchIds)
     .eq('type', 'customer_factory')
     .order('created_at', { ascending: false })
@@ -62,11 +67,12 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
 
   return rooms.map((room) => {
     const req = (room as any).quote_requests
+    const customerUser = req?.customers?.users
     const lastMsg = lastMsgByRoom[room.id]
     return {
       id: room.id,
       href: `/factory/chat/${room.id}`,
-      name: '고객 직접 채팅',
+      name: customerUser?.name ?? '고객 직접 채팅',
       subtitle: req?.site_name ?? undefined,
       preview: lastMsg
         ? lastMsg.content ?? `📎 ${lastMsg.file_name ?? '첨부파일'}`
@@ -74,15 +80,16 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
       time: lastMsg ? formatTime(lastMsg.created_at) : undefined,
       unread: unreadByRoom[room.id] ?? 0,
       avatar: '고',
+      avatarUrl: customerUser?.avatar_url ?? null,
     }
   })
 }
 
 export default async function FactoryChatLayout({ children }: { children: React.ReactNode }) {
-  const rooms = await getRooms()
+  const [rooms, profile] = await Promise.all([getRooms(), getCurrentProfile()])
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
       {/* 공장 관리 사이드바 (채팅에서도 유지) */}
       <aside className="hidden w-56 flex-shrink-0 flex-col border-r border-border bg-surface lg:flex">
         <ChatHeaderBar>
@@ -101,6 +108,14 @@ export default async function FactoryChatLayout({ children }: { children: React.
         <div className="flex-1 overflow-y-auto">
           <ChatRoomList rooms={rooms} />
         </div>
+        {profile && (
+          <Link
+            href="/factory/me"
+            className="border-t border-border p-3 transition-colors hover:bg-surface-muted"
+          >
+            <UserChip name={profile.name} avatarUrl={profile.avatarUrl} subtitle={profile.email} />
+          </Link>
+        )}
       </aside>
 
       {/* 대화 내용 */}

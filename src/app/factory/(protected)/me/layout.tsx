@@ -7,6 +7,10 @@ const ITEMS: SidebarNavItem[] = [
 ]
 
 export default function FactoryMyPageLayout({ children }: { children: React.ReactNode }) {
-  return <SidebarLayout items={ITEMS}>{children}</SidebarLayout>
+  return (
+    <SidebarLayout title="마이페이지" items={ITEMS}>
+      {children}
+    </SidebarLayout>
+  )
 
 }

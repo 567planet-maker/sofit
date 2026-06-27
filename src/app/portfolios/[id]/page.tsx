@@ -57,17 +57,17 @@ export default async function PortfolioDetailPage({
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gray-50 px-4 py-10">
+      <main className="min-h-screen bg-canvas px-4 py-10">
         <div className="mx-auto max-w-3xl">
           <Link
             href="/portfolios"
-            className="mb-6 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900"
+            className="mb-6 inline-flex items-center gap-1 text-sm text-ink-muted hover:text-ink"
           >
-            ← 포트폴리오 목록
+            ← 업체찾기 목록
           </Link>
 
-          <div className="overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-100">
-            <div className="aspect-[16/9] overflow-hidden bg-gray-100">
+          <div className="overflow-hidden rounded-card border border-border bg-surface shadow-card">
+            <div className="aspect-[16/9] overflow-hidden bg-surface-muted">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={portfolio.image_url}
@@ -79,12 +79,12 @@ export default async function PortfolioDetailPage({
             <div className="p-6">
               <div className="flex flex-wrap items-start gap-3">
                 {portfolio.category && (
-                  <span className="rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-600">
+                  <span className="rounded-pill bg-brand-tint px-3 py-1 text-sm font-medium text-brand">
                     {CATEGORY_LABELS[portfolio.category as PortfolioCategory]}
                   </span>
                 )}
                 {portfolio.completed_at && (
-                  <span className="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-500">
+                  <span className="rounded-pill bg-surface-muted px-3 py-1 text-sm text-ink-muted">
                     {new Date(portfolio.completed_at).toLocaleDateString('ko-KR', {
                       year: 'numeric',
                       month: 'long',
@@ -94,20 +94,20 @@ export default async function PortfolioDetailPage({
               </div>
 
               {portfolio.description && (
-                <p className="mt-4 leading-relaxed text-gray-700">{portfolio.description}</p>
+                <p className="mt-4 leading-relaxed text-ink-muted">{portfolio.description}</p>
               )}
 
               {factory && (
-                <div className="mt-6 rounded-xl bg-gray-50 p-4">
-                  <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+                <div className="mt-6 rounded-card bg-surface-muted p-4">
+                  <p className="text-xs font-medium uppercase tracking-wider text-ink-subtle">
                     공장 정보
                   </p>
-                  <p className="mt-1 font-medium text-gray-900">{factory.company_name}</p>
+                  <p className="mt-1 font-medium text-ink">{factory.company_name}</p>
                   {factory.location && (
-                    <p className="mt-0.5 text-sm text-gray-500">{factory.location}</p>
+                    <p className="mt-0.5 text-sm text-ink-muted">{factory.location}</p>
                   )}
                   {factory.description && (
-                    <p className="mt-2 text-sm text-gray-600">{factory.description}</p>
+                    <p className="mt-2 text-sm text-ink-muted">{factory.description}</p>
                   )}
                 </div>
               )}
@@ -115,7 +115,7 @@ export default async function PortfolioDetailPage({
               <div className="mt-6">
                 <Link
                   href="/customer/request"
-                  className="block rounded-xl bg-indigo-600 py-3 text-center font-medium text-white transition-colors hover:bg-indigo-500"
+                  className="block rounded-control bg-brand py-3 text-center font-medium text-white transition-colors hover:bg-brand-hover"
                 >
                   이 공장에 견적 요청하기
                 </Link>

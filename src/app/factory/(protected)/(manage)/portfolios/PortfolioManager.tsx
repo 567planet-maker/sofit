@@ -239,7 +239,7 @@ export default function PortfolioManager({ portfolios: initialPortfolios, supaba
                           <button
                             onClick={() => handleDelete(p.id)}
                             disabled={isPending}
-                            className="flex-1 rounded-lg bg-red-500 py-1.5 text-xs font-medium text-white hover:bg-red-600 disabled:opacity-50"
+                            className="flex-1 rounded-control bg-danger py-1.5 text-xs font-medium text-white hover:opacity-90 disabled:opacity-50"
                           >
                             삭제
                           </button>

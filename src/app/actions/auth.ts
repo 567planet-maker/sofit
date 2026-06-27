@@ -1,17 +1,30 @@
 'use server'
 
 import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
+import { headers, cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import type { UserRole } from '@/types'
+import { resolveNext } from '@/lib/auth/redirect'
 
 async function getOrigin() {
   const headersList = await headers()
   return headersList.get('origin') ?? ''
 }
 
-export async function signInWithKakao() {
+/** 로그인 후 복귀할 경로를 쿠키에 저장 (OAuth 라운드트립 동안 유지) */
+async function stashNext(formData: FormData) {
+  const next = formData.get('next')
+  const cookieStore = await cookies()
+  if (typeof next === 'string' && next.startsWith('/') && !next.startsWith('//')) {
+    cookieStore.set('auth_next', next, { httpOnly: true, path: '/', maxAge: 600 })
+  } else {
+    cookieStore.delete('auth_next')
+  }
+}
+
+export async function signInWithKakao(formData: FormData) {
+  await stashNext(formData)
   const origin = await getOrigin()
   const clientId = process.env.KAKAO_REST_API_KEY!
 
@@ -26,7 +39,8 @@ export async function signInWithKakao() {
   redirect(`https://kauth.kakao.com/oauth/authorize?${params}`)
 }
 
-export async function signInWithNaver() {
+export async function signInWithNaver(formData: FormData) {
+  await stashNext(formData)
   const supabase = await createClient()
   const origin = await getOrigin()
 
@@ -66,12 +80,18 @@ export async function signUpWithEmail(
 ): Promise<{ error?: string; message?: string } | null> {
   const email = formData.get('email') as string
   const password = formData.get('password') as string
+  const name = ((formData.get('name') as string) ?? '').trim()
 
+  if (!name) return { error: '이름을 입력해주세요.' }
   if (!email || !password) return { error: '이메일과 비밀번호를 입력해주세요.' }
   if (password.length < 8) return { error: '비밀번호는 8자 이상이어야 합니다.' }
 
   const supabase = await createClient()
-  const { data, error } = await supabase.auth.signUp({ email, password })
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { name } },
+  })
 
   if (error) {
     const msg = error.message.toLowerCase()
@@ -110,11 +130,8 @@ export async function signInWithEmail(
   if (error) return { error: '이메일 또는 비밀번호가 올바르지 않습니다.' }
 
   const role = data.user.user_metadata?.role as string | undefined
-
-  if (!role) redirect('/onboarding')
-  if (role === 'admin') redirect('/admin')
-  if (role === 'factory') redirect('/factory')
-  redirect('/customer')
+  const next = formData.get('next') as string | null
+  redirect(resolveNext(next, role))
 }
 
 export async function updateUserRole(role: UserRole) {
@@ -127,5 +144,5 @@ export async function updateUserRole(role: UserRole) {
   await supabase.from('users').update({ role }).eq('id', user!.id)
 
   if (role === 'factory') redirect('/factory/onboarding')
-  redirect('/customer')
+  redirect('/customer/me')
 }

@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { loginHref } from '@/lib/auth/redirect'
 import Header from '@/components/Header'
 
 export default async function FactoryLayout({
@@ -12,7 +13,7 @@ export default async function FactoryLayout({
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) redirect('/login')
+  if (!user) redirect(await loginHref())
 
   const { data: userData } = await supabase
     .from('users')
@@ -21,7 +22,7 @@ export default async function FactoryLayout({
     .single()
 
   if (!userData?.role) redirect('/onboarding')
-  if (userData.role === 'customer') redirect('/customer')
+  if (userData.role === 'customer') redirect('/customer/me')
   if (userData.role === 'admin') redirect('/admin')
 
   const { data: factory } = await supabase

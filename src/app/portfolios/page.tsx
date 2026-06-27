@@ -45,11 +45,11 @@ export default async function PortfoliosPage({
   return (
     <>
       <Header />
-      <main className="min-h-screen bg-gray-50 px-4 py-10">
+      <main className="min-h-screen bg-canvas px-4 py-10">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-semibold text-gray-900">포트폴리오</h1>
-            <p className="mt-1 text-gray-500">파트너 공장의 실제 작업 사례입니다.</p>
+            <h1 className="text-3xl font-semibold tracking-tight text-ink">업체찾기</h1>
+            <p className="mt-1 text-ink-muted">파트너 공장의 실제 작업 사례입니다.</p>
           </div>
 
           {/* Category filter */}
@@ -58,10 +58,10 @@ export default async function PortfoliosPage({
               <Link
                 key={cat}
                 href={`/portfolios?category=${cat}`}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                className={`shrink-0 rounded-pill px-4 py-2 text-sm font-medium transition-colors ${
                   currentCategory === cat
-                    ? 'bg-gray-900 text-white'
-                    : 'bg-white text-gray-600 ring-1 ring-gray-200 hover:bg-gray-100'
+                    ? 'bg-brand text-white'
+                    : 'bg-surface text-ink-muted ring-1 ring-border hover:bg-surface-muted'
                 }`}
               >
                 {CATEGORY_LABELS[cat]}
@@ -70,9 +70,9 @@ export default async function PortfoliosPage({
           </div>
 
           {portfolios.length === 0 ? (
-            <div className="flex min-h-64 flex-col items-center justify-center rounded-2xl bg-white text-center">
-              <p className="text-gray-400">등록된 포트폴리오가 없습니다.</p>
-              <p className="mt-1 text-sm text-gray-300">파트너 공장 입점 후 작업 사례가 공개됩니다.</p>
+            <div className="flex min-h-64 flex-col items-center justify-center rounded-card border border-dashed border-border-strong bg-surface/50 text-center">
+              <p className="font-medium text-ink-muted">등록된 포트폴리오가 없습니다.</p>
+              <p className="mt-1 text-sm text-ink-subtle">파트너 공장 입점 후 작업 사례가 공개됩니다.</p>
             </div>
           ) : (
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -80,9 +80,9 @@ export default async function PortfoliosPage({
                 <Link
                   key={p.id}
                   href={`/portfolios/${p.id}`}
-                  className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-gray-100 transition-shadow hover:shadow-md"
+                  className="group overflow-hidden rounded-card border border-border bg-surface shadow-card transition-shadow hover:shadow-card-hover"
                 >
-                  <div className="aspect-[4/3] overflow-hidden bg-gray-100">
+                  <div className="aspect-[4/3] overflow-hidden bg-surface-muted">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={p.image_url}
@@ -93,21 +93,21 @@ export default async function PortfoliosPage({
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <p className="font-medium text-gray-900">
+                        <p className="font-medium text-ink">
                           {p.factories?.company_name ?? '공장'}
                         </p>
                         {p.factories?.location && (
-                          <p className="mt-0.5 text-sm text-gray-400">{p.factories.location}</p>
+                          <p className="mt-0.5 text-sm text-ink-subtle">{p.factories.location}</p>
                         )}
                       </div>
                       {p.category && (
-                        <span className="shrink-0 rounded-full bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-600">
+                        <span className="shrink-0 rounded-pill bg-brand-tint px-2 py-0.5 text-xs font-medium text-brand">
                           {CATEGORY_LABELS[p.category]}
                         </span>
                       )}
                     </div>
                     {p.description && (
-                      <p className="mt-2 line-clamp-2 text-sm text-gray-500">{p.description}</p>
+                      <p className="mt-2 line-clamp-2 text-sm text-ink-muted">{p.description}</p>
                     )}
                   </div>
                 </Link>

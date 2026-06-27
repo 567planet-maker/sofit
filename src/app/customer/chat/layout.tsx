@@ -1,6 +1,9 @@
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import ChatRoomList, { type ChatRoomListItem } from '@/components/chat/ChatRoomList'
 import ChatHeaderBar from '@/components/chat/ChatHeaderBar'
+import UserChip from '@/components/account/UserChip'
+import { getCurrentProfile } from '@/lib/auth/current-user'
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleString('ko-KR', {
@@ -48,19 +51,21 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
     .order('created_at', { ascending: false })
   if (!rooms || rooms.length === 0) return []
 
-  // customer_factory 방의 공장명
+  // customer_factory 방의 공장명 + 공장 담당자 프로필 사진
   const factoryMatchIds = rooms
     .filter((r) => r.type === 'customer_factory' && r.match_id)
     .map((r) => r.match_id as string)
-  const factoryNameByMatchId: Record<string, string> = {}
+  const factoryByMatchId: Record<string, { name: string; avatarUrl: string | null }> = {}
   if (factoryMatchIds.length > 0) {
     const { data: matchFactories } = await supabase
       .from('matches')
-      .select('id, factories(company_name)')
+      .select('id, factories(company_name, users(avatar_url))')
       .in('id', factoryMatchIds)
     for (const m of matchFactories ?? []) {
-      const f = m.factories as unknown as { company_name: string } | null
-      if (f?.company_name) factoryNameByMatchId[m.id] = f.company_name
+      const f = m.factories as any
+      if (f?.company_name) {
+        factoryByMatchId[m.id] = { name: f.company_name, avatarUrl: f.users?.avatar_url ?? null }
+      }
     }
   }
 
@@ -83,12 +88,12 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
   }
 
   return rooms.map((room) => {
-    const factoryName = room.match_id ? factoryNameByMatchId[room.match_id] : undefined
+    const factory = room.match_id ? factoryByMatchId[room.match_id] : undefined
     const lastMsg = lastMsgByRoom[room.id]
     return {
       id: room.id,
       href: `/customer/chat/${room.id}`,
-      name: getRoomLabel(room.type, factoryName),
+      name: getRoomLabel(room.type, factory?.name),
       subtitle: siteNameById[room.request_id] ?? undefined,
       preview: lastMsg
         ? lastMsg.content ?? `📎 ${lastMsg.file_name ?? '첨부파일'}`
@@ -96,15 +101,16 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
       time: lastMsg ? formatTime(lastMsg.created_at) : undefined,
       unread: unreadByRoom[room.id] ?? 0,
       avatar: room.type === 'customer_sofit' ? 'S' : '공',
+      avatarUrl: room.type === 'customer_factory' ? (factory?.avatarUrl ?? null) : null,
     }
   })
 }
 
 export default async function CustomerChatLayout({ children }: { children: React.ReactNode }) {
-  const rooms = await getRooms()
+  const [rooms, profile] = await Promise.all([getRooms(), getCurrentProfile()])
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] overflow-hidden">
+    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
       <aside className="flex w-72 flex-shrink-0 flex-col border-r border-border bg-surface">
         <ChatHeaderBar>
           <h1 className="text-base font-semibold text-ink">채팅</h1>
@@ -112,6 +118,14 @@ export default async function CustomerChatLayout({ children }: { children: React
         <div className="flex-1 overflow-y-auto">
           <ChatRoomList rooms={rooms} />
         </div>
+        {profile && (
+          <Link
+            href="/customer/me"
+            className="border-t border-border p-3 transition-colors hover:bg-surface-muted"
+          >
+            <UserChip name={profile.name} avatarUrl={profile.avatarUrl} subtitle={profile.email} />
+          </Link>
+        )}
       </aside>
       <div className="min-w-0 flex-1">{children}</div>
     </div>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import Avatar from '@/components/ui/Avatar'
 
 export type ChatRoomListItem = {
   id: string
@@ -11,7 +12,10 @@ export type ChatRoomListItem = {
   preview: string
   time?: string
   unread?: number
+  /** fallback 이니셜 (사진 없을 때) */
   avatar?: string
+  /** 상대방 프로필 사진 URL */
+  avatarUrl?: string | null
 }
 
 /** 채팅 좌측 방 목록 — 상대 이름 + 마지막 메시지 미리보기, 현재 방 하이라이트 */
@@ -38,9 +42,7 @@ export default function ChatRoomList({ rooms }: { rooms: ChatRoomListItem[] }) {
               active ? 'bg-brand-tint' : 'hover:bg-surface-muted'
             }`}
           >
-            <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-brand-tint">
-              <span className="text-sm font-semibold text-brand">{room.avatar ?? '💬'}</span>
-            </div>
+            <Avatar src={room.avatarUrl} name={room.avatar ?? room.name} size="md" />
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline justify-between gap-2">
                 <p className="truncate text-sm font-medium text-ink">{room.name}</p>

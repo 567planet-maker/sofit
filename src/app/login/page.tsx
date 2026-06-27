@@ -1,7 +1,13 @@
 import { signInWithKakao, signInWithNaver } from '@/app/actions/auth'
 import { EmailAuthForm } from './EmailAuthForm'
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>
+}) {
+  const { next } = await searchParams
+  const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : undefined
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-canvas px-4">
       <div className="w-full max-w-sm">
@@ -17,6 +23,7 @@ export default function LoginPage() {
 
           <div className="flex flex-col gap-3">
             <form action={signInWithKakao}>
+              {safeNext && <input type="hidden" name="next" value={safeNext} />}
               <button
                 type="submit"
                 className="flex w-full items-center justify-center gap-3 rounded-card bg-[#FEE500] px-4 py-3 text-sm font-medium text-[#191919] transition-opacity hover:opacity-90"
@@ -27,6 +34,7 @@ export default function LoginPage() {
             </form>
 
             <form action={signInWithNaver}>
+              {safeNext && <input type="hidden" name="next" value={safeNext} />}
               <button
                 type="submit"
                 className="flex w-full items-center justify-center gap-3 rounded-card bg-[#03C75A] px-4 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90"
@@ -37,7 +45,7 @@ export default function LoginPage() {
             </form>
           </div>
 
-          <EmailAuthForm />
+          <EmailAuthForm next={safeNext} />
 
           <p className="mt-6 text-center text-xs text-ink-subtle">
             로그인 시{' '}

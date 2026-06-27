@@ -83,7 +83,7 @@ export default function ProgressPhotoUploader({ requestId, initialPhotos }: Prop
                       <button
                         onClick={() => handleDelete(photo.id)}
                         disabled={isPending}
-                        className="rounded-lg bg-red-500 px-3 py-1 text-xs text-white disabled:opacity-50"
+                        className="rounded-lg bg-danger px-3 py-1 text-xs text-white disabled:opacity-50"
                       >
                         삭제
                       </button>

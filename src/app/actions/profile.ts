@@ -31,6 +31,28 @@ export async function updateProfile(
   return { success: true }
 }
 
+export async function updateAvatar(
+  avatarUrl: string | null,
+): Promise<{ error?: string; success?: boolean }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: '로그인이 필요합니다.' }
+
+  const { error } = await supabase
+    .from('users')
+    .update({ avatar_url: avatarUrl })
+    .eq('id', user.id)
+
+  if (error) return { error: '프로필 사진 저장에 실패했습니다.' }
+
+  revalidatePath('/customer/me')
+  revalidatePath('/factory/me')
+  revalidatePath('/admin/me')
+  return { success: true }
+}
+
 export async function updateMarketingConsent(
   value: boolean,
 ): Promise<{ error?: string; success?: boolean }> {

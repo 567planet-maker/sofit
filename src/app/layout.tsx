@@ -43,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${geist.variable} ${notoSansKR.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-gray-50 text-gray-900">
+      <body className="flex min-h-full flex-col bg-canvas text-ink">
         {children}
       </body>
     </html>

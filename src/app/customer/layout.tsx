@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { loginHref } from '@/lib/auth/redirect'
 import Header from '@/components/Header'
 
 export default async function CustomerLayout({ children }: { children: React.ReactNode }) {
@@ -7,7 +8,7 @@ export default async function CustomerLayout({ children }: { children: React.Rea
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect(await loginHref())
 
   const { data: userData } = await supabase
     .from('users')

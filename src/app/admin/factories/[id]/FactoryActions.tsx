@@ -89,7 +89,7 @@ export default function FactoryActions({
                 <button
                   onClick={handleReject}
                   disabled={isPending}
-                  className="flex-1 rounded-card bg-red-500 py-2.5 text-sm font-medium text-white hover:bg-red-600 disabled:opacity-40"
+                  className="flex-1 rounded-control bg-danger py-2.5 text-sm font-medium text-white hover:opacity-90 disabled:opacity-40"
                 >
                   {isPending ? '처리 중...' : '반려 확인'}
                 </button>

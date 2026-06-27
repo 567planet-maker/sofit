@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { sendMessage, markRoomRead } from '@/app/actions/chat'
+import Avatar from '@/components/ui/Avatar'
 import type { ChatMessageWithSender } from '@/types'
 
 interface Props {
@@ -74,7 +75,7 @@ export default function ChatRoom({
 
           const { data: senderData } = await supabase
             .from('users')
-            .select('id, name, role')
+            .select('id, name, role, avatar_url')
             .eq('id', newMsg.sender_id)
             .single()
 
@@ -172,6 +173,7 @@ export default function ChatRoom({
             const isMine = msg.sender_id === currentUserId
             const senderRole = (msg.users as any)?.role ?? ''
             const senderName = (msg.users as any)?.name
+            const senderAvatar = (msg.users as any)?.avatar_url ?? null
             const isAdmin = senderRole === 'admin'
             const label = senderName
               ? `${senderName} (${ROLE_LABEL[senderRole] ?? senderRole})`
@@ -180,33 +182,38 @@ export default function ChatRoom({
             return (
               <div
                 key={msg.id}
-                className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}
+                className={`flex items-end gap-2 ${isMine ? 'flex-row-reverse' : ''}`}
               >
-                {!isMine && <span className="mb-1 text-xs text-ink-subtle">{label}</span>}
-                <div
-                  className={`max-w-xs rounded-card px-4 py-2.5 text-sm lg:max-w-md ${
-                    isMine
-                      ? 'bg-brand text-white'
-                      : isAdmin
-                        ? 'bg-brand-tint text-brand'
-                        : 'bg-white text-ink shadow-card'
-                  }`}
-                >
-                  {msg.content && (
-                    <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                  )}
-                  {msg.file_url && (
-                    <a
-                      href={msg.file_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`text-sm underline ${isMine ? 'text-white/70' : 'text-brand'}`}
-                    >
-                      📎 {msg.file_name ?? '첨부파일'}
-                    </a>
-                  )}
+                {!isMine && (
+                  <Avatar src={senderAvatar} name={senderName} size="sm" className="mb-5" />
+                )}
+                <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
+                  {!isMine && <span className="mb-1 text-xs text-ink-subtle">{label}</span>}
+                  <div
+                    className={`max-w-xs rounded-card px-4 py-2.5 text-sm lg:max-w-md ${
+                      isMine
+                        ? 'bg-brand text-white'
+                        : isAdmin
+                          ? 'bg-brand-tint text-brand'
+                          : 'bg-white text-ink shadow-card'
+                    }`}
+                  >
+                    {msg.content && (
+                      <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                    )}
+                    {msg.file_url && (
+                      <a
+                        href={msg.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`text-sm underline ${isMine ? 'text-white/70' : 'text-brand'}`}
+                      >
+                        📎 {msg.file_name ?? '첨부파일'}
+                      </a>
+                    )}
+                  </div>
+                  <span className="mt-1 text-xs text-ink-subtle">{formatTime(msg.created_at)}</span>
                 </div>
-                <span className="mt-1 text-xs text-ink-subtle">{formatTime(msg.created_at)}</span>
               </div>
             )
           })
@@ -219,7 +226,7 @@ export default function ChatRoom({
         </div>
       ) : (
         <div className="border-t border-border bg-white px-4 py-3">
-          {error && <p className="mb-2 text-xs text-red-500">{error}</p>}
+          {error && <p className="mb-2 text-xs text-danger">{error}</p>}
           <div className="flex items-end gap-2">
             <input
               ref={fileInputRef}

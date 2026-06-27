@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardBody, CardHeader, CardTitle } from '@/components/ui'
 import ProfileForm from '@/components/account/ProfileForm'
+import AvatarUploader from '@/components/account/AvatarUploader'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('ko-KR', {
@@ -20,12 +21,25 @@ export default async function CustomerProfilePage() {
 
   const { data: profile } = await supabase
     .from('users')
-    .select('name, email, phone, created_at')
+    .select('*')
     .eq('id', user.id)
     .single()
 
   return (
     <div className="space-y-5">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">프로필 사진</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <AvatarUploader
+            userId={user.id}
+            name={profile?.name ?? null}
+            initialUrl={(profile?.avatar_url as string | null) ?? null}
+          />
+        </CardBody>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-sm">프로필 정보</CardTitle>

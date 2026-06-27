@@ -17,7 +17,7 @@ async function getAdminUser() {
     .select('role')
     .eq('id', user.id)
     .single()
-  if (userData?.role !== 'admin') redirect('/customer')
+  if (userData?.role !== 'admin') redirect('/customer/me')
 
   return { supabase, user }
 }

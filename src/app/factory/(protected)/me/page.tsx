@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardBody, CardHeader, CardTitle, Badge } from '@/components/ui'
 import ProfileForm from '@/components/account/ProfileForm'
+import AvatarUploader from '@/components/account/AvatarUploader'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('ko-KR', {
@@ -30,7 +31,11 @@ export default async function FactoryProfilePage() {
   if (!user) redirect('/login')
 
   const [{ data: profile }, { data: factory }] = await Promise.all([
-    supabase.from('users').select('name, email, phone, created_at').eq('id', user.id).single(),
+    supabase
+      .from('users')
+      .select('*')
+      .eq('id', user.id)
+      .single(),
     supabase
       .from('factories')
       .select('company_name, location, description, status, rating_avg, created_at')
@@ -40,6 +45,19 @@ export default async function FactoryProfilePage() {
 
   return (
     <div className="space-y-5">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-sm">프로필 사진</CardTitle>
+        </CardHeader>
+        <CardBody>
+          <AvatarUploader
+            userId={user.id}
+            name={profile?.name ?? null}
+            initialUrl={(profile?.avatar_url as string | null) ?? null}
+          />
+        </CardBody>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle className="text-sm">담당자 프로필</CardTitle>

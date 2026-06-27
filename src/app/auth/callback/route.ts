@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { type NextRequest, NextResponse } from 'next/server'
+import { resolveNext } from '@/lib/auth/redirect'
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
@@ -29,11 +30,11 @@ export async function GET(request: NextRequest) {
 
     if (!error && user) {
       const role = user.user_metadata?.role as string | undefined
-
-      if (!role) return NextResponse.redirect(`${origin}/onboarding`)
-      if (role === 'admin') return NextResponse.redirect(`${origin}/admin`)
-      if (role === 'factory') return NextResponse.redirect(`${origin}/factory`)
-      return NextResponse.redirect(`${origin}/customer`)
+      const next = cookieStore.get('auth_next')?.value ?? null
+      const dest = resolveNext(next, role)
+      const response = NextResponse.redirect(`${origin}${dest}`)
+      response.cookies.delete('auth_next')
+      return response
     }
   }
 

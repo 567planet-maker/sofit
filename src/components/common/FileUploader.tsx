@@ -229,7 +229,7 @@ export default function FileUploader({
                 <p className="text-xs text-ink-subtle">
                   {(item.file.size / 1024 / 1024).toFixed(1)}MB
                 </p>
-                {item.error && <p className="text-xs text-red-500">{item.error}</p>}
+                {item.error && <p className="text-xs text-danger">{item.error}</p>}
               </div>
 
               {item.isUploading && (

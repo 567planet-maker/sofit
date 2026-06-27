@@ -38,6 +38,7 @@ export interface User {
   email: string | null
   name: string | null
   phone: string | null
+  avatar_url: string | null
   role: UserRole
   created_at: string
 }
@@ -235,7 +236,7 @@ export interface MatchWithQuote extends Match {
 }
 
 export interface ChatMessageWithSender extends ChatMessage {
-  users: Pick<User, 'id' | 'name' | 'role'>
+  users: Pick<User, 'id' | 'name' | 'role' | 'avatar_url'>
 }
 
 export interface FactoryPortfolioWithFactory extends FactoryPortfolio {

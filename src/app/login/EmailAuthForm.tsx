@@ -3,10 +3,11 @@
 import { useActionState, useState } from 'react'
 import { signInWithEmail, signUpWithEmail } from '@/app/actions/auth'
 
-function LoginForm() {
+function LoginForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState(signInWithEmail, null)
   return (
     <form action={action} className="flex flex-col gap-3">
+      {next && <input type="hidden" name="next" value={next} />}
       <input
         name="email"
         type="email"
@@ -24,12 +25,12 @@ function LoginForm() {
         className="rounded-card border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-brand"
       />
       {state?.error && (
-        <p className="text-center text-xs text-red-500">{state.error}</p>
+        <p className="text-center text-xs text-danger">{state.error}</p>
       )}
       <button
         type="submit"
         disabled={pending}
-        className="rounded-card bg-ink py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="rounded-control bg-brand py-3 text-sm font-medium text-white transition-colors hover:bg-brand-hover disabled:opacity-50"
       >
         {pending ? '로그인 중...' : '이메일로 로그인'}
       </button>
@@ -37,10 +38,19 @@ function LoginForm() {
   )
 }
 
-function SignupForm() {
+function SignupForm({ next }: { next?: string }) {
   const [state, action, pending] = useActionState(signUpWithEmail, null)
   return (
     <form action={action} className="flex flex-col gap-3">
+      {next && <input type="hidden" name="next" value={next} />}
+      <input
+        name="name"
+        type="text"
+        placeholder="이름"
+        required
+        autoComplete="name"
+        className="rounded-card border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-brand"
+      />
       <input
         name="email"
         type="email"
@@ -59,10 +69,10 @@ function SignupForm() {
         className="rounded-card border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-brand"
       />
       {state?.error && (
-        <p className="text-center text-xs text-red-500">{state.error}</p>
+        <p className="text-center text-xs text-danger">{state.error}</p>
       )}
       {state?.message && (
-        <p className="text-center text-xs text-blue-600">{state.message}</p>
+        <p className="text-center text-xs text-success">{state.message}</p>
       )}
       <button
         type="submit"
@@ -75,7 +85,7 @@ function SignupForm() {
   )
 }
 
-export function EmailAuthForm() {
+export function EmailAuthForm({ next }: { next?: string }) {
   const [mode, setMode] = useState<'login' | 'signup'>('login')
 
   return (
@@ -114,7 +124,7 @@ export function EmailAuthForm() {
         </button>
       </div>
 
-      {mode === 'login' ? <LoginForm /> : <SignupForm />}
+      {mode === 'login' ? <LoginForm next={next} /> : <SignupForm next={next} />}
     </div>
   )
 }

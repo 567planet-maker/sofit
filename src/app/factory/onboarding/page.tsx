@@ -78,7 +78,7 @@ export default function FactoryOnboardingPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-6 w-full rounded-card bg-black py-3 text-sm font-medium text-white transition-opacity hover:opacity-80 disabled:opacity-40"
+            className="mt-6 w-full rounded-control bg-brand py-3 text-sm font-medium text-white transition-colors hover:bg-brand-hover disabled:opacity-40"
           >
             {isSubmitting ? '제출 중...' : '심사 신청하기'}
           </button>

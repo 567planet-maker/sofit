@@ -98,7 +98,7 @@ export default async function AdminChatsPage() {
                       {typeInfo.label}
                     </span>
                     {isUnanswered && (
-                      <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-xs font-semibold text-white">
+                      <span className="rounded-full bg-danger px-1.5 py-0.5 text-xs font-semibold text-white">
                         미답변
                       </span>
                     )}

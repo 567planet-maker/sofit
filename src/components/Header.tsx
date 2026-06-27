@@ -1,7 +1,9 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { loginHref } from '@/lib/auth/redirect'
 import HeaderShell from '@/components/HeaderShell'
 import NotificationBell from '@/components/notifications/NotificationBell'
+import Avatar from '@/components/ui/Avatar'
 import type { Notification } from '@/types'
 
 export default async function Header({ contained = false }: { contained?: boolean } = {}) {
@@ -11,11 +13,13 @@ export default async function Header({ contained = false }: { contained?: boolea
   } = await supabase.auth.getUser()
 
   let role: string | null = null
+  let name: string | null = null
+  let avatarUrl: string | null = null
   let notifications: Notification[] = []
   let unreadCount = 0
   if (user) {
     const [{ data: userData }, { data: notis }] = await Promise.all([
-      supabase.from('users').select('role').eq('id', user.id).single(),
+      supabase.from('users').select('*').eq('id', user.id).single(),
       supabase
         .from('notifications')
         .select('*')
@@ -24,20 +28,26 @@ export default async function Header({ contained = false }: { contained?: boolea
         .limit(10),
     ])
     role = userData?.role ?? null
+    name = (userData?.name as string | null) ?? null
+    avatarUrl = (userData?.avatar_url as string | null) ?? null
     notifications = (notis ?? []) as Notification[]
     unreadCount = notifications.filter((n) => !n.read_at).length
   }
 
   const chatHref =
     role === 'customer' ? '/customer/chat' : role === 'factory' ? '/factory/chat' : null
+  const mypageHref =
+    role === 'admin' ? '/admin/me' : role === 'factory' ? '/factory/me' : '/customer/me'
+
+  const loginUrl = user ? '/login' : await loginHref()
 
   return (
     <HeaderShell>
       <div
         className={
           contained
-            ? 'mx-auto flex max-w-screen-xl items-center justify-between px-4 py-3'
-            : 'flex items-center justify-between py-3 pl-5 pr-[max(1.25rem,calc((100vw_-_80rem)/2_+_1rem))]'
+            ? 'mx-auto flex h-14 max-w-screen-xl items-center justify-between px-4'
+            : 'flex h-14 items-center justify-between pl-5 pr-[max(1.25rem,calc((100vw_-_80rem)/2_+_1rem))]'
         }
       >
         <Link href="/" className="text-lg font-semibold tracking-tight text-brand">
@@ -97,10 +107,20 @@ export default async function Header({ contained = false }: { contained?: boolea
                 initialUnreadCount={unreadCount}
                 initialNotifications={notifications}
               />
+              <Link
+                href={mypageHref}
+                className="flex items-center gap-2 rounded-pill py-0.5 pl-0.5 pr-1 transition-colors hover:bg-surface-muted"
+                aria-label="마이페이지"
+              >
+                <Avatar src={avatarUrl} name={name} size="sm" />
+                <span className="hidden max-w-[8rem] truncate text-sm font-medium text-ink sm:inline">
+                  {name ?? '사용자'}
+                </span>
+              </Link>
             </>
           ) : (
             <Link
-              href="/login"
+              href={loginUrl}
               className="rounded-control bg-brand px-4 py-2 font-medium text-white transition-colors hover:bg-brand-hover"
             >
               로그인

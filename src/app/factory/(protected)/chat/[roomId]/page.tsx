@@ -39,12 +39,12 @@ export default async function FactoryChatRoomPage({
 
   const { data: messages } = await supabase
     .from('chat_messages')
-    .select('id, room_id, content, file_url, file_name, created_at, sender_id, read_at, users(id, name, role)')
+    .select('id, room_id, content, file_url, file_name, created_at, sender_id, read_at, users(id, name, role, avatar_url)')
     .eq('room_id', roomId)
     .order('created_at', { ascending: true })
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col">
+    <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       <ChatHeaderBar>
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium text-ink">고객 직접 채팅</p>

@@ -43,10 +43,10 @@ export default function OnboardingPage() {
             <button
               onClick={() => handleRoleSelect('customer')}
               disabled={!agreed || pending}
-              className="rounded-card border-2 border-black bg-black p-5 text-left text-white transition-colors hover:bg-ink/90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="rounded-card border-2 border-brand bg-brand p-5 text-left text-white transition-colors hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
             >
               <div className="text-base font-medium">고객으로 시작하기</div>
-              <div className="mt-1 text-sm text-ink-subtle">
+              <div className="mt-1 text-sm text-white/70">
                 소파·빌트인 견적을 요청하고 공장 견적서를 받아보세요
               </div>
             </button>
