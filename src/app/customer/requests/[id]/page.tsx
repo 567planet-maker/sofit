@@ -5,6 +5,9 @@ import StatusBadge from '@/components/common/StatusBadge'
 import { buttonVariants } from '@/components/ui'
 import type { QuoteRequestStatus, RequestFile, StatusLog } from '@/types'
 import { QUOTE_REQUEST_STATUS_LABELS } from '@/lib/constants/status'
+import QuoteRequestView, { isNewSchemaRequest } from '@/components/quote/QuoteRequestView'
+import CategoryItemsSection from '@/components/quote/CategoryItemsSection'
+import StatusStepper from '@/components/quote/StatusStepper'
 
 // file_type → bucket 매핑
 function getBucket(fileType: string) {
@@ -64,6 +67,14 @@ export default async function CustomerRequestDetailPage({
 
   if (!req) notFound()
 
+  // 분야별 항목 (신규 다분야 요청)
+  const { data: itemsData } = await supabase
+    .from('quote_request_items')
+    .select('category, details')
+    .eq('request_id', id)
+  const items = (itemsData ?? []) as Array<{ category: string; details: Record<string, unknown> }>
+  const isNew = isNewSchemaRequest(req as Record<string, unknown>)
+
   // customer_sofit 채팅방 조회
   const { data: chatRoom } = await supabase
     .from('chat_rooms')
@@ -100,6 +111,9 @@ export default async function CustomerRequestDetailPage({
         </div>
         <StatusBadge status={req.status as QuoteRequestStatus} />
       </div>
+
+      {/* 진행 단계 이정표 */}
+      <StatusStepper status={req.status as QuoteRequestStatus} />
 
       {/* 상태 타임라인 */}
       {statusLogs.length > 0 && (
@@ -193,22 +207,28 @@ export default async function CustomerRequestDetailPage({
         )}
       </div>
 
-      {/* 현장 정보 */}
-      <section className="rounded-card border border-border bg-surface p-5 shadow-card">
-        <h2 className="mb-4 font-medium text-ink">현장 정보</h2>
-        <div className="space-y-2">
-          <Row label="업체명" value={req.company_name} />
-          <Row label="현장명" value={req.site_name} />
-          <Row label="주소" value={req.address} />
-          <Row label="현장 담당자" value={req.site_manager} />
-          <Row label="연락처" value={req.contact} />
-          <Row label="방문 가능 시간" value={req.available_time} />
-          <Row label="업종" value={req.business_type} />
-          <Row label="층수" value={req.floor} />
-          <Row label="주차 가능" value={req.has_parking} />
-          <Row label="엘리베이터" value={req.has_elevator} />
-        </div>
-      </section>
+      {/* 공통 정보 + 분야별 (신규 다분야 요청) */}
+      <QuoteRequestView request={req as Record<string, unknown>} className="rounded-card border border-border bg-surface p-5 shadow-card" />
+      <CategoryItemsSection items={items} className="rounded-card border border-border bg-surface p-5 shadow-card" />
+
+      {/* 현장 정보 (레거시 요청) */}
+      {!isNew && (
+        <section className="rounded-card border border-border bg-surface p-5 shadow-card">
+          <h2 className="mb-4 font-medium text-ink">현장 정보</h2>
+          <div className="space-y-2">
+            <Row label="업체명" value={req.company_name} />
+            <Row label="현장명" value={req.site_name} />
+            <Row label="주소" value={req.address} />
+            <Row label="현장 담당자" value={req.site_manager} />
+            <Row label="연락처" value={req.contact} />
+            <Row label="방문 가능 시간" value={req.available_time} />
+            <Row label="업종" value={req.business_type} />
+            <Row label="층수" value={req.floor} />
+            <Row label="주차 가능" value={req.has_parking} />
+            <Row label="엘리베이터" value={req.has_elevator} />
+          </div>
+        </section>
+      )}
 
       {/* 제품 정보 */}
       {(req.sofa_type ||

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import ChatRoom from '@/components/chat/ChatRoom'
 import ChatHeaderBar from '@/components/chat/ChatHeaderBar'
+import Avatar from '@/components/ui/Avatar'
 import type { ChatMessageWithSender } from '@/types'
 
 export default async function AdminChatRoomPage({
@@ -43,6 +44,9 @@ export default async function AdminChatRoomPage({
 
   const req = (room as any).quote_requests
   const isReadOnly = room.type === 'customer_factory'
+  const participant = ((messages ?? []) as any[]).find((m) => m.sender_id !== user.id)
+  const participantAvatar = (participant?.users?.avatar_url as string | null) ?? null
+  const participantName = (participant?.users?.name as string | undefined) ?? req?.company_name
 
   return (
     <div className="flex h-screen flex-col">
@@ -50,6 +54,7 @@ export default async function AdminChatRoomPage({
         <Link href="/admin/chats" className="text-sm text-brand hover:underline">
           ← 목록
         </Link>
+        <Avatar src={participantAvatar} name={participantName ?? req?.site_name} size="md" />
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium text-ink">{req?.site_name ?? '(현장 정보 없음)'}</p>
           <div className="flex items-center gap-2">

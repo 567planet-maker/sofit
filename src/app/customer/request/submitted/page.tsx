@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Header from '@/components/Header'
 import { buttonVariants } from '@/components/ui'
 
 export const metadata: Metadata = {
@@ -15,10 +14,8 @@ export default async function SubmittedPage({
   const { id } = await searchParams
 
   return (
-    <>
-      <Header />
-      <main className="flex min-h-screen items-center justify-center bg-canvas px-4 py-10">
-        <div className="w-full max-w-md text-center">
+    <div className="flex min-h-[70vh] items-center justify-center bg-canvas px-4 py-10">
+      <div className="w-full max-w-md text-center">
           <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-card bg-brand-tint">
             <svg
               className="h-8 w-8 text-brand"
@@ -49,7 +46,6 @@ export default async function SubmittedPage({
             </Link>
           </div>
         </div>
-      </main>
-    </>
+    </div>
   )
 }

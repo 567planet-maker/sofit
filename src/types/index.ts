@@ -3,6 +3,7 @@ export type UserRole = 'customer' | 'factory' | 'admin'
 export type FactoryStatus = 'pending' | 'active' | 'rejected' | 'suspended'
 
 export type QuoteRequestStatus =
+  | 'draft'
   | 'submitted'
   | 'reviewing'
   | 'matching'

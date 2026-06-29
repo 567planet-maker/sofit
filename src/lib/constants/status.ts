@@ -1,6 +1,7 @@
 import type { QuoteRequestStatus } from '@/types'
 
 export const QUOTE_REQUEST_STATUS_LABELS: Record<QuoteRequestStatus, string> = {
+  draft: '임시저장',
   submitted: '접수됨',
   reviewing: '검토중',
   matching: '매칭중',

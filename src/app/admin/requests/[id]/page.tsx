@@ -7,6 +7,8 @@ import type { QuoteRequestStatus, RequestFile, StatusLog, MatchStatus } from '@/
 import StatusChanger from './StatusChanger'
 import AdminNoteEditor from './AdminNoteEditor'
 import { QUOTE_REQUEST_STATUS_LABELS } from '@/lib/constants/status'
+import QuoteRequestView, { isNewSchemaRequest } from '@/components/quote/QuoteRequestView'
+import CategoryItemsSection from '@/components/quote/CategoryItemsSection'
 
 function getBucket(fileType: string) {
   return fileType === 'document' ? 'request-documents' : 'request-images'
@@ -56,6 +58,14 @@ export default async function AdminRequestDetailPage({
     .eq('id', id)
     .single()
   if (!req) notFound()
+
+  // 분야별 항목 (신규 다분야 요청)
+  const { data: itemsData } = await supabase
+    .from('quote_request_items')
+    .select('category, details')
+    .eq('request_id', id)
+  const items = (itemsData ?? []) as Array<{ category: string; details: Record<string, unknown> }>
+  const isNew = isNewSchemaRequest(req as Record<string, unknown>)
 
   // 매칭된 공장 목록 (견적서 포함)
   const { data: matches } = await supabase
@@ -110,24 +120,30 @@ export default async function AdminRequestDetailPage({
       <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
         {/* ── 메인 ── */}
         <div className="space-y-5">
-          {/* 현장 정보 */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">현장 정보</CardTitle>
-            </CardHeader>
-            <CardBody>
-              <Row label="업체명" value={req.company_name} />
-              <Row label="현장명" value={req.site_name} />
-              <Row label="주소" value={req.address} />
-              <Row label="현장 담당자" value={req.site_manager} />
-              <Row label="연락처" value={req.contact} />
-              <Row label="방문 가능 시간" value={req.available_time} />
-              <Row label="업종" value={req.business_type} />
-              <Row label="층수" value={req.floor} />
-              <Row label="주차 가능" value={req.has_parking} />
-              <Row label="엘리베이터" value={req.has_elevator} />
-            </CardBody>
-          </Card>
+          {/* 공통 정보 + 분야별 (신규 다분야 요청) */}
+          <QuoteRequestView request={req as Record<string, unknown>} className="rounded-card border border-border bg-surface p-5 shadow-card" />
+          <CategoryItemsSection items={items} className="rounded-card border border-border bg-surface p-5 shadow-card" />
+
+          {/* 현장 정보 (레거시 요청) */}
+          {!isNew && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">현장 정보</CardTitle>
+              </CardHeader>
+              <CardBody>
+                <Row label="업체명" value={req.company_name} />
+                <Row label="현장명" value={req.site_name} />
+                <Row label="주소" value={req.address} />
+                <Row label="현장 담당자" value={req.site_manager} />
+                <Row label="연락처" value={req.contact} />
+                <Row label="방문 가능 시간" value={req.available_time} />
+                <Row label="업종" value={req.business_type} />
+                <Row label="층수" value={req.floor} />
+                <Row label="주차 가능" value={req.has_parking} />
+                <Row label="엘리베이터" value={req.has_elevator} />
+              </CardBody>
+            </Card>
+          )}
 
           {/* 제품 정보 */}
           {(req.sofa_type || req.sofa_count || req.cushion_type) && (
@@ -182,8 +198,8 @@ export default async function AdminRequestDetailPage({
             </Card>
           )}
 
-          {/* 일정 */}
-          {(req.delivery_date || req.install_date || req.needs_measurement) && (
+          {/* 일정 (레거시 요청) */}
+          {!isNew && (req.delivery_date || req.install_date || req.needs_measurement) && (
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm">일정</CardTitle>

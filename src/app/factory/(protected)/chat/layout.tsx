@@ -40,9 +40,7 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
 
   const { data: rooms } = await supabase
     .from('chat_rooms')
-    .select(
-      'id, type, request_id, match_id, created_at, quote_requests(id, site_name, customers(users(name, avatar_url)))',
-    )
+    .select('id, type, request_id, match_id, created_at, quote_requests(id, site_name, company_name)')
     .in('match_id', matchIds)
     .eq('type', 'customer_factory')
     .order('created_at', { ascending: false })
@@ -58,21 +56,38 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
   type MsgRow = NonNullable<typeof allMessages>[number]
   const lastMsgByRoom: Record<string, MsgRow> = {}
   const unreadByRoom: Record<string, number> = {}
+  // 상대(고객) user_id 는 customers 테이블(공장이 RLS로 못 읽음) 대신 메시지 발신자에서 추출
+  const counterpartyByRoom: Record<string, string> = {}
   for (const msg of allMessages ?? []) {
     if (!lastMsgByRoom[msg.room_id]) lastMsgByRoom[msg.room_id] = msg
-    if (msg.sender_id !== user.id && !msg.read_at) {
-      unreadByRoom[msg.room_id] = (unreadByRoom[msg.room_id] ?? 0) + 1
+    if (msg.sender_id !== user.id) {
+      if (!counterpartyByRoom[msg.room_id]) counterpartyByRoom[msg.room_id] = msg.sender_id
+      if (!msg.read_at) unreadByRoom[msg.room_id] = (unreadByRoom[msg.room_id] ?? 0) + 1
+    }
+  }
+
+  // 상대(고객) 프로필 — users RLS(migration 010)로 채팅 상대만 조회 가능
+  const counterpartyIds = [...new Set(Object.values(counterpartyByRoom))]
+  const profileById: Record<string, { name: string | null; avatar_url: string | null }> = {}
+  if (counterpartyIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('users')
+      .select('id, name, avatar_url')
+      .in('id', counterpartyIds)
+    for (const p of profiles ?? []) {
+      profileById[p.id] = { name: p.name as string | null, avatar_url: p.avatar_url as string | null }
     }
   }
 
   return rooms.map((room) => {
     const req = (room as any).quote_requests
-    const customerUser = req?.customers?.users
+    const cpId = counterpartyByRoom[room.id]
+    const cp = cpId ? profileById[cpId] : undefined
     const lastMsg = lastMsgByRoom[room.id]
     return {
       id: room.id,
       href: `/factory/chat/${room.id}`,
-      name: customerUser?.name ?? '고객 직접 채팅',
+      name: cp?.name ?? req?.company_name ?? '고객 직접 채팅',
       subtitle: req?.site_name ?? undefined,
       preview: lastMsg
         ? lastMsg.content ?? `📎 ${lastMsg.file_name ?? '첨부파일'}`
@@ -80,7 +95,7 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
       time: lastMsg ? formatTime(lastMsg.created_at) : undefined,
       unread: unreadByRoom[room.id] ?? 0,
       avatar: '고',
-      avatarUrl: customerUser?.avatar_url ?? null,
+      avatarUrl: cp?.avatar_url ?? null,
     }
   })
 }

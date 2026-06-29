@@ -50,7 +50,7 @@ export default async function MyRequestsPage({
 
   let query = supabase
     .from('quote_requests')
-    .select('id, site_name, company_name, status, created_at')
+    .select('id, title, site_name, company_name, status, created_at')
     .eq('customer_id', customer.id)
     .order('created_at', { ascending: false })
 
@@ -65,7 +65,7 @@ export default async function MyRequestsPage({
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <Tabs items={TABS} active={tab} basePath="/customer/me/requests" />
-        <Link href="/customer/request" className={buttonVariants({ size: 'sm' })}>
+        <Link href="/customer/request/new" className={buttonVariants({ size: 'sm' })}>
           + 새 견적 요청
         </Link>
       </div>
@@ -75,7 +75,7 @@ export default async function MyRequestsPage({
           title="해당 상태의 견적 요청이 없습니다."
           action={
             <Link
-              href="/customer/request"
+              href="/customer/request/new"
               className={buttonVariants({ variant: 'secondary', size: 'sm' })}
             >
               첫 견적 요청하기
@@ -84,24 +84,34 @@ export default async function MyRequestsPage({
         />
       ) : (
         <Card className="divide-y divide-border overflow-hidden p-0">
-          {requests.map((req) => (
-            <Link
-              key={req.id}
-              href={`/customer/requests/${req.id}`}
-              className="flex items-center justify-between gap-4 px-5 py-4 transition-colors first:rounded-t-card last:rounded-b-card hover:bg-surface-muted"
-            >
-              <div className="min-w-0">
-                <p className="truncate font-medium text-ink">{req.site_name}</p>
-                <p className="mt-0.5 truncate text-sm text-ink-muted">
-                  {req.company_name} · {formatDate(req.created_at)}
-                </p>
-              </div>
-              <div className="flex flex-shrink-0 items-center gap-3">
-                <StatusBadge status={req.status as QuoteRequestStatus} />
-                <span className="text-lg leading-none text-ink-subtle">›</span>
-              </div>
-            </Link>
-          ))}
+          {requests.map((req) => {
+            // 임시저장(draft)은 읽기 상세가 아니라 작성 화면으로 이어쓰기
+            const isDraft = req.status === 'draft'
+            const displayTitle =
+              req.title || req.site_name || (isDraft ? '제목 없는 임시저장' : '제목 없음')
+            return (
+              <Link
+                key={req.id}
+                href={isDraft ? `/customer/request/${req.id}` : `/customer/requests/${req.id}`}
+                className="flex items-center justify-between gap-4 px-5 py-4 transition-colors first:rounded-t-card last:rounded-b-card hover:bg-surface-muted"
+              >
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-ink">{displayTitle}</p>
+                  <p className="mt-0.5 truncate text-sm text-ink-muted">
+                    {req.company_name ? `${req.company_name} · ` : ''}
+                    {formatDate(req.created_at)}
+                  </p>
+                </div>
+                <div className="flex flex-shrink-0 items-center gap-3">
+                  {isDraft && (
+                    <span className="text-sm font-medium text-brand">이어서 작성</span>
+                  )}
+                  <StatusBadge status={req.status as QuoteRequestStatus} />
+                  <span className="text-lg leading-none text-ink-subtle">›</span>
+                </div>
+              </Link>
+            )
+          })}
         </Card>
       )}
     </div>

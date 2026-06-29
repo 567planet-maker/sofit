@@ -28,7 +28,6 @@ export default function NotificationBell({ userId, initialUnreadCount, initialNo
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const supabase = createClient()
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -41,9 +40,20 @@ export default function NotificationBell({ userId, initialUnreadCount, initialNo
   }, [])
 
   useEffect(() => {
-    const channel = supabase
-      .channel(`notifications:${userId}`)
-      .on(
+    const supabase = createClient()
+    const topic = `notifications:${userId}`
+
+    // StrictMode 재마운트/중복으로 남은 동일 토픽 채널을 먼저 정리
+    // (이미 subscribe된 채널에 .on() 하면 throw → 정리로 예방)
+    for (const ch of supabase.getChannels()) {
+      if (ch.topic === topic || ch.topic === `realtime:${topic}`) {
+        void supabase.removeChannel(ch)
+      }
+    }
+
+    let channel: ReturnType<typeof supabase.channel> | null = null
+    try {
+      channel = supabase.channel(topic).on(
         'postgres_changes',
         {
           event: 'INSERT',
@@ -57,12 +67,16 @@ export default function NotificationBell({ userId, initialUnreadCount, initialNo
           setUnreadCount((prev) => prev + 1)
         },
       )
-      .subscribe()
+      channel.subscribe()
+    } catch {
+      // 실시간 구독 실패는 치명적이지 않음(초기 데이터로 계속 동작) — 페이지를 죽이지 않는다.
+      channel = null
+    }
 
     return () => {
-      supabase.removeChannel(channel)
+      if (channel) void supabase.removeChannel(channel)
     }
-  }, [userId]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [userId])
 
   async function handleNotificationClick(notif: Notification) {
     setIsOpen(false)

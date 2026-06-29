@@ -5,6 +5,8 @@ import type { RequestFile } from '@/types'
 import MatchActions from './MatchActions'
 import JoinActions from './JoinActions'
 import QuoteForm from './QuoteForm'
+import QuoteRequestView, { isNewSchemaRequest } from '@/components/quote/QuoteRequestView'
+import CategoryItemsSection from '@/components/quote/CategoryItemsSection'
 
 function Row({ label, value }: { label: string; value: string | number | boolean | null }) {
   if (value === null || value === undefined || value === '') return null
@@ -57,6 +59,14 @@ export default async function FactoryRequestDetailPage({
     .eq('id', requestId)
     .single()
   if (!req) notFound()
+
+  // 분야별 항목 (신규 다분야 요청)
+  const { data: itemsData } = await supabase
+    .from('quote_request_items')
+    .select('category, details')
+    .eq('request_id', requestId)
+  const items = (itemsData ?? []) as Array<{ category: string; details: Record<string, unknown> }>
+  const isNew = isNewSchemaRequest(req as Record<string, unknown>)
 
   // 매칭이 있을 때만 견적서·채팅방 조회
   const QUOTE_FIELDS =
@@ -147,24 +157,34 @@ export default async function FactoryRequestDetailPage({
         </div>
 
         <div className="space-y-5">
-          {/* 현장 정보 */}
-          <div>
-            <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-subtle">
-              현장 정보
-            </h3>
-            <div className="space-y-2">
-              <Row label="업체명" value={req.company_name} />
-              <Row label="현장명" value={req.site_name} />
-              <Row label="주소" value={req.address} />
-              <Row label="현장 담당자" value={req.site_manager} />
-              <Row label="연락처" value={req.contact} />
-              <Row label="방문 가능 시간" value={req.available_time} />
-              <Row label="업종" value={req.business_type} />
-              <Row label="층수" value={req.floor} />
-              <Row label="주차 가능" value={req.has_parking} />
-              <Row label="엘리베이터" value={req.has_elevator} />
+          {/* 공통 정보 + 분야별 (신규 다분야 요청) */}
+          {isNew && (
+            <>
+              <QuoteRequestView request={req as Record<string, unknown>} />
+              <CategoryItemsSection items={items} className="border-t border-border pt-4" />
+            </>
+          )}
+
+          {/* 현장 정보 (레거시 요청) */}
+          {!isNew && (
+            <div>
+              <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-subtle">
+                현장 정보
+              </h3>
+              <div className="space-y-2">
+                <Row label="업체명" value={req.company_name} />
+                <Row label="현장명" value={req.site_name} />
+                <Row label="주소" value={req.address} />
+                <Row label="현장 담당자" value={req.site_manager} />
+                <Row label="연락처" value={req.contact} />
+                <Row label="방문 가능 시간" value={req.available_time} />
+                <Row label="업종" value={req.business_type} />
+                <Row label="층수" value={req.floor} />
+                <Row label="주차 가능" value={req.has_parking} />
+                <Row label="엘리베이터" value={req.has_elevator} />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* 제품 정보 */}
           {(req.sofa_type || req.sofa_count || req.seat_count || req.cushion_type) && (
@@ -219,8 +239,8 @@ export default async function FactoryRequestDetailPage({
             </div>
           )}
 
-          {/* 일정 */}
-          {(req.delivery_date || req.install_date || req.needs_measurement) && (
+          {/* 일정 (레거시 요청) */}
+          {!isNew && (req.delivery_date || req.install_date || req.needs_measurement) && (
             <div className="border-t border-border pt-4">
               <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-ink-subtle">
                 일정

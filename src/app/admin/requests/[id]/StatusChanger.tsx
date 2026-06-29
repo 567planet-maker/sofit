@@ -8,7 +8,10 @@ import { QUOTE_REQUEST_STATUS_LABELS } from '@/lib/constants/status'
 
 const ALL_STATUSES = (
   Object.entries(QUOTE_REQUEST_STATUS_LABELS) as [QuoteRequestStatus, string][]
-).map(([value, label]) => ({ value, label }))
+)
+  // draft(임시저장)는 고객 작성 단계 상태이므로 관리자가 수동 전환할 수 없게 제외
+  .filter(([value]) => value !== 'draft')
+  .map(([value, label]) => ({ value, label }))
 
 export default function StatusChanger({
   requestId,

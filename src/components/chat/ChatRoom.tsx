@@ -55,50 +55,53 @@ export default function ChatRoom({
   }, [roomId])
 
   useEffect(() => {
-    const channel = supabase
-      .channel(`room:${roomId}`)
-      .on(
+    const topic = `room:${roomId}`
+
+    // StrictMode 재마운트/중복으로 남은 동일 토픽 채널을 먼저 정리
+    // (이미 subscribe된 채널에 .on() 하면 throw → 정리로 예방)
+    for (const ch of supabase.getChannels()) {
+      if (ch.topic === topic || ch.topic === `realtime:${topic}`) {
+        void supabase.removeChannel(ch)
+      }
+    }
+
+    const handleInsert = async (payload: { new: Record<string, unknown> }) => {
+      const newMsg = payload.new as any // eslint-disable-line @typescript-eslint/no-explicit-any
+      const { data: senderData } = await supabase
+        .from('users')
+        .select('id, name, role, avatar_url')
+        .eq('id', newMsg.sender_id)
+        .single()
+
+      setMessages((prev) => {
+        if (prev.find((m) => m.id === newMsg.id)) return prev // 중복 방지
+        return [
+          ...prev,
+          {
+            ...newMsg,
+            users: senderData ?? { id: newMsg.sender_id, name: null, role: 'customer' },
+          },
+        ]
+      })
+
+      if (newMsg.sender_id !== currentUserId) markRoomRead(roomId)
+    }
+
+    let channel: ReturnType<typeof supabase.channel> | null = null
+    try {
+      channel = supabase.channel(topic).on(
         'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'chat_messages',
-          filter: `room_id=eq.${roomId}`,
-        },
-        async (payload) => {
-          const newMsg = payload.new as any
-          // 중복 방지
-          setMessages((prev) => {
-            if (prev.find((m) => m.id === newMsg.id)) return prev
-            return prev
-          })
-
-          const { data: senderData } = await supabase
-            .from('users')
-            .select('id, name, role, avatar_url')
-            .eq('id', newMsg.sender_id)
-            .single()
-
-          setMessages((prev) => {
-            if (prev.find((m) => m.id === newMsg.id)) return prev
-            return [
-              ...prev,
-              {
-                ...newMsg,
-                users: senderData ?? { id: newMsg.sender_id, name: null, role: 'customer' },
-              },
-            ]
-          })
-
-          if (newMsg.sender_id !== currentUserId) {
-            markRoomRead(roomId)
-          }
-        },
+        { event: 'INSERT', schema: 'public', table: 'chat_messages', filter: `room_id=eq.${roomId}` },
+        handleInsert,
       )
-      .subscribe()
+      channel.subscribe()
+    } catch {
+      // 실시간 구독 실패는 치명적이지 않음(전송은 됨, 다음 로드 시 갱신) — 페이지를 죽이지 않는다.
+      channel = null
+    }
 
     return () => {
-      supabase.removeChannel(channel)
+      if (channel) void supabase.removeChannel(channel)
     }
   }, [roomId, currentUserId]) // eslint-disable-line react-hooks/exhaustive-deps
 

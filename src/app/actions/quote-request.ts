@@ -3,6 +3,10 @@
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { COMMON_FIELDS, COMMON_COLUMN_MAP } from '@/app/customer/request/schema/commonSchema'
+import { getCategorySchema } from '@/app/customer/request/schema/fieldSchemas'
+import { isCategoryKey, type CategoryKey } from '@/app/customer/request/schema/categories'
+import { isUnknownValue } from '@/app/customer/request/schema/types'
 
 export type RequestFileInput = {
   bucket: string
@@ -227,4 +231,355 @@ export async function acceptFactoryQuote(
   revalidatePath(`/customer/requests/${requestId}`)
   revalidatePath('/customer/requests')
   return {}
+}
+
+// ═════════════════════════════════════════════════════════════
+// 다분야 견적 (Phase 3) — draft-first 서버 액션
+//   ensureDraft / saveCommonInfo / upsertCategoryItem /
+//   removeCategoryItem / getQuoteRequest / submitQuoteDraft
+//
+// 보안: 모든 액션은 user 클라이언트로 소유권을 먼저 검증한 뒤,
+//   쓰기는 service 클라이언트로 수행한다(quote_requests는 고객 UPDATE
+//   정책이 없으므로). 검증을 통과하지 못하면 어떤 쓰기도 하지 않는다.
+// ═════════════════════════════════════════════════════════════
+
+function isFilled(v: unknown): boolean {
+  if (v === undefined || v === null || v === '') return false
+  if (Array.isArray(v) && v.length === 0) return false
+  return true
+}
+
+type OwnedDraft = { userId: string; request: Record<string, unknown> }
+
+// 현재 사용자가 소유한 요청을 로드. requireDraft면 draft 상태만 허용.
+async function loadOwnedRequest(
+  requestId: string,
+  opts: { requireDraft?: boolean } = {},
+): Promise<{ error: string } | OwnedDraft> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: '인증이 필요합니다.' }
+
+  const { data: customer } = await supabase
+    .from('customers')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+  if (!customer) return { error: '고객 정보를 찾을 수 없습니다.' }
+
+  const { data: request } = await supabase
+    .from('quote_requests')
+    .select('*')
+    .eq('id', requestId)
+    .eq('customer_id', customer.id)
+    .maybeSingle()
+  if (!request) return { error: '요청을 찾을 수 없습니다.' }
+
+  if (opts.requireDraft && request.status !== 'draft') {
+    return { error: '이미 제출된 요청은 수정할 수 없습니다.' }
+  }
+  return { userId: user.id, request: request as Record<string, unknown> }
+}
+
+// ── 진입 시 draft 보장 (고객당 진행중 draft 1건) ──────────────
+export async function ensureDraft(): Promise<{ requestId: string } | { error: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: '인증이 필요합니다.' }
+
+  const { data: customer } = await supabase
+    .from('customers')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+  if (!customer) return { error: '고객 정보를 찾을 수 없습니다.' }
+
+  // 기존 draft 재사용
+  const { data: existing } = await supabase
+    .from('quote_requests')
+    .select('id')
+    .eq('customer_id', customer.id)
+    .eq('status', 'draft')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  if (existing) return { requestId: existing.id }
+
+  // 신규 draft 생성 (RLS 고객 INSERT 정책 적용)
+  const { data: created, error } = await supabase
+    .from('quote_requests')
+    .insert({ customer_id: customer.id, status: 'draft' })
+    .select('id')
+    .single()
+  if (error || !created) return { error: '임시저장 생성에 실패했습니다.' }
+
+  return { requestId: created.id }
+}
+
+// ── 항상 새 견적 시작 (단, 손도 안 댄 빈 draft가 있으면 재사용) ──
+// "견적 요청" 진입 시 사용. 매번 새로 시작하되, 클릭만 반복해도
+// 완전히 빈 draft가 쌓이지 않도록 제목·현장명·분야가 모두 없는
+// draft 하나는 재사용한다.
+export async function createDraft(): Promise<{ requestId: string } | { error: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: '인증이 필요합니다.' }
+
+  const { data: customer } = await supabase
+    .from('customers')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+  if (!customer) return { error: '고객 정보를 찾을 수 없습니다.' }
+
+  // 가장 최근 draft가 "완전히 비어 있으면" 재사용 (빈 draft 누적 방지)
+  const { data: latest } = await supabase
+    .from('quote_requests')
+    .select('id, title, site_name, site_address, area_m2')
+    .eq('customer_id', customer.id)
+    .eq('status', 'draft')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (latest && !latest.title && !latest.site_name && !latest.site_address && latest.area_m2 == null) {
+    const { count } = await supabase
+      .from('quote_request_items')
+      .select('id', { count: 'exact', head: true })
+      .eq('request_id', latest.id)
+    if (!count) return { requestId: latest.id }
+  }
+
+  const { data: created, error } = await supabase
+    .from('quote_requests')
+    .insert({ customer_id: customer.id, status: 'draft' })
+    .select('id')
+    .single()
+  if (error || !created) return { error: '견적 생성에 실패했습니다.' }
+
+  return { requestId: created.id }
+}
+
+// ── 공통 정보 부분 저장 (화이트리스트 매핑) ───────────────────
+export async function saveCommonInfo(
+  requestId: string,
+  patch: Record<string, unknown>,
+): Promise<{ ok: true } | { error: string }> {
+  const owned = await loadOwnedRequest(requestId, { requireDraft: true })
+  if ('error' in owned) return { error: owned.error }
+
+  const update: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(patch)) {
+    const column = COMMON_COLUMN_MAP[key]
+    if (!column) continue // 화이트리스트 외 키 무시
+    update[column] = value
+  }
+  if (Object.keys(update).length === 0) return { ok: true }
+
+  const db = createServiceClient()
+  const { error } = await db.from('quote_requests').update(update).eq('id', requestId)
+  if (error) return { error: '저장에 실패했습니다.' }
+  return { ok: true }
+}
+
+// ── 분야 항목 추가/상세 저장 (details merge upsert) ───────────
+export async function upsertCategoryItem(
+  requestId: string,
+  category: string,
+  detailsPatch: Record<string, unknown>,
+): Promise<{ ok: true } | { error: string }> {
+  if (!isCategoryKey(category) || !getCategorySchema(category)) {
+    return { error: '지원하지 않는 분야입니다.' }
+  }
+  const owned = await loadOwnedRequest(requestId, { requireDraft: true })
+  if ('error' in owned) return { error: owned.error }
+
+  const db = createServiceClient()
+  const { data: existing } = await db
+    .from('quote_request_items')
+    .select('id, details')
+    .eq('request_id', requestId)
+    .eq('category', category)
+    .maybeSingle()
+
+  if (existing) {
+    const merged = { ...((existing.details as Record<string, unknown>) ?? {}), ...detailsPatch }
+    const { error } = await db
+      .from('quote_request_items')
+      .update({ details: merged })
+      .eq('id', existing.id)
+    if (error) return { error: '저장에 실패했습니다.' }
+  } else {
+    const { error } = await db
+      .from('quote_request_items')
+      .insert({ request_id: requestId, category, details: detailsPatch })
+    if (error) return { error: '분야 추가에 실패했습니다.' }
+  }
+  return { ok: true }
+}
+
+// ── 분야 항목 제거 ───────────────────────────────────────────
+export async function removeCategoryItem(
+  requestId: string,
+  category: string,
+): Promise<{ ok: true } | { error: string }> {
+  const owned = await loadOwnedRequest(requestId, { requireDraft: true })
+  if ('error' in owned) return { error: owned.error }
+
+  const db = createServiceClient()
+  const { error } = await db
+    .from('quote_request_items')
+    .delete()
+    .eq('request_id', requestId)
+    .eq('category', category)
+  if (error) return { error: '분야 제거에 실패했습니다.' }
+  return { ok: true }
+}
+
+// ── 부모 + items + attachments 조회 (소유자/RLS) ─────────────
+export async function getQuoteRequest(
+  requestId: string,
+): Promise<
+  | {
+      request: Record<string, unknown>
+      items: Array<{ id: string; category: string; details: Record<string, unknown> }>
+      attachments: Array<Record<string, unknown>>
+    }
+  | { error: string }
+> {
+  const supabase = await createClient()
+  const { data: request } = await supabase
+    .from('quote_requests')
+    .select('*')
+    .eq('id', requestId)
+    .maybeSingle()
+  if (!request) return { error: '요청을 찾을 수 없습니다.' }
+
+  const { data: items } = await supabase
+    .from('quote_request_items')
+    .select('id, category, details, status')
+    .eq('request_id', requestId)
+  const { data: attachments } = await supabase
+    .from('quote_request_attachments')
+    .select('*')
+    .eq('request_id', requestId)
+
+  return {
+    request: request as Record<string, unknown>,
+    items: (items ?? []) as Array<{
+      id: string
+      category: string
+      details: Record<string, unknown>
+    }>,
+    attachments: (attachments ?? []) as Array<Record<string, unknown>>,
+  }
+}
+
+// ── 검증 + 제출 (draft → submitted) ──────────────────────────
+type ValidationError = { scope: 'common' | CategoryKey; key: string; label: string }
+
+export async function submitQuoteDraft(requestId: string): Promise<
+  | { ok: true }
+  | { ok: false; errors: ValidationError[] }
+  | { error: string }
+> {
+  const owned = await loadOwnedRequest(requestId, { requireDraft: true })
+  if ('error' in owned) return { error: owned.error }
+  const { userId, request } = owned
+
+  const db = createServiceClient()
+  const { data: items } = await db
+    .from('quote_request_items')
+    .select('id, category, details')
+    .eq('request_id', requestId)
+
+  const itemList = (items ?? []) as Array<{
+    id: string
+    category: string
+    details: Record<string, unknown>
+  }>
+
+  // 분야 최소 1개
+  if (itemList.length === 0) {
+    return { error: '최소 한 개 분야를 선택하고 작성해주세요.' }
+  }
+
+  // 공통 필수 검증
+  const errors: ValidationError[] = []
+  for (const f of COMMON_FIELDS) {
+    if (!f.required) continue
+    const column = COMMON_COLUMN_MAP[f.key] ?? f.key
+    if (!isFilled(request[column])) {
+      errors.push({ scope: 'common', key: f.key, label: f.label })
+    }
+  }
+
+  // 분야별 필수 검증 (__unknown = "모름" 선택도 통과로 인정)
+  for (const item of itemList) {
+    if (!isCategoryKey(item.category)) continue
+    const schema = getCategorySchema(item.category)
+    if (!schema) continue
+    for (const f of schema.fields) {
+      if (!f.required) continue
+      const v = item.details?.[f.key]
+      if (!isFilled(v) && !isUnknownValue(v)) {
+        errors.push({ scope: item.category, key: f.key, label: f.label })
+      }
+    }
+  }
+
+  if (errors.length > 0) return { ok: false, errors }
+
+  // ── 제출 처리 (소유권 검증 완료 → service client) ──
+  const now = new Date().toISOString()
+  const { error: updErr } = await db
+    .from('quote_requests')
+    .update({ status: 'submitted', submitted_at: now })
+    .eq('id', requestId)
+  if (updErr) return { error: '제출 처리에 실패했습니다.' }
+
+  // 제출 시점 스냅샷
+  await db.from('quote_request_revisions').insert({
+    request_id: requestId,
+    snapshot: { request: { ...request, status: 'submitted' }, items: itemList },
+    reason: 'submitted',
+    created_by: userId,
+  })
+
+  // customer_sofit 채팅방 생성 (보정 #2: draft가 아니라 제출 시점에 생성)
+  await db
+    .from('chat_rooms')
+    .insert({ request_id: requestId, match_id: null, type: 'customer_sofit' })
+
+  // 관리자 알림
+  const { data: admins } = await db.from('users').select('id').eq('role', 'admin')
+  if (admins && admins.length > 0) {
+    const siteName = (request.site_name as string) ?? '제목 없음'
+    await db.from('notifications').insert(
+      admins.map((admin) => ({
+        user_id: admin.id,
+        type: 'new_request',
+        title: '새 견적 요청이 접수됐습니다',
+        body: `${siteName} — 분야 ${itemList.length}개`,
+        link: `/admin/requests/${requestId}`,
+      })),
+    )
+  }
+
+  await db.from('status_logs').insert({
+    request_id: requestId,
+    from_status: 'draft',
+    to_status: 'submitted',
+    changed_by: userId,
+    note: '고객이 견적 요청을 제출했습니다',
+  })
+
+  revalidatePath('/customer/requests')
+  return { ok: true }
 }

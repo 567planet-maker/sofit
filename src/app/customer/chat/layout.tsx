@@ -14,12 +14,6 @@ function formatTime(iso: string) {
   })
 }
 
-function getRoomLabel(type: string, factoryName?: string) {
-  if (type === 'customer_sofit') return '소핏 상담'
-  if (type === 'customer_factory') return factoryName ? `${factoryName} 채팅` : '공장 직접 채팅'
-  return type
-}
-
 async function getRooms(): Promise<ChatRoomListItem[]> {
   const supabase = await createClient()
   const {
@@ -69,7 +63,7 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
     }
   }
 
-  // 마지막 메시지 + 미읽음
+  // 마지막 메시지 + 미읽음 + 상대(발신자) user_id
   const roomIds = rooms.map((r) => r.id)
   const { data: allMessages } = await supabase
     .from('chat_messages')
@@ -80,20 +74,45 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
   type MsgRow = NonNullable<typeof allMessages>[number]
   const lastMsgByRoom: Record<string, MsgRow> = {}
   const unreadByRoom: Record<string, number> = {}
+  const counterpartyByRoom: Record<string, string> = {}
   for (const msg of allMessages ?? []) {
     if (!lastMsgByRoom[msg.room_id]) lastMsgByRoom[msg.room_id] = msg
-    if (msg.sender_id !== user.id && !msg.read_at) {
-      unreadByRoom[msg.room_id] = (unreadByRoom[msg.room_id] ?? 0) + 1
+    if (msg.sender_id !== user.id) {
+      if (!counterpartyByRoom[msg.room_id]) counterpartyByRoom[msg.room_id] = msg.sender_id
+      if (!msg.read_at) unreadByRoom[msg.room_id] = (unreadByRoom[msg.room_id] ?? 0) + 1
+    }
+  }
+
+  // 상대 프로필(이름·사진) — users RLS(migration 010)로 채팅 상대만 조회 가능
+  const counterpartyIds = [...new Set(Object.values(counterpartyByRoom))]
+  const profileById: Record<string, { name: string | null; avatar_url: string | null }> = {}
+  if (counterpartyIds.length > 0) {
+    const { data: profiles } = await supabase
+      .from('users')
+      .select('id, name, avatar_url')
+      .in('id', counterpartyIds)
+    for (const p of profiles ?? []) {
+      profileById[p.id] = { name: p.name as string | null, avatar_url: p.avatar_url as string | null }
     }
   }
 
   return rooms.map((room) => {
     const factory = room.match_id ? factoryByMatchId[room.match_id] : undefined
+    const cpId = counterpartyByRoom[room.id]
+    const cp = cpId ? profileById[cpId] : undefined
     const lastMsg = lastMsgByRoom[room.id]
+    const name =
+      room.type === 'customer_sofit'
+        ? cp?.name ?? '소핏 상담'
+        : factory?.name ?? cp?.name ?? '공장 직접 채팅'
+    const avatarUrl =
+      room.type === 'customer_sofit'
+        ? cp?.avatar_url ?? null
+        : factory?.avatarUrl ?? cp?.avatar_url ?? null
     return {
       id: room.id,
       href: `/customer/chat/${room.id}`,
-      name: getRoomLabel(room.type, factory?.name),
+      name,
       subtitle: siteNameById[room.request_id] ?? undefined,
       preview: lastMsg
         ? lastMsg.content ?? `📎 ${lastMsg.file_name ?? '첨부파일'}`
@@ -101,7 +120,7 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
       time: lastMsg ? formatTime(lastMsg.created_at) : undefined,
       unread: unreadByRoom[room.id] ?? 0,
       avatar: room.type === 'customer_sofit' ? 'S' : '공',
-      avatarUrl: room.type === 'customer_factory' ? (factory?.avatarUrl ?? null) : null,
+      avatarUrl,
     }
   })
 }

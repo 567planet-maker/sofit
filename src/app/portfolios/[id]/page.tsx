@@ -114,7 +114,7 @@ export default async function PortfolioDetailPage({
 
               <div className="mt-6">
                 <Link
-                  href="/customer/request"
+                  href="/customer/request/new"
                   className="block rounded-control bg-brand py-3 text-center font-medium text-white transition-colors hover:bg-brand-hover"
                 >
                   이 공장에 견적 요청하기

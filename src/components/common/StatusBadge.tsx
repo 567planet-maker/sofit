@@ -2,6 +2,7 @@ import Badge, { type BadgeTone } from '@/components/ui/Badge'
 import type { QuoteRequestStatus } from '@/types'
 
 const STATUS_MAP: Record<QuoteRequestStatus, { label: string; tone: BadgeTone }> = {
+  draft: { label: '임시저장', tone: 'neutral' },
   submitted: { label: '접수됨', tone: 'info' },
   reviewing: { label: '검토중', tone: 'warning' },
   matching: { label: '매칭중', tone: 'brand' },

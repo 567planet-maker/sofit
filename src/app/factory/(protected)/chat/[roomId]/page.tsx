@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import ChatRoom from '@/components/chat/ChatRoom'
 import ChatHeaderBar from '@/components/chat/ChatHeaderBar'
+import Avatar from '@/components/ui/Avatar'
 import type { ChatMessageWithSender } from '@/types'
 
 export default async function FactoryChatRoomPage({
@@ -43,11 +44,17 @@ export default async function FactoryChatRoomPage({
     .eq('room_id', roomId)
     .order('created_at', { ascending: true })
 
+  const cpMsg = ((messages ?? []) as any[]).find((m) => m.sender_id !== user.id)
+  const headerName =
+    (cpMsg?.users?.name as string | undefined) ?? req?.company_name ?? '고객 직접 채팅'
+  const cpAvatar = (cpMsg?.users?.avatar_url as string | null) ?? null
+
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col">
       <ChatHeaderBar>
+        <Avatar src={cpAvatar} name={headerName} size="md" />
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium text-ink">고객 직접 채팅</p>
+          <p className="truncate font-medium text-ink">{headerName}</p>
           <p className="truncate text-xs text-ink-muted">
             {req?.site_name} · {req?.company_name}
           </p>

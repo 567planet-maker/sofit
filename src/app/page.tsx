@@ -135,7 +135,7 @@ export default async function HomePage() {
             </p>
             <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <Link
-                href="/customer/request"
+                href="/customer/request/new"
                 className="flex items-center gap-2.5 rounded-full bg-sofit-blue px-6 py-3 text-[14px] font-medium text-white shadow-lg transition-colors hover:bg-sofit-blue-hover"
               >
                 <span style={{ paddingTop: '2px' }}>견적 무료로 요청하기</span>
@@ -295,7 +295,7 @@ export default async function HomePage() {
               무료이며, 5분이면 견적 요청이 완료됩니다.
             </p>
             <Link
-              href="/customer/request"
+              href="/customer/request/new"
               className="mt-10 inline-block rounded-full bg-white px-10 py-4 text-base font-medium text-sofit-blue shadow-lg transition-colors hover:bg-blue-50"
             >
               견적 무료로 요청하기
