@@ -56,10 +56,13 @@ async function getAuthFactory() {
 
   const { data: factory } = await supabase
     .from('factories')
-    .select('id, company_name')
+    .select('id, company_name, status')
     .eq('user_id', user.id)
     .single()
   if (!factory) redirect('/factory/onboarding')
+  // active 공장만 매칭/견적/채팅/포트폴리오 등 행위 가능.
+  // pending·rejected·suspended는 안내 페이지로 차단(레이아웃과 이중 방어).
+  if (factory.status !== 'active') redirect('/factory/pending')
 
   return { supabase, user, factory }
 }
@@ -188,15 +191,8 @@ export async function rejectMatch(
 export async function joinRequest(
   requestId: string,
 ): Promise<{ error?: string }> {
-  const { supabase, factory, user } = await getAuthFactory()
-
-  // 공장 활성 상태 확인
-  const { data: fullFactory } = await supabase
-    .from('factories')
-    .select('id, company_name, status')
-    .eq('id', factory.id)
-    .single()
-  if (fullFactory?.status !== 'active') return { error: '활성 공장만 참여할 수 있습니다.' }
+  const { supabase, factory } = await getAuthFactory()
+  // getAuthFactory가 이미 active를 보장하므로 별도 상태 재확인은 불필요.
 
   // 요청서 존재·참여 가능 여부 확인
   const { data: request } = await supabase
@@ -581,6 +577,16 @@ export async function addProgressPhoto(
   fileSize: number,
 ): Promise<{ error?: string }> {
   const { supabase, factory } = await getAuthFactory()
+
+  // 참여(수락)한 요청에만 진행 사진 업로드 허용 — 임의 request_id 주입 차단(IDOR).
+  const { data: membership } = await supabase
+    .from('matches')
+    .select('id')
+    .eq('factory_id', factory.id)
+    .eq('request_id', requestId)
+    .eq('status', 'confirmed')
+    .maybeSingle()
+  if (!membership) return { error: '참여(수락)한 요청에만 진행 사진을 올릴 수 있습니다.' }
 
   const { error } = await supabase.from('progress_photos').insert({
     request_id: requestId,

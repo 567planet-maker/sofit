@@ -32,7 +32,9 @@ export default async function FactoryLayout({
     .single()
 
   if (!factory) redirect('/factory/onboarding')
-  if (factory.status === 'pending') redirect('/factory/pending')
+  // active 공장만 매칭/견적/채팅 등 기능 사용 가능.
+  // pending(심사 중)·rejected(반려)·suspended(정지)는 안내 페이지로 차단.
+  if (factory.status !== 'active') redirect('/factory/pending')
 
   return (
     <div className="min-h-screen bg-canvas">

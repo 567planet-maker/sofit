@@ -27,6 +27,32 @@ function getBucket(fileType: string) {
   return fileType === 'document' ? 'request-documents' : 'request-images'
 }
 
+// 주소(도로명)에서 시/도 + 시/군/구 정도만 남긴다(상세 비공개).
+function coarseAddress(road?: string | null): string {
+  if (!road) return '매칭 후 공개'
+  const parts = road.trim().split(/\s+/)
+  return parts.slice(0, 2).join(' ') || '매칭 후 공개'
+}
+
+// 매칭(confirmed) 전에는 고객 연락처·정확한 주소를 가린다.
+// 활성 공장은 매칭 전에도 요청을 둘러볼 수 있으나(둘러보기·참여 판단),
+// 담당자명·전화·상세주소 같은 PII는 수락 후에만 공개한다(개인정보 최소 노출).
+function maskRequestPII(req: Record<string, unknown>): Record<string, unknown> {
+  const masked = { ...req }
+  if (req.contact_name) masked.contact_name = '매칭 후 공개'
+  if (req.contact_phone) masked.contact_phone = '매칭 후 공개'
+  if (req.contact) masked.contact = '매칭 후 공개' // 레거시 연락처
+  if (req.site_manager) masked.site_manager = '매칭 후 공개' // 레거시 현장 담당자명
+  const addr = req.site_address
+  if (addr && typeof addr === 'object') {
+    masked.site_address = { road: coarseAddress((addr as { road?: string | null }).road), detail: null }
+  }
+  if (typeof req.address === 'string' && req.address) {
+    masked.address = `${coarseAddress(req.address)} (상세 매칭 후 공개)`
+  }
+  return masked
+}
+
 export default async function FactoryRequestDetailPage({
   params,
 }: {
@@ -74,6 +100,10 @@ export default async function FactoryRequestDetailPage({
     details: Record<string, unknown>
   }>
   const isNew = isNewSchemaRequest(req as Record<string, unknown>)
+
+  // confirmed 매칭 전에는 고객 PII(연락처·상세주소)를 가린 사본으로 렌더한다.
+  const revealed = match?.status === 'confirmed'
+  const viewReq = revealed ? (req as Record<string, unknown>) : maskRequestPII(req as Record<string, unknown>)
 
   // 이 공장의 전문 분야 — 제한이 아니라 "강조"용. 공장은 요청의 어떤 분야든 견적 가능.
   const { data: myCats } = await supabase
@@ -196,7 +226,7 @@ export default async function FactoryRequestDetailPage({
           {/* 공통 정보 + 분야별 (신규 다분야 요청) */}
           {isNew && (
             <>
-              <QuoteRequestView request={req as Record<string, unknown>} />
+              <QuoteRequestView request={viewReq} />
               <ClarificationSummary items={items} className="border-t border-warning/30 pt-4" />
               <CategoryItemsSection items={items} className="border-t border-border pt-4" />
               <AttachmentGallery requestId={requestId} className="border-t border-border pt-4" />
@@ -212,9 +242,9 @@ export default async function FactoryRequestDetailPage({
               <div className="space-y-2">
                 <Row label="업체명" value={req.company_name} />
                 <Row label="현장명" value={req.site_name} />
-                <Row label="주소" value={req.address} />
-                <Row label="현장 담당자" value={req.site_manager} />
-                <Row label="연락처" value={req.contact} />
+                <Row label="주소" value={viewReq.address as string | null} />
+                <Row label="현장 담당자" value={viewReq.site_manager as string | null} />
+                <Row label="연락처" value={viewReq.contact as string | null} />
                 <Row label="방문 가능 시간" value={req.available_time} />
                 <Row label="업종" value={req.business_type} />
                 <Row label="층수" value={req.floor} />
