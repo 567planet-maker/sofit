@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
-import { acceptFactoryQuote } from '@/app/actions/quote-request'
+import { acceptItemQuote } from '@/app/actions/quote-request'
 
 export type QuoteVersion = {
   id: string
@@ -35,6 +35,7 @@ type Props = {
   isLowest: boolean
   requestId: string
   matchId: string
+  itemId: string
   canAccept: boolean
 }
 
@@ -59,7 +60,7 @@ function DiffCell({ diff }: { diff: number }) {
   return <span className="font-medium text-success">{formatKrw(diff)}원 ↓</span>
 }
 
-export default function QuoteVersionCard({ factory, quotes, isLowest, requestId, matchId, canAccept }: Props) {
+export default function QuoteVersionCard({ factory, quotes, isLowest, requestId, matchId, itemId, canAccept }: Props) {
   const [showDiff, setShowDiff] = useState(false)
   const [confirming, setConfirming] = useState(false)
   const [isPending, startTransition] = useTransition()
@@ -73,7 +74,7 @@ export default function QuoteVersionCard({ factory, quotes, isLowest, requestId,
   const handleAccept = () => {
     setAcceptError(null)
     startTransition(async () => {
-      const result = await acceptFactoryQuote(requestId, matchId)
+      const result = await acceptItemQuote(requestId, itemId, matchId)
       if (result.error) {
         setAcceptError(result.error)
         setConfirming(false)

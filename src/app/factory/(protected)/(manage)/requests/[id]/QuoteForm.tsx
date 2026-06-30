@@ -20,6 +20,7 @@ type ExistingQuote = {
 
 type Props = {
   matchId: string
+  itemId: string
   existing?: ExistingQuote | null
 }
 
@@ -48,7 +49,7 @@ function formatKrw(n: number) {
   return new Intl.NumberFormat('ko-KR').format(n)
 }
 
-export default function QuoteForm({ matchId, existing }: Props) {
+export default function QuoteForm({ matchId, itemId, existing }: Props) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
@@ -86,7 +87,7 @@ export default function QuoteForm({ matchId, existing }: Props) {
     setErrorMsg(null)
     setSuccessMsg(null)
     startTransition(async () => {
-      const result = await saveQuoteDraft(matchId, buildInput())
+      const result = await saveQuoteDraft(matchId, itemId, buildInput())
       if (result.error) {
         setErrorMsg(result.error)
       } else {
@@ -104,7 +105,7 @@ export default function QuoteForm({ matchId, existing }: Props) {
     setErrorMsg(null)
     setSuccessMsg(null)
     startTransition(async () => {
-      const result = await submitFactoryQuote(matchId, buildInput())
+      const result = await submitFactoryQuote(matchId, itemId, buildInput())
       if (result.error) {
         setErrorMsg(result.error)
       } else {

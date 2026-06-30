@@ -7,6 +7,7 @@ import JoinActions from './JoinActions'
 import QuoteForm from './QuoteForm'
 import QuoteRequestView, { isNewSchemaRequest } from '@/components/quote/QuoteRequestView'
 import CategoryItemsSection from '@/components/quote/CategoryItemsSection'
+import { CATEGORY_LABELS, type CategoryKey } from '@/app/customer/request/schema/categories'
 
 function Row({ label, value }: { label: string; value: string | number | boolean | null }) {
   if (value === null || value === undefined || value === '') return null
@@ -63,35 +64,65 @@ export default async function FactoryRequestDetailPage({
   // 분야별 항목 (신규 다분야 요청)
   const { data: itemsData } = await supabase
     .from('quote_request_items')
-    .select('category, details')
+    .select('id, category, details')
     .eq('request_id', requestId)
-  const items = (itemsData ?? []) as Array<{ category: string; details: Record<string, unknown> }>
+  const items = (itemsData ?? []) as Array<{
+    id: string
+    category: string
+    details: Record<string, unknown>
+  }>
   const isNew = isNewSchemaRequest(req as Record<string, unknown>)
 
-  // 매칭이 있을 때만 견적서·채팅방 조회
+  // 이 공장의 전문 분야 → 요청 item 중 시공 가능한 것만 견적 대상
+  const { data: myCats } = await supabase
+    .from('factory_categories')
+    .select('category')
+    .eq('factory_id', factory.id)
+  const myCategories = new Set((myCats ?? []).map((c) => c.category as string))
+  const serviceableItems = items.filter((it) => myCategories.has(it.category))
+
+  // 매칭 있을 때만, 시공 가능한 item별 기존 견적(draft 우선, 없으면 최신 submitted) 조회
   const QUOTE_FIELDS =
-    'material_cost, labor_cost, delivery_cost, install_cost, demolition_cost, extra_cost, margin, delivery_days, note, status, version'
+    'id, item_id, material_cost, labor_cost, delivery_cost, install_cost, demolition_cost, extra_cost, margin, delivery_days, note, status, version'
 
-  const { data: draftQuote } = match
-    ? await supabase
-        .from('factory_quotes')
-        .select(QUOTE_FIELDS)
-        .eq('match_id', match.id)
-        .eq('status', 'draft')
-        .maybeSingle()
-    : { data: null }
+  type FactoryQuoteRow = {
+    id: string
+    item_id: string
+    status: string
+    version: number
+    material_cost: number
+    labor_cost: number
+    delivery_cost: number
+    install_cost: number
+    demolition_cost: number
+    extra_cost: number
+    margin: number
+    delivery_days: number | null
+    note: string | null
+  }
 
-  const { data: submittedQuote } = match
-    ? await supabase
-        .from('factory_quotes')
-        .select(QUOTE_FIELDS)
-        .eq('match_id', match.id)
-        .eq('is_latest', true)
-        .eq('status', 'submitted')
-        .maybeSingle()
-    : { data: null }
+  const itemIds = serviceableItems.map((i) => i.id)
+  const { data: myQuotesData } =
+    match && itemIds.length > 0
+      ? await supabase
+          .from('factory_quotes')
+          .select(QUOTE_FIELDS)
+          .eq('match_id', match.id)
+          .in('item_id', itemIds)
+          .in('status', ['draft', 'submitted'])
+      : { data: null }
 
-  const existingQuote = draftQuote ?? submittedQuote
+  const quotesByItem = new Map<string, { draft?: FactoryQuoteRow; submitted?: FactoryQuoteRow }>()
+  for (const q of (myQuotesData ?? []) as FactoryQuoteRow[]) {
+    const slot = quotesByItem.get(q.item_id) ?? {}
+    if (q.status === 'draft') slot.draft = q
+    else if (q.status === 'submitted') slot.submitted = q
+    quotesByItem.set(q.item_id, slot)
+  }
+  const existingQuoteFor = (id: string): FactoryQuoteRow | null => {
+    const slot = quotesByItem.get(id)
+    return slot?.draft ?? slot?.submitted ?? null
+  }
 
   const { data: chatRoom } = match
     ? await supabase
@@ -315,11 +346,11 @@ export default async function FactoryRequestDetailPage({
         </div>
       </section>
 
-      {/* ── 공장 견적서 작성/수정 (참여 후에만 표시) ──────────────── */}
+      {/* ── 공장 견적서 작성/수정 (참여 후, 분야별) ──────────────── */}
       {match?.status === 'confirmed' && (
         <section className="rounded-card border border-border bg-white p-5 shadow-card">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-medium text-ink">공장 견적서</h2>
+            <h2 className="font-medium text-ink">공장 견적서 (분야별)</h2>
             {chatRoom && (
               <Link
                 href={`/factory/chat/${chatRoom.id}`}
@@ -329,7 +360,30 @@ export default async function FactoryRequestDetailPage({
               </Link>
             )}
           </div>
-          <QuoteForm matchId={match.id} existing={existingQuote} />
+
+          {serviceableItems.length === 0 ? (
+            <p className="rounded-lg bg-surface-muted px-4 py-3 text-sm text-ink-muted">
+              이 요청에는 귀사의 전문 분야가 없습니다. 전문 분야는{' '}
+              <Link href="/factory/categories" className="font-medium text-brand hover:underline">
+                전문 분야 설정
+              </Link>
+              에서 추가할 수 있습니다.
+            </p>
+          ) : (
+            <div className="space-y-8">
+              {serviceableItems.map((it) => (
+                <div key={it.id}>
+                  <div className="mb-3 flex items-center gap-2">
+                    <span className="rounded-full bg-brand-tint px-2.5 py-0.5 text-xs font-semibold text-brand">
+                      {CATEGORY_LABELS[it.category as CategoryKey] ?? it.category}
+                    </span>
+                    <span className="text-xs text-ink-subtle">분야 견적서</span>
+                  </div>
+                  <QuoteForm matchId={match.id} itemId={it.id} existing={existingQuoteFor(it.id)} />
+                </div>
+              ))}
+            </div>
+          )}
         </section>
       )}
     </div>

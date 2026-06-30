@@ -5,7 +5,11 @@ import { revalidatePath } from 'next/cache'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { COMMON_FIELDS, COMMON_COLUMN_MAP } from '@/app/customer/request/schema/commonSchema'
 import { getCategorySchema } from '@/app/customer/request/schema/fieldSchemas'
-import { isCategoryKey, type CategoryKey } from '@/app/customer/request/schema/categories'
+import {
+  isCategoryKey,
+  CATEGORY_LABELS,
+  type CategoryKey,
+} from '@/app/customer/request/schema/categories'
 import { isUnknownValue } from '@/app/customer/request/schema/types'
 
 export type RequestFileInput = {
@@ -225,6 +229,139 @@ export async function acceptFactoryQuote(
       body: `${reqInfo?.site_name ?? ''} — 고객이 최종 계약을 확정했습니다`,
       link: `/factory/requests/${requestId}`,
     })
+  }
+
+  revalidatePath(`/customer/requests/${requestId}/quotes`)
+  revalidatePath(`/customer/requests/${requestId}`)
+  revalidatePath('/customer/requests')
+  return {}
+}
+
+// ─────────────────────────────────────────────────────────────
+// 분야(item)별 견적 수락 (Phase 7) — 분야마다 다른 공장 선택 가능
+//   선택한 (match,item) 견적 → accepted, 같은 item의 다른 공장 견적 → rejected,
+//   해당 item → contracted. 모든 item이 contracted면 요청 전체 계약 확정.
+// ─────────────────────────────────────────────────────────────
+export async function acceptItemQuote(
+  requestId: string,
+  itemId: string,
+  matchId: string,
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+  if (!user) return { error: '인증 오류' }
+
+  const { data: customer } = await supabase
+    .from('customers')
+    .select('id')
+    .eq('user_id', user.id)
+    .single()
+  if (!customer) return { error: '고객 정보를 찾을 수 없습니다.' }
+
+  // 요청 소유권
+  const { data: request } = await supabase
+    .from('quote_requests')
+    .select('id, status')
+    .eq('id', requestId)
+    .eq('customer_id', customer.id)
+    .single()
+  if (!request) return { error: '견적 요청을 찾을 수 없습니다.' }
+  if (request.status === 'contracted') return { error: '이미 계약이 완료된 요청입니다.' }
+
+  // 매칭이 이 요청 소속인지 + item이 이 요청 소속인지
+  const { data: match } = await supabase
+    .from('matches')
+    .select('id, factory_id')
+    .eq('id', matchId)
+    .eq('request_id', requestId)
+    .single()
+  if (!match) return { error: '매칭 정보를 찾을 수 없습니다.' }
+
+  const { data: item } = await supabase
+    .from('quote_request_items')
+    .select('id, category')
+    .eq('id', itemId)
+    .eq('request_id', requestId)
+    .single()
+  if (!item) return { error: '분야 항목을 찾을 수 없습니다.' }
+
+  // 권한 검증 완료 → service client
+  const db = createServiceClient()
+
+  // 선택한 (match,item)의 최신 submitted 견적
+  const { data: chosen } = await db
+    .from('factory_quotes')
+    .select('id')
+    .eq('match_id', matchId)
+    .eq('item_id', itemId)
+    .eq('is_latest', true)
+    .eq('status', 'submitted')
+    .maybeSingle()
+  if (!chosen) return { error: '선택한 분야의 제출된 견적서를 찾을 수 없습니다.' }
+
+  // 선택 → accepted
+  const { error: accErr } = await db
+    .from('factory_quotes')
+    .update({ status: 'accepted' })
+    .eq('id', chosen.id)
+  if (accErr) return { error: '견적 수락 처리에 실패했습니다.' }
+
+  // 같은 item의 다른 공장 submitted 견적 → rejected (item_id는 요청 단일 소속이라 범위 안전)
+  await db
+    .from('factory_quotes')
+    .update({ status: 'rejected' })
+    .eq('item_id', itemId)
+    .eq('status', 'submitted')
+    .neq('id', chosen.id)
+
+  // 해당 분야 계약 처리
+  await db.from('quote_request_items').update({ status: 'contracted' }).eq('id', itemId)
+
+  // 낙찰 공장 알림
+  const categoryLabel = CATEGORY_LABELS[item.category as CategoryKey] ?? item.category
+  const { data: factoryUser } = await db
+    .from('factories')
+    .select('user_id')
+    .eq('id', match.factory_id)
+    .single()
+  if (factoryUser) {
+    const { data: reqInfo } = await db
+      .from('quote_requests')
+      .select('site_name')
+      .eq('id', requestId)
+      .single()
+    await db.from('notifications').insert({
+      user_id: factoryUser.user_id,
+      type: 'status_changed',
+      title: '견적서가 수락되었습니다',
+      body: `${reqInfo?.site_name ?? ''} — ${categoryLabel} 분야 계약이 확정되었습니다`,
+      link: `/factory/requests/${requestId}`,
+    })
+  }
+
+  // 모든 분야가 계약되면 요청 전체 계약 확정
+  const { data: allItems } = await db
+    .from('quote_request_items')
+    .select('status')
+    .eq('request_id', requestId)
+  const itemStatuses = (allItems ?? []) as Array<{ status: string }>
+  const allContracted =
+    itemStatuses.length > 0 && itemStatuses.every((i) => i.status === 'contracted')
+
+  if (allContracted) {
+    await db.from('quote_requests').update({ status: 'contracted' }).eq('id', requestId)
+    await db.from('status_logs').insert({
+      request_id: requestId,
+      from_status: request.status,
+      to_status: 'contracted',
+      changed_by: user.id,
+      note: '모든 분야 견적 수락 — 계약 확정',
+    })
+  } else if (request.status === 'quote_arrived' || request.status === 'matching') {
+    // 일부 분야 계약 진행 중
+    await db.from('quote_requests').update({ status: 'negotiating' }).eq('id', requestId)
   }
 
   revalidatePath(`/customer/requests/${requestId}/quotes`)

@@ -3,7 +3,11 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
-import { isCategoryKey, type CategoryKey } from '@/app/customer/request/schema/categories'
+import {
+  isCategoryKey,
+  CATEGORY_LABELS,
+  type CategoryKey,
+} from '@/app/customer/request/schema/categories'
 
 type SBClient = Awaited<ReturnType<typeof createClient>>
 
@@ -286,27 +290,60 @@ export type QuoteInput = {
 // 견적서 임시저장
 // ─────────────────────────────────────────────────────────────
 
-export async function saveQuoteDraft(
+/**
+ * 견적 작성 권한 검증: 매칭 소유(confirmed) + item이 그 요청 소속 + 공장이 해당 분야 시공.
+ * 분야(item) 단위 견적의 공통 가드.
+ */
+async function loadQuotableItem(
+  supabase: SBClient,
+  factoryId: string,
   matchId: string,
-  data: QuoteInput,
-): Promise<{ error?: string }> {
-  const { supabase, factory } = await getAuthFactory()
-
-  // 소유권 확인
+  itemId: string,
+): Promise<{ requestId: string; category: string } | { error: string }> {
   const { data: match } = await supabase
     .from('matches')
     .select('id, request_id, status')
     .eq('id', matchId)
-    .eq('factory_id', factory.id)
+    .eq('factory_id', factoryId)
     .single()
   if (!match) return { error: '매칭 정보를 찾을 수 없습니다.' }
   if (match.status !== 'confirmed') return { error: '수락된 요청에만 견적서를 작성할 수 있습니다.' }
 
-  // 기존 draft 조회
+  const { data: item } = await supabase
+    .from('quote_request_items')
+    .select('id, category')
+    .eq('id', itemId)
+    .eq('request_id', match.request_id)
+    .single()
+  if (!item) return { error: '분야 항목을 찾을 수 없습니다.' }
+
+  const { data: cat } = await supabase
+    .from('factory_categories')
+    .select('id')
+    .eq('factory_id', factoryId)
+    .eq('category', item.category)
+    .maybeSingle()
+  if (!cat) return { error: '귀사의 시공 분야가 아닙니다.' }
+
+  return { requestId: match.request_id as string, category: item.category as string }
+}
+
+export async function saveQuoteDraft(
+  matchId: string,
+  itemId: string,
+  data: QuoteInput,
+): Promise<{ error?: string }> {
+  const { supabase, factory } = await getAuthFactory()
+
+  const ctx = await loadQuotableItem(supabase, factory.id, matchId, itemId)
+  if ('error' in ctx) return { error: ctx.error }
+
+  // 기존 draft 조회 (match + item 단위)
   const { data: existing } = await supabase
     .from('factory_quotes')
     .select('id')
     .eq('match_id', matchId)
+    .eq('item_id', itemId)
     .eq('status', 'draft')
     .maybeSingle()
 
@@ -320,11 +357,11 @@ export async function saveQuoteDraft(
     // draft는 is_latest=false (최신 submitted만 is_latest=true)
     const { error } = await supabase
       .from('factory_quotes')
-      .insert({ match_id: matchId, ...data, status: 'draft', is_latest: false })
+      .insert({ match_id: matchId, item_id: itemId, ...data, status: 'draft', is_latest: false })
     if (error) return { error: '임시저장 실패' }
   }
 
-  revalidatePath(`/factory/requests/${match.request_id}`)
+  revalidatePath(`/factory/requests/${ctx.requestId}`)
   return {}
 }
 
@@ -334,24 +371,21 @@ export async function saveQuoteDraft(
 
 export async function submitFactoryQuote(
   matchId: string,
+  itemId: string,
   data: QuoteInput,
 ): Promise<{ error?: string }> {
   const { supabase, factory, user } = await getAuthFactory()
 
-  const { data: match } = await supabase
-    .from('matches')
-    .select('id, request_id, status')
-    .eq('id', matchId)
-    .eq('factory_id', factory.id)
-    .single()
-  if (!match) return { error: '매칭 정보를 찾을 수 없습니다.' }
-  if (match.status !== 'confirmed') return { error: '수락된 요청에만 견적서를 제출할 수 있습니다.' }
+  const ctx = await loadQuotableItem(supabase, factory.id, matchId, itemId)
+  if ('error' in ctx) return { error: ctx.error }
+  const requestId = ctx.requestId
 
-  // 1. 현재 최신 submitted 버전 조회
+  // 1. 현재 최신 submitted 버전 조회 (match + item 단위)
   const { data: latestQuote } = await supabase
     .from('factory_quotes')
     .select('id, version')
     .eq('match_id', matchId)
+    .eq('item_id', itemId)
     .eq('is_latest', true)
     .eq('status', 'submitted')
     .maybeSingle()
@@ -366,11 +400,12 @@ export async function submitFactoryQuote(
       .eq('id', latestQuote.id)
   }
 
-  // 3. draft 삭제
+  // 3. 해당 item의 draft 삭제
   await supabase
     .from('factory_quotes')
     .delete()
     .eq('match_id', matchId)
+    .eq('item_id', itemId)
     .eq('status', 'draft')
 
   // 4. 새 버전 insert
@@ -378,6 +413,7 @@ export async function submitFactoryQuote(
     .from('factory_quotes')
     .insert({
       match_id: matchId,
+      item_id: itemId,
       ...data,
       version: nextVersion,
       status: 'submitted',
@@ -390,17 +426,18 @@ export async function submitFactoryQuote(
   await db
     .from('quote_requests')
     .update({ status: 'quote_arrived' })
-    .eq('id', match.request_id)
+    .eq('id', requestId)
     .in('status', ['submitted', 'reviewing', 'matching'])
 
   // 6. 채팅방에 자동 메시지 발송
   await sendQuoteRevisionChatMessage(supabase, matchId, user.id, nextVersion)
 
   // 7. 고객 알림
+  const categoryLabel = CATEGORY_LABELS[ctx.category as CategoryKey] ?? ctx.category
   const { data: reqRow } = await db
     .from('quote_requests')
     .select('customer_id, site_name')
-    .eq('id', match.request_id)
+    .eq('id', requestId)
     .single()
 
   if (reqRow) {
@@ -415,13 +452,13 @@ export async function submitFactoryQuote(
         user_id: customerUser.user_id,
         type: 'quote_arrived',
         title: nextVersion === 1 ? '견적서가 도착했습니다' : `수정 견적서(v${nextVersion})가 도착했습니다`,
-        body: `${reqRow.site_name} — ${factory.company_name}`,
-        link: `/customer/requests/${match.request_id}/quotes`,
+        body: `${reqRow.site_name} — ${factory.company_name} (${categoryLabel})`,
+        link: `/customer/requests/${requestId}/quotes`,
       })
     }
   }
 
-  revalidatePath(`/factory/requests/${match.request_id}`)
+  revalidatePath(`/factory/requests/${requestId}`)
   revalidatePath('/factory/requests')
   return {}
 }
