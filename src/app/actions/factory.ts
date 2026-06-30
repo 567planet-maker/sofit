@@ -283,6 +283,7 @@ export type QuoteInput = {
   extra_cost: number
   margin: number
   delivery_days?: number | null
+  scope?: string | null
   note?: string | null
 }
 
@@ -291,7 +292,8 @@ export type QuoteInput = {
 // ─────────────────────────────────────────────────────────────
 
 /**
- * 견적 작성 권한 검증: 매칭 소유(confirmed) + item이 그 요청 소속 + 공장이 해당 분야 시공.
+ * 견적 작성 권한 검증: 매칭 소유(confirmed) + item이 그 요청 소속.
+ * 공장은 참여한 요청의 어떤 분야든 견적할 수 있다(전문 분야는 UI 강조용일 뿐 제한 아님).
  * 분야(item) 단위 견적의 공통 가드.
  */
 async function loadQuotableItem(
@@ -316,14 +318,6 @@ async function loadQuotableItem(
     .eq('request_id', match.request_id)
     .single()
   if (!item) return { error: '분야 항목을 찾을 수 없습니다.' }
-
-  const { data: cat } = await supabase
-    .from('factory_categories')
-    .select('id')
-    .eq('factory_id', factoryId)
-    .eq('category', item.category)
-    .maybeSingle()
-  if (!cat) return { error: '귀사의 시공 분야가 아닙니다.' }
 
   return { requestId: match.request_id as string, category: item.category as string }
 }

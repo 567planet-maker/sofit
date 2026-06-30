@@ -68,7 +68,7 @@ export default async function CustomerQuotesPage({
       id, item_id, version, is_latest,
       material_cost, labor_cost, delivery_cost,
       install_cost, demolition_cost, extra_cost, margin,
-      total_cost, delivery_days, note, status, created_at,
+      total_cost, delivery_days, scope, note, status, created_at,
       matches!inner(
         id, status, request_id,
         factories!inner(id, company_name, location, rating_avg)

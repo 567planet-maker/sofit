@@ -75,17 +75,20 @@ export default async function FactoryRequestDetailPage({
   }>
   const isNew = isNewSchemaRequest(req as Record<string, unknown>)
 
-  // 이 공장의 전문 분야 → 요청 item 중 시공 가능한 것만 견적 대상
+  // 이 공장의 전문 분야 — 제한이 아니라 "강조"용. 공장은 요청의 어떤 분야든 견적 가능.
   const { data: myCats } = await supabase
     .from('factory_categories')
     .select('category')
     .eq('factory_id', factory.id)
   const myCategories = new Set((myCats ?? []).map((c) => c.category as string))
-  const serviceableItems = items.filter((it) => myCategories.has(it.category))
+  // 전문 분야 item을 위로 정렬(강조)
+  const quoteItems = [...items].sort(
+    (a, b) => Number(myCategories.has(b.category)) - Number(myCategories.has(a.category)),
+  )
 
   // 매칭 있을 때만, 시공 가능한 item별 기존 견적(draft 우선, 없으면 최신 submitted) 조회
   const QUOTE_FIELDS =
-    'id, item_id, material_cost, labor_cost, delivery_cost, install_cost, demolition_cost, extra_cost, margin, delivery_days, note, status, version'
+    'id, item_id, material_cost, labor_cost, delivery_cost, install_cost, demolition_cost, extra_cost, margin, delivery_days, scope, note, status, version'
 
   type FactoryQuoteRow = {
     id: string
@@ -100,10 +103,11 @@ export default async function FactoryRequestDetailPage({
     extra_cost: number
     margin: number
     delivery_days: number | null
+    scope: string | null
     note: string | null
   }
 
-  const itemIds = serviceableItems.map((i) => i.id)
+  const itemIds = quoteItems.map((i) => i.id)
   const { data: myQuotesData } =
     match && itemIds.length > 0
       ? await supabase
@@ -352,39 +356,63 @@ export default async function FactoryRequestDetailPage({
       {/* ── 공장 견적서 작성/수정 (참여 후, 분야별) ──────────────── */}
       {match?.status === 'confirmed' && (
         <section className="rounded-card border border-border bg-white p-5 shadow-card">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-medium text-ink">공장 견적서 (분야별)</h2>
+          <div className="mb-4 flex items-start justify-between gap-3">
+            <div>
+              <h2 className="font-medium text-ink">공장 견적서 (분야별)</h2>
+              <p className="mt-0.5 text-xs text-ink-subtle">
+                원하는 분야만 골라 비용을 제시하세요(쇼파만·목공만·둘 다 가능).{' '}
+                <b className="text-brand">전문 분야</b>는 강조 표시됩니다.
+              </p>
+            </div>
             {chatRoom && (
               <Link
                 href={`/factory/chat/${chatRoom.id}`}
-                className="rounded-lg border border-brand-tint-strong px-3 py-1.5 text-xs font-medium text-brand hover:bg-brand-tint"
+                className="flex-shrink-0 rounded-lg border border-brand-tint-strong px-3 py-1.5 text-xs font-medium text-brand hover:bg-brand-tint"
               >
                 고객과 채팅 →
               </Link>
             )}
           </div>
 
-          {serviceableItems.length === 0 ? (
+          {quoteItems.length === 0 ? (
             <p className="rounded-lg bg-surface-muted px-4 py-3 text-sm text-ink-muted">
-              이 요청에는 귀사의 전문 분야가 없습니다. 전문 분야는{' '}
-              <Link href="/factory/categories" className="font-medium text-brand hover:underline">
-                전문 분야 설정
-              </Link>
-              에서 추가할 수 있습니다.
+              작성할 분야 항목이 없습니다.
             </p>
           ) : (
-            <div className="space-y-8">
-              {serviceableItems.map((it) => (
-                <div key={it.id}>
-                  <div className="mb-3 flex items-center gap-2">
-                    <span className="rounded-full bg-brand-tint px-2.5 py-0.5 text-xs font-semibold text-brand">
-                      {CATEGORY_LABELS[it.category as CategoryKey] ?? it.category}
-                    </span>
-                    <span className="text-xs text-ink-subtle">분야 견적서</span>
-                  </div>
-                  <QuoteForm matchId={match.id} itemId={it.id} existing={existingQuoteFor(it.id)} />
-                </div>
-              ))}
+            <div className="space-y-3">
+              {quoteItems.map((it) => {
+                const mine = myCategories.has(it.category)
+                const existing = existingQuoteFor(it.id)
+                const stateLabel = existing
+                  ? existing.status === 'submitted'
+                    ? '제출됨'
+                    : '작성 중'
+                  : '이 분야 견적 작성'
+                return (
+                  <details
+                    key={it.id}
+                    open={!!existing}
+                    className={`rounded-card border p-4 ${
+                      mine ? 'border-brand-tint-strong bg-brand-tint/20' : 'border-border'
+                    }`}
+                  >
+                    <summary className="flex cursor-pointer list-none items-center gap-2">
+                      <span className="rounded-full bg-brand-tint px-2.5 py-0.5 text-xs font-semibold text-brand">
+                        {CATEGORY_LABELS[it.category as CategoryKey] ?? it.category}
+                      </span>
+                      {mine && (
+                        <span className="rounded-full bg-brand px-2 py-0.5 text-[11px] font-medium text-white">
+                          전문 분야
+                        </span>
+                      )}
+                      <span className="ml-auto text-xs font-medium text-brand">{stateLabel} ▾</span>
+                    </summary>
+                    <div className="mt-4">
+                      <QuoteForm matchId={match.id} itemId={it.id} existing={existing} />
+                    </div>
+                  </details>
+                )
+              })}
             </div>
           )}
         </section>

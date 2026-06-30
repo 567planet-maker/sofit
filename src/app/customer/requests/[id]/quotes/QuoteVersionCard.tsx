@@ -17,6 +17,7 @@ export type QuoteVersion = {
   margin: number
   total_cost: number
   delivery_days: number | null
+  scope: string | null
   note: string | null
   status: string
   created_at: string
@@ -161,6 +162,14 @@ export default function QuoteVersionCard({ factory, quotes, isLowest, requestId,
             )}
         </div>
       </div>
+
+      {/* 견적 상세 내용 */}
+      {latest.scope && (
+        <div className="mt-3 rounded-lg border border-border bg-surface p-3">
+          <p className="mb-1 text-xs font-medium text-ink-subtle">견적 상세 내용</p>
+          <p className="whitespace-pre-wrap text-sm text-ink-muted">{latest.scope}</p>
+        </div>
+      )}
 
       {/* 메모 */}
       {latest.note && (

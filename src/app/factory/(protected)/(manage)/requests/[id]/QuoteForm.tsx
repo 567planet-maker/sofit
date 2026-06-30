@@ -13,6 +13,7 @@ type ExistingQuote = {
   extra_cost: number
   margin: number
   delivery_days: number | null
+  scope: string | null
   note: string | null
   status: string
   version: number
@@ -73,6 +74,7 @@ export default function QuoteForm({ matchId, itemId, existing }: Props) {
   const [deliveryDays, setDeliveryDays] = useState<string>(
     existing?.delivery_days != null ? String(existing.delivery_days) : '',
   )
+  const [scope, setScope] = useState(existing?.scope ?? '')
   const [note, setNote] = useState(existing?.note ?? '')
 
   const total = Object.values(costs).reduce((sum, v) => sum + (v || 0), 0)
@@ -80,6 +82,7 @@ export default function QuoteForm({ matchId, itemId, existing }: Props) {
   const buildInput = (): QuoteInput => ({
     ...costs,
     delivery_days: deliveryDays ? Number(deliveryDays) : null,
+    scope: scope || null,
     note: note || null,
   })
 
@@ -153,6 +156,12 @@ export default function QuoteForm({ matchId, itemId, existing }: Props) {
               </p>
             </div>
           </div>
+          {existing!.scope && (
+            <div className="mt-3 rounded-lg bg-white p-3">
+              <p className="mb-1 text-xs font-medium text-ink-subtle">견적 상세 내용</p>
+              <p className="whitespace-pre-wrap text-sm text-ink-muted">{existing!.scope}</p>
+            </div>
+          )}
           {existing!.note && (
             <p className="mt-3 rounded-lg bg-white p-3 text-sm text-ink-muted">{existing!.note}</p>
           )}
@@ -182,6 +191,21 @@ export default function QuoteForm({ matchId, itemId, existing }: Props) {
           고객에게 제출하면 v{existing!.version + 1}로 전달됩니다.
         </p>
       )}
+
+      {/* 견적 상세 내용 */}
+      <div className="rounded-card border border-border bg-white p-5 shadow-card">
+        <label className="mb-1.5 block text-sm font-medium text-ink">견적 상세 내용</label>
+        <p className="mb-2 text-xs text-ink-subtle">
+          시공 범위·포함 항목·자재·조건 등을 적어주세요. 고객과 협의하며 수정 견적서로 바꿀 수 있습니다.
+        </p>
+        <textarea
+          rows={5}
+          value={scope}
+          onChange={(e) => setScope(e.target.value)}
+          placeholder="예) 거실 25㎡ 강마루 시공 / 기존 바닥 철거·평탄 작업 포함 / 걸레받이 별도 / 시공 후 2년 보증"
+          className="w-full resize-none rounded-card border border-border px-4 py-2.5 text-sm outline-none focus:border-brand"
+        />
+      </div>
 
       {/* 비용 항목 */}
       <div className="rounded-card border border-border bg-white p-5 shadow-card">
