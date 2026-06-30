@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { isCategoryKey, type CategoryKey } from '@/app/customer/request/schema/categories'
 
 type SBClient = Awaited<ReturnType<typeof createClient>>
 
@@ -588,4 +589,75 @@ export async function deleteProgressPhoto(
 
   revalidatePath('/factory/projects')
   return {}
+}
+
+// ─────────────────────────────────────────────────────────────
+// 공장 전문 분야(시공 분야) 태그 — Phase 7 선행 블로커
+// ─────────────────────────────────────────────────────────────
+
+/** 현재 로그인 공장이 선택한 전문 분야 목록 */
+export async function getFactoryCategories(): Promise<CategoryKey[]> {
+  const { supabase, factory } = await getAuthFactory()
+  const { data } = await supabase
+    .from('factory_categories')
+    .select('category')
+    .eq('factory_id', factory.id)
+  return (data ?? [])
+    .map((r) => r.category as string)
+    .filter(isCategoryKey)
+}
+
+/**
+ * 공장 전문 분야 집합을 교체한다(추가/삭제 diff).
+ * 알 수 없는 카테고리 키는 무시. 본인 factory만 수정(getAuthFactory + RLS 이중 방어).
+ */
+export async function setFactoryCategories(
+  categories: string[],
+): Promise<{ error?: string }> {
+  const { supabase, factory } = await getAuthFactory()
+
+  const desired = new Set<string>(categories.filter(isCategoryKey))
+
+  const { data: existingRows, error: readErr } = await supabase
+    .from('factory_categories')
+    .select('category')
+    .eq('factory_id', factory.id)
+  if (readErr) return { error: `저장 실패: ${readErr.message}` }
+
+  const existing = new Set((existingRows ?? []).map((r) => r.category as string))
+  const toAdd = [...desired].filter((c) => !existing.has(c))
+  const toRemove = [...existing].filter((c) => !desired.has(c))
+
+  if (toRemove.length > 0) {
+    const { error } = await supabase
+      .from('factory_categories')
+      .delete()
+      .eq('factory_id', factory.id)
+      .in('category', toRemove)
+    if (error) return { error: `저장 실패: ${error.message}` }
+  }
+  if (toAdd.length > 0) {
+    const { error } = await supabase
+      .from('factory_categories')
+      .insert(toAdd.map((category) => ({ factory_id: factory.id, category })))
+    if (error) return { error: `저장 실패: ${error.message}` }
+  }
+
+  revalidatePath('/factory/categories')
+  return {}
+}
+
+/**
+ * 특정 분야를 시공하는 승인(active) 공장 id 목록 — Phase 7 분야별 매칭 데이터 소스.
+ * 서버 액션/매칭 로직 전용(service client). 절대 클라이언트에 직접 노출 금지.
+ */
+export async function findFactoriesByCategory(category: string): Promise<string[]> {
+  if (!isCategoryKey(category)) return []
+  const db = createServiceClient()
+  const { data } = await db
+    .from('factory_categories')
+    .select('factory_id, factories!inner(status)')
+    .eq('category', category)
+    .eq('factories.status', 'active')
+  return (data ?? []).map((r) => r.factory_id as string)
 }
