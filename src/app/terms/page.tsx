@@ -23,7 +23,7 @@ export default function TermsPage() {
             <section>
               <h2 className="mb-3 text-base font-medium text-ink">제1조 (목적)</h2>
               <p>
-                본 약관은 소핏(이하 "회사")이 운영하는 쇼파·빌트인 발주 매칭 플랫폼 소핏(sofit, 이하 "서비스")의
+                본 약관은 소핏(이하 "회사")이 운영하는 인테리어 발주 매칭 플랫폼 소핏(sofit, 이하 "서비스")의
                 이용과 관련하여 회사와 이용자 사이의 권리, 의무 및 책임 사항을 규정함을 목적으로 합니다.
               </p>
             </section>
@@ -31,7 +31,7 @@ export default function TermsPage() {
             <section>
               <h2 className="mb-3 text-base font-medium text-ink">제2조 (정의)</h2>
               <ul className="space-y-2 pl-4">
-                <li>① "서비스"란 회사가 제공하는 쇼파·빌트인 시공 견적 요청 및 공장 매칭 플랫폼 일체를 의미합니다.</li>
+                <li>① "서비스"란 회사가 제공하는 인테리어 시공 견적 요청 및 공장 매칭 플랫폼 일체를 의미합니다.</li>
                 <li>② "이용자"란 본 약관에 동의하고 회사가 제공하는 서비스를 이용하는 모든 자를 말합니다.</li>
                 <li>③ "고객"이란 견적 요청을 등록하는 이용자를 말합니다.</li>
                 <li>④ "공장"이란 회사의 심사를 통과하여 견적서를 제출하는 파트너 사업자를 말합니다.</li>
@@ -67,7 +67,7 @@ export default function TermsPage() {
               <ul className="space-y-2 pl-4">
                 <li>① 회사는 다음 서비스를 제공합니다.
                   <ul className="mt-2 space-y-1 pl-4">
-                    <li>- 쇼파·빌트인 시공 견적 요청 접수 및 관리</li>
+                    <li>- 인테리어 시공 견적 요청 접수 및 관리</li>
                     <li>- 검증된 파트너 공장 매칭</li>
                     <li>- 견적서 비교 및 채팅 기능</li>
                     <li>- 공장 포트폴리오 열람</li>

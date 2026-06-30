@@ -43,7 +43,7 @@ export default function FactoryOnboardingPage() {
               </label>
               <input
                 {...register('company_name')}
-                placeholder="예) 천일쇼파"
+                placeholder="예) 한빛인테리어"
                 className="w-full rounded-card border border-border px-4 py-3 text-sm outline-none focus:border-black"
               />
               {errors.company_name && (

@@ -6,7 +6,7 @@ import type { FactoryPortfolioWithFactory, PortfolioCategory } from '@/types'
 
 export const metadata: Metadata = {
   title: '포트폴리오',
-  description: '소핏 파트너 공장의 쇼파·빌트인 작업 사례를 확인하세요.',
+  description: '소핏 파트너 공장의 인테리어 작업 사례를 확인하세요.',
 }
 
 const CATEGORY_LABELS: Record<PortfolioCategory | 'all', string> = {

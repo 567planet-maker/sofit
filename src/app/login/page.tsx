@@ -13,7 +13,7 @@ export default async function LoginPage({
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-semibold tracking-tight text-brand">소핏</h1>
-          <p className="mt-2 text-sm text-ink-muted">맞춤 쇼파 견적 중개 플랫폼</p>
+          <p className="mt-2 text-sm text-ink-muted">인테리어의 모든 공정, 검증된 공장 매칭</p>
         </div>
 
         <div className="rounded-card border border-border bg-surface p-8 shadow-card">

@@ -19,11 +19,11 @@ export const metadata: Metadata = {
     default: '소핏 (SOFIT)',
     template: '%s | 소핏',
   },
-  description: '쇼파·빌트인 발주, 이제 소핏으로 한 번에. 검증된 공장 매칭 플랫폼.',
-  keywords: ['쇼파', '빌트인', '가구', '발주', '매칭', '부산', '경남'],
+  description: '인테리어의 모든 공정, 이제 소핏으로 한 번에. 검증된 공장과 연결하는 발주 매칭 플랫폼.',
+  keywords: ['인테리어', '시공', '발주', '견적', '공장', '매칭', '목공', '타일'],
   openGraph: {
     title: '소핏 (SOFIT)',
-    description: '쇼파·빌트인 발주, 이제 소핏으로 한 번에.',
+    description: '인테리어의 모든 공정, 이제 소핏으로 한 번에.',
     locale: 'ko_KR',
     type: 'website',
     url: 'https://sofit.vercel.app',
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: '소핏 (SOFIT)',
-    description: '쇼파·빌트인 발주, 이제 소핏으로 한 번에. 검증된 공장 매칭 플랫폼.',
+    description: '인테리어의 모든 공정, 이제 소핏으로 한 번에. 검증된 공장 매칭 플랫폼.',
   },
 }
 

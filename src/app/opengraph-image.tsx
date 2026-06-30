@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
-export const alt = '소핏 (SOFIT) — 쇼파·빌트인 발주 매칭 플랫폼'
+export const alt = '소핏 (SOFIT) — 인테리어 발주 매칭 플랫폼'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
@@ -45,7 +45,7 @@ export default function OGImage() {
             marginBottom: 32,
           }}
         >
-          쇼파·빌트인 발주,
+          인테리어의 모든 공정,
           <br />
           이제 소핏으로 한 번에.
         </div>
