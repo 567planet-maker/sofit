@@ -35,7 +35,7 @@ export default async function CustomerChatRoomPage({
   const { data: room } = await supabase
     .from('chat_rooms')
     .select(
-      'id, type, request_id, match_id, quote_requests(id, site_name, company_name), matches(factories(company_name))',
+      'id, type, request_id, match_id, quote_requests(id, site_name), matches(factories(company_name))',
     )
     .eq('id', roomId)
     .single()
@@ -74,9 +74,7 @@ export default async function CustomerChatRoomPage({
         <Avatar src={cpAvatar} name={headerName} size="md" />
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium text-ink">{headerName}</p>
-          <p className="truncate text-xs text-ink-muted">
-            {req?.site_name} · {req?.company_name}
-          </p>
+          <p className="truncate text-xs text-ink-muted">{req?.site_name}</p>
         </div>
         {req?.id && (
           <Link

@@ -64,7 +64,7 @@ export default async function FactoryDashboardPage() {
     .select(
       `
       id, status, created_at,
-      quote_requests(id, site_name, company_name, status)
+      quote_requests(id, site_name, status)
     `,
     )
     .eq('factory_id', factory.id)
@@ -114,7 +114,6 @@ export default async function FactoryDashboardPage() {
               const req = (Array.isArray(raw) ? raw[0] : raw) as {
                 id: string
                 site_name: string
-                company_name: string
                 status: string
               } | null
               if (!req) return null
@@ -127,7 +126,6 @@ export default async function FactoryDashboardPage() {
                 >
                   <div className="min-w-0">
                     <p className="truncate font-medium text-ink">{req.site_name}</p>
-                    <p className="mt-0.5 truncate text-sm text-ink-muted">{req.company_name}</p>
                   </div>
                   <Badge tone={statusInfo.tone}>{statusInfo.label}</Badge>
                 </Link>

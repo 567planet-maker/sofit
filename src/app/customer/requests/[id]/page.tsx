@@ -107,7 +107,6 @@ export default async function CustomerRequestDetailPage({
             ← 목록으로
           </Link>
           <h1 className="text-xl font-semibold tracking-tight text-ink">{req.site_name}</h1>
-          <p className="mt-0.5 text-sm text-ink-muted">{req.company_name}</p>
         </div>
         <StatusBadge status={req.status as QuoteRequestStatus} />
       </div>

@@ -35,8 +35,8 @@ export default async function FactoryProjectsPage() {
       `
       id,
       quote_requests!inner(
-        id, site_name, company_name, address, status,
-        delivery_date, install_date, created_at
+        id, site_name, status,
+        desired_start_date, desired_end_date, created_at
       )
     `,
     )
@@ -50,11 +50,9 @@ export default async function FactoryProjectsPage() {
     quote_requests: {
       id: string
       site_name: string
-      company_name: string
-      address: string | null
       status: string
-      delivery_date: string | null
-      install_date: string | null
+      desired_start_date: string | null
+      desired_end_date: string | null
       created_at: string
     }
   }
@@ -123,19 +121,15 @@ export default async function FactoryProjectsPage() {
                         {QUOTE_REQUEST_STATUS_LABELS[req.status as keyof typeof QUOTE_REQUEST_STATUS_LABELS] ?? req.status}
                       </Badge>
                     </div>
-                    <p className="mt-0.5 text-sm text-ink-muted">{req.company_name}</p>
-                    {req.address && (
-                      <p className="mt-0.5 text-xs text-ink-subtle">{req.address}</p>
-                    )}
                     <div className="mt-1 flex gap-4">
-                      {req.delivery_date && (
+                      {req.desired_start_date && (
                         <p className="text-xs text-ink-subtle">
-                          납품 희망: {formatDate(req.delivery_date)}
+                          시작 희망: {formatDate(req.desired_start_date)}
                         </p>
                       )}
-                      {req.install_date && (
+                      {req.desired_end_date && (
                         <p className="text-xs text-ink-subtle">
-                          설치 희망: {formatDate(req.install_date)}
+                          완료 희망: {formatDate(req.desired_end_date)}
                         </p>
                       )}
                     </div>

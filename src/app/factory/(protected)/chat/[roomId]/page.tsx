@@ -28,7 +28,7 @@ export default async function FactoryChatRoomPage({
   // 채팅방 정보 (RLS가 접근 권한 확인)
   const { data: room } = await supabase
     .from('chat_rooms')
-    .select('id, type, request_id, match_id, quote_requests(id, site_name, company_name)')
+    .select('id, type, request_id, match_id, quote_requests(id, site_name)')
     .eq('id', roomId)
     .single()
   if (!room) notFound()
@@ -46,7 +46,7 @@ export default async function FactoryChatRoomPage({
 
   const cpMsg = ((messages ?? []) as any[]).find((m) => m.sender_id !== user.id)
   const headerName =
-    (cpMsg?.users?.name as string | undefined) ?? req?.company_name ?? '고객 직접 채팅'
+    (cpMsg?.users?.name as string | undefined) ?? req?.site_name ?? '고객 직접 채팅'
   const cpAvatar = (cpMsg?.users?.avatar_url as string | null) ?? null
 
   return (
@@ -55,9 +55,7 @@ export default async function FactoryChatRoomPage({
         <Avatar src={cpAvatar} name={headerName} size="md" />
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium text-ink">{headerName}</p>
-          <p className="truncate text-xs text-ink-muted">
-            {req?.site_name} · {req?.company_name}
-          </p>
+          <p className="truncate text-xs text-ink-muted">{req?.site_name}</p>
         </div>
         {req?.id && (
           <Link

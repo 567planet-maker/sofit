@@ -157,7 +157,6 @@ export default async function FactoryRequestDetailPage({
             ← 매칭 요청 목록
           </Link>
           <h1 className="text-xl font-semibold text-ink">{req.site_name}</h1>
-          <p className="mt-0.5 text-sm text-ink-muted">{req.company_name}</p>
         </div>
       </div>
 

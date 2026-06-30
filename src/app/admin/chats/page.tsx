@@ -25,7 +25,7 @@ export default async function AdminChatsPage() {
     .select(
       `
       id, type, created_at,
-      quote_requests(site_name, company_name)
+      quote_requests(site_name)
     `,
     )
     .order('created_at', { ascending: false })
@@ -106,9 +106,6 @@ export default async function AdminChatsPage() {
                   <p className="mt-1 truncate font-medium text-ink">
                     {req?.site_name ?? '(현장 정보 없음)'}
                   </p>
-                  {req?.company_name && (
-                    <p className="truncate text-xs text-ink-muted">{req.company_name}</p>
-                  )}
                   {lastMsg?.content && (
                     <p className="mt-1 truncate text-sm text-ink-subtle">{lastMsg.content}</p>
                   )}

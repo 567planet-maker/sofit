@@ -75,7 +75,7 @@ export default async function AdminDashboard() {
 
   const { data: recentRequests } = await supabase
     .from('quote_requests')
-    .select('id, site_name, company_name, status, created_at')
+    .select('id, site_name, status, created_at')
     .order('created_at', { ascending: false })
     .limit(8)
 
@@ -136,7 +136,6 @@ export default async function AdminDashboard() {
               >
                 <div className="min-w-0">
                   <p className="truncate font-medium text-ink">{req.site_name}</p>
-                  <p className="truncate text-sm text-ink-muted">{req.company_name}</p>
                 </div>
                 <div className="ml-4 flex flex-shrink-0 items-center gap-3">
                   <span className="text-xs text-ink-subtle">{formatDate(req.created_at)}</span>

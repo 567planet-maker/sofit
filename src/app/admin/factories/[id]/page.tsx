@@ -44,7 +44,7 @@ export default async function AdminFactoryDetailPage({
   // 매칭 이력
   const { data: matches } = await supabase
     .from('matches')
-    .select('id, status, created_at, quote_requests(site_name, company_name)')
+    .select('id, status, created_at, quote_requests(site_name)')
     .eq('factory_id', factoryId)
     .order('created_at', { ascending: false })
     .limit(10)

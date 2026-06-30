@@ -17,7 +17,7 @@ export default async function AdminMatchPage({
   // 요청 기본 정보
   const { data: req } = await supabase
     .from('quote_requests')
-    .select('id, site_name, company_name, status')
+    .select('id, site_name, status')
     .eq('id', requestId)
     .single()
   if (!req) notFound()
@@ -121,7 +121,6 @@ export default async function AdminMatchPage({
           <h1 className="text-xl font-semibold text-ink">공장 매칭 관리</h1>
           <StatusBadge status={req.status as QuoteRequestStatus} />
         </div>
-        <p className="mt-0.5 text-sm text-ink-muted">{req.company_name}</p>
       </div>
 
       <MatchClient

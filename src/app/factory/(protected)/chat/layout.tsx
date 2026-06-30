@@ -40,7 +40,7 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
 
   const { data: rooms } = await supabase
     .from('chat_rooms')
-    .select('id, type, request_id, match_id, created_at, quote_requests(id, site_name, company_name)')
+    .select('id, type, request_id, match_id, created_at, quote_requests(id, site_name)')
     .in('match_id', matchIds)
     .eq('type', 'customer_factory')
     .order('created_at', { ascending: false })
@@ -87,7 +87,7 @@ async function getRooms(): Promise<ChatRoomListItem[]> {
     return {
       id: room.id,
       href: `/factory/chat/${room.id}`,
-      name: cp?.name ?? req?.company_name ?? '고객 직접 채팅',
+      name: cp?.name ?? req?.site_name ?? '고객 직접 채팅',
       subtitle: req?.site_name ?? undefined,
       preview: lastMsg
         ? lastMsg.content ?? `📎 ${lastMsg.file_name ?? '첨부파일'}`

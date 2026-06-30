@@ -28,7 +28,7 @@ export default async function AdminChatRoomPage({
   // 채팅방 정보
   const { data: room } = await supabase
     .from('chat_rooms')
-    .select('id, type, quote_requests(id, site_name, company_name)')
+    .select('id, type, quote_requests(id, site_name)')
     .eq('id', roomId)
     .single()
   if (!room) notFound()
@@ -46,7 +46,7 @@ export default async function AdminChatRoomPage({
   const isReadOnly = room.type === 'customer_factory'
   const participant = ((messages ?? []) as any[]).find((m) => m.sender_id !== user.id)
   const participantAvatar = (participant?.users?.avatar_url as string | null) ?? null
-  const participantName = (participant?.users?.name as string | undefined) ?? req?.company_name
+  const participantName = (participant?.users?.name as string | undefined) ?? req?.site_name
 
   return (
     <div className="flex h-screen flex-col">
@@ -58,7 +58,6 @@ export default async function AdminChatRoomPage({
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium text-ink">{req?.site_name ?? '(현장 정보 없음)'}</p>
           <div className="flex items-center gap-2">
-            <span className="truncate text-xs text-ink-muted">{req?.company_name}</span>
             {isReadOnly && (
               <span className="flex-shrink-0 rounded-full bg-surface-muted px-2 py-0.5 text-xs text-ink-muted">
                 읽기 전용 (고객↔공장)

@@ -50,7 +50,7 @@ export default async function MyRequestsPage({
 
   let query = supabase
     .from('quote_requests')
-    .select('id, title, site_name, company_name, status, created_at')
+    .select('id, title, site_name, status, created_at')
     .eq('customer_id', customer.id)
     .order('created_at', { ascending: false })
 
@@ -98,7 +98,6 @@ export default async function MyRequestsPage({
                 <div className="min-w-0">
                   <p className="truncate font-medium text-ink">{displayTitle}</p>
                   <p className="mt-0.5 truncate text-sm text-ink-muted">
-                    {req.company_name ? `${req.company_name} · ` : ''}
                     {formatDate(req.created_at)}
                   </p>
                 </div>

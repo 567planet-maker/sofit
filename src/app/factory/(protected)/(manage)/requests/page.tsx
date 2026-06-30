@@ -20,8 +20,6 @@ function formatDate(iso: string) {
 type RequestRow = {
   id: string
   site_name: string
-  company_name: string
-  address: string | null
   status: string
   created_at: string
 }
@@ -47,7 +45,7 @@ export default async function FactoryRequestsPage() {
   // 이 공장이 볼 수 있는 모든 활성 요청서 (신규 RLS 적용)
   const { data: allRequests = [] } = await supabase
     .from('quote_requests')
-    .select('id, site_name, company_name, address, status, created_at')
+    .select('id, site_name, status, created_at')
     .not('status', 'in', '(contracted,in_progress,completed)')
     .order('created_at', { ascending: false })
 
@@ -79,8 +77,6 @@ export default async function FactoryRequestsPage() {
     >
       <div className="min-w-0">
         <p className="truncate font-medium text-ink">{req.site_name}</p>
-        <p className="mt-0.5 truncate text-sm text-ink-muted">{req.company_name}</p>
-        {req.address && <p className="mt-0.5 truncate text-xs text-ink-subtle">{req.address}</p>}
         <p className="mt-1 text-xs text-ink-subtle">접수 {formatDate(req.created_at)}</p>
       </div>
       <div className="flex flex-shrink-0 items-center gap-3">

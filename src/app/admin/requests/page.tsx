@@ -41,7 +41,7 @@ export default async function AdminRequestsPage({
 
   let query = supabase
     .from('quote_requests')
-    .select('id, site_name, company_name, business_type, status, created_at')
+    .select('id, site_name, business_type, status, created_at')
     .order('created_at', { ascending: false })
 
   const filterStatuses = TAB_STATUSES[tab]
@@ -66,7 +66,6 @@ export default async function AdminRequestsPage({
             <thead className="border-b border-border bg-surface-muted">
               <tr>
                 <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">접수일</th>
-                <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">업체명</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">현장명</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">업종</th>
                 <th className="px-5 py-3 text-left text-xs font-medium text-ink-subtle">상태</th>
@@ -80,8 +79,7 @@ export default async function AdminRequestsPage({
                   className={`hover:bg-surface-muted ${req.status === 'submitted' ? 'bg-brand-tint/40' : ''}`}
                 >
                   <td className="px-5 py-4 text-ink-muted">{formatDate(req.created_at)}</td>
-                  <td className="px-5 py-4 font-medium text-ink">{req.company_name}</td>
-                  <td className="px-5 py-4 text-ink">{req.site_name}</td>
+                  <td className="px-5 py-4 font-medium text-ink">{req.site_name}</td>
                   <td className="px-5 py-4 text-ink-muted">{req.business_type ?? '-'}</td>
                   <td className="px-5 py-4">
                     <StatusBadge status={req.status as QuoteRequestStatus} />
