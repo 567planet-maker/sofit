@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import StatusBadge from '@/components/common/StatusBadge'
+import CategoryDemandStats from '@/components/admin/CategoryDemandStats'
 import type { QuoteRequestStatus } from '@/types'
 
 function formatDate(iso: string) {
@@ -113,6 +114,9 @@ export default async function AdminDashboard() {
           href="/admin/factories?status=active"
         />
       </div>
+
+      {/* 분야별 수요 · 공장 커버리지 */}
+      <CategoryDemandStats />
 
       {/* 최근 견적 요청 */}
       <section>
