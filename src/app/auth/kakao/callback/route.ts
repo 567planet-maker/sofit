@@ -10,6 +10,15 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/login?error=oauth', origin))
   }
 
+  // CSRF 방지: 시작 시 발급한 state 쿠키와 콜백 state 파라미터를 대조.
+  const returnedState = searchParams.get('state')
+  const cookieState = request.cookies.get('kakao_oauth_state')?.value
+  if (!returnedState || !cookieState || returnedState !== cookieState) {
+    const res = NextResponse.redirect(new URL('/login?error=oauth_state', origin))
+    res.cookies.delete('kakao_oauth_state')
+    return res
+  }
+
   const tokenRes = await fetch('https://kauth.kakao.com/oauth/token', {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -25,7 +34,11 @@ export async function GET(request: NextRequest) {
   const tokens = await tokenRes.json()
 
   if (!tokens.id_token) {
-    console.error('[kakao/callback] token error:', tokens)
+    // 토큰 응답 전체(access_token 등) 로깅 금지 — 에러 코드/설명만 남긴다.
+    console.error('[kakao/callback] token error:', {
+      error: tokens?.error,
+      error_description: tokens?.error_description,
+    })
     return NextResponse.redirect(new URL('/login?error=oauth', origin))
   }
 
@@ -64,5 +77,6 @@ export async function GET(request: NextRequest) {
   const response = NextResponse.redirect(new URL(dest, origin))
   pendingCookies.forEach((args) => response.cookies.set(...args))
   response.cookies.delete('auth_next')
+  response.cookies.delete('kakao_oauth_state')
   return response
 }

@@ -28,12 +28,24 @@ export async function signInWithKakao(formData: FormData) {
   const origin = await getOrigin()
   const clientId = process.env.KAKAO_REST_API_KEY!
 
+  // CSRF 방지: state 발급 → httpOnly 쿠키 저장, authorize URL에 동봉.
+  //   콜백에서 returned state == 쿠키 state 를 대조한다.
+  const state = crypto.randomUUID()
+  const cookieStore = await cookies()
+  cookieStore.set('kakao_oauth_state', state, {
+    httpOnly: true,
+    sameSite: 'lax', // 카카오에서 돌아오는 top-level 네비게이션에 쿠키 전송 허용
+    path: '/',
+    maxAge: 600,
+  })
+
   const params = new URLSearchParams({
     client_id: clientId,
     redirect_uri: `${origin}/auth/kakao/callback`,
     response_type: 'code',
     scope: 'profile_nickname profile_image openid',
     prompt: 'login',
+    state,
   })
 
   redirect(`https://kauth.kakao.com/oauth/authorize?${params}`)
