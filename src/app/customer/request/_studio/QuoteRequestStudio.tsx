@@ -74,6 +74,10 @@ export default function QuoteRequestStudio({
   const [invalidByCat, setInvalidByCat] = useState<Record<string, Set<string>>>({})
   const [tab, setTab] = useState<Tab>('작성')
 
+  // 하이브리드 자동저장: localStorage 즉시 백업 + 편집 1.5초 후 서버 upsert
+  const autosaveTimer = useRef<number | null>(null)
+  const skipAutosave = useRef(true) // 마운트·하이드레이션 시점엔 저장 안 함(첫 사용자 편집부터)
+
   // localStorage 복구 (서버 초기값 위에 미저장 편집 덮어쓰기)
   const hydrated = useRef(false)
   useEffect(() => {
@@ -97,6 +101,20 @@ export default function QuoteRequestStudio({
     }
   }, [storageKey])
 
+  // 편집 1.5초 후 서버 자동저장 (디바운스). 첫 사용자 편집 전엔 skip.
+  useEffect(() => {
+    if (skipAutosave.current) return
+    if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current)
+    autosaveTimer.current = window.setTimeout(() => {
+      void saveAll()
+    }, 1500)
+    return () => {
+      if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current)
+    }
+    // saveAll 은 매 렌더 새로 생성되므로 deps 제외 — common/items 편집 시에만 디바운스
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [common, items])
+
   // localStorage 즉시 백업
   function backup(nextCommon: Values, nextItems: ItemMap) {
     try {
@@ -112,6 +130,7 @@ export default function QuoteRequestStudio({
       backup(next, items)
       return next
     })
+    skipAutosave.current = false
     setSaveStatus('idle')
     if (invalidCommon.has(key)) {
       setInvalidCommon((prev) => {
@@ -128,6 +147,7 @@ export default function QuoteRequestStudio({
       backup(common, next)
       return next
     })
+    skipAutosave.current = false
     setSaveStatus('idle')
     if (invalidByCat[category]?.has(key)) {
       setInvalidByCat((prev) => {
@@ -182,6 +202,9 @@ export default function QuoteRequestStudio({
   }
 
   async function handleSubmit() {
+    // 제출 중에는 자동저장이 끼어들지 않도록 디바운스 타이머 정리
+    skipAutosave.current = true
+    if (autosaveTimer.current) window.clearTimeout(autosaveTimer.current)
     setSubmitError(null)
     setSubmitting(true)
     try {
