@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import type { UserRole } from '@/types'
 import { resolveNext } from '@/lib/auth/redirect'
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 
 async function getOrigin() {
   const headersList = await headers()
@@ -98,6 +99,12 @@ export async function signUpWithEmail(
   if (!email || !password) return { error: '이메일과 비밀번호를 입력해주세요.' }
   if (password.length < 8) return { error: '비밀번호는 8자 이상이어야 합니다.' }
 
+  // 가입 스팸 방어: IP당 10분에 5회
+  const ip = await getClientIp()
+  if (!(await checkRateLimit('signup_ip', ip, 5, 600))) {
+    return { error: '가입 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.' }
+  }
+
   const supabase = await createClient()
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -135,6 +142,17 @@ export async function signInWithEmail(
   const password = formData.get('password') as string
 
   if (!email || !password) return { error: '이메일과 비밀번호를 입력해주세요.' }
+
+  // Brute force 방어: 이메일당 5분에 8회, IP당 5분에 30회
+  const ip = await getClientIp()
+  const emailKey = email.trim().toLowerCase()
+  const [emailOk, ipOk] = await Promise.all([
+    checkRateLimit('login_email', emailKey, 8, 300),
+    checkRateLimit('login_ip', ip, 30, 300),
+  ])
+  if (!emailOk || !ipOk) {
+    return { error: '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.' }
+  }
 
   const supabase = await createClient()
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })

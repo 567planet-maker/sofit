@@ -3,6 +3,14 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { checkRateLimit } from '@/lib/rate-limit'
+
+// Supabase 중첩 select는 관계 추론에 따라 객체 또는 배열을 반환할 수 있어
+// 양쪽을 모두 단일 객체로 정규화한다.
+function pickOne<T>(v: T | T[] | null | undefined): T | undefined {
+  if (!v) return undefined
+  return Array.isArray(v) ? v[0] : v
+}
 
 export async function sendMessage(
   roomId: string,
@@ -17,6 +25,11 @@ export async function sendMessage(
   if (!user) redirect('/login')
 
   if (!content.trim() && !fileUrl) return { error: '내용을 입력해주세요.' }
+
+  // 채팅 스팸 방어: 사용자당 1분에 40회
+  if (!(await checkRateLimit('chat_send', user.id, 40, 60))) {
+    return { error: '메시지를 너무 많이 보냈습니다. 잠시 후 다시 시도해주세요.' }
+  }
 
   const { data: room } = await supabase
     .from('chat_rooms')
@@ -65,7 +78,7 @@ export async function sendMessage(
         .select('customers(user_id)')
         .eq('id', room.request_id)
         .single()
-      const customerUserId = (req?.customers as any)?.user_id
+      const customerUserId = pickOne<{ user_id: string }>(req?.customers)?.user_id
       if (customerUserId) {
         await supabase.from('notifications').insert({
           user_id: customerUserId,
@@ -84,8 +97,11 @@ export async function sendMessage(
       .single()
 
     if (match) {
-      const factoryUserId = (match.factories as any)?.user_id
-      const customerUserId = ((match.quote_requests as any)?.customers as any)?.user_id
+      const factoryUserId = pickOne<{ user_id: string }>(match.factories)?.user_id
+      const quoteRequest = pickOne<{ customers: { user_id: string } | { user_id: string }[] }>(
+        match.quote_requests,
+      )
+      const customerUserId = pickOne<{ user_id: string }>(quoteRequest?.customers)?.user_id
 
       if (userData?.role === 'customer' && factoryUserId) {
         await supabase.from('notifications').insert({

@@ -10,6 +10,7 @@ import {
   type CategoryKey,
 } from '@/app/customer/request/schema/categories'
 import { isUnknownValue } from '@/app/customer/request/schema/types'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 // ─────────────────────────────────────────────────────────────
 // 고객이 특정 공장의 견적서를 수락 → quote_requests.status = 'contracted'
@@ -475,6 +476,11 @@ export async function uploadAttachment(
   const owned = await loadOwnedRequest(requestId, { requireDraft: true })
   if ('error' in owned) return { error: owned.error }
 
+  // 첨부 업로드 남용 방어: 사용자당 1분에 30회
+  if (!(await checkRateLimit('attach_upload', owned.userId, 30, 60))) {
+    return { error: '업로드 요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' }
+  }
+
   const db = createServiceClient()
   const { data, error } = await db
     .from('quote_request_attachments')
@@ -569,6 +575,11 @@ export async function submitQuoteDraft(requestId: string): Promise<
   const owned = await loadOwnedRequest(requestId, { requireDraft: true })
   if ('error' in owned) return { error: owned.error }
   const { userId, request } = owned
+
+  // 제출 남용 방어: 사용자당 1분에 10회
+  if (!(await checkRateLimit('quote_submit', userId, 10, 60))) {
+    return { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' }
+  }
 
   const db = createServiceClient()
   const { data: items } = await db

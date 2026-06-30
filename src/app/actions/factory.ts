@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient, createServiceClient } from '@/lib/supabase/server'
+import { checkRateLimit } from '@/lib/rate-limit'
 import {
   isCategoryKey,
   CATEGORY_LABELS,
@@ -194,6 +195,11 @@ export async function joinRequest(
   const { supabase, factory } = await getAuthFactory()
   // getAuthFactory가 이미 active를 보장하므로 별도 상태 재확인은 불필요.
 
+  // 참여 남용 방어: 공장당 1분에 30회
+  if (!(await checkRateLimit('factory_join', factory.id, 30, 60))) {
+    return { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' }
+  }
+
   // 요청서 존재·참여 가능 여부 확인
   const { data: request } = await supabase
     .from('quote_requests')
@@ -365,6 +371,11 @@ export async function submitFactoryQuote(
   data: QuoteInput,
 ): Promise<{ error?: string }> {
   const { supabase, factory, user } = await getAuthFactory()
+
+  // 견적 제출 남용 방어: 공장당 1분에 30회
+  if (!(await checkRateLimit('factory_quote_submit', factory.id, 30, 60))) {
+    return { error: '요청이 너무 많습니다. 잠시 후 다시 시도해주세요.' }
+  }
 
   const ctx = await loadQuotableItem(supabase, factory.id, matchId, itemId)
   if ('error' in ctx) return { error: ctx.error }
