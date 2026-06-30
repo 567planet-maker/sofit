@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import StatusBadge from '@/components/common/StatusBadge'
 import type { QuoteRequestStatus } from '@/types'
+import { ALL_CATEGORIES } from '@/app/customer/request/schema/categories'
 import MatchClient from './MatchClient'
 
 export default async function AdminMatchPage({
@@ -46,26 +47,65 @@ export default async function AdminMatchPage({
     if (room.match_id) chatRoomMap[room.match_id] = room.id
   }
 
-  const existingMatches = (rawMatches ?? []).map((m: any) => ({
+  type RawMatch = {
+    id: string
+    status: string
+    note: string | null
+    created_at: string
+    factories: { id: string; company_name: string; location: string | null } | null
+    factory_quotes: { total_cost: number; delivery_days: number | null; status: string }[]
+  }
+  const existingMatches = ((rawMatches ?? []) as unknown as RawMatch[]).map((m) => ({
     ...m,
     chatRoomId: chatRoomMap[m.id] ?? null,
   }))
 
-  // 이미 배포된 공장 ID (cancelled 제외)
-  const matchedFactoryIds = new Set(
-    existingMatches.filter((m) => m.status !== 'cancelled').map((m: any) => m.factories?.id),
-  )
+  // 요청에 포함된 분야(item) → 정렬·라벨 (배정을 분야별로 묶기 위함)
+  const { data: itemRows } = await supabase
+    .from('quote_request_items')
+    .select('category')
+    .eq('request_id', requestId)
+  const reqCatKeys = new Set((itemRows ?? []).map((r) => r.category as string))
+  const requestCategories = ALL_CATEGORIES.filter((c) => reqCatKeys.has(c.key)).map((c) => ({
+    key: c.key as string,
+    label: c.label,
+  }))
 
-  // 활성 공장 중 아직 배포 안 된 공장
+  // 활성 공장 전체 + 각 공장의 전문 분야 + 현재 매칭 상태
   const { data: allActiveFactories } = await supabase
     .from('factories')
     .select('id, company_name, location, description, rating_avg')
     .eq('status', 'active')
     .order('company_name')
 
-  const availableFactories = (allActiveFactories ?? []).filter(
-    (f) => !matchedFactoryIds.has(f.id),
-  )
+  const activeIds = (allActiveFactories ?? []).map((f) => f.id)
+  const { data: fcRows } =
+    activeIds.length > 0
+      ? await supabase
+          .from('factory_categories')
+          .select('factory_id, category')
+          .in('factory_id', activeIds)
+      : { data: [] as { factory_id: string; category: string }[] }
+
+  const factoryCatMap = new Map<string, string[]>()
+  for (const r of fcRows ?? []) {
+    const list = factoryCatMap.get(r.factory_id) ?? []
+    list.push(r.category)
+    factoryCatMap.set(r.factory_id, list)
+  }
+
+  const matchStatusByFactory = new Map<string, string>()
+  for (const m of existingMatches) {
+    if (m.status !== 'cancelled' && m.factories?.id) {
+      matchStatusByFactory.set(m.factories.id, m.status)
+    }
+  }
+
+  const factories = (allActiveFactories ?? []).map((f) => ({
+    ...f,
+    categories: factoryCatMap.get(f.id) ?? [],
+    matchStatus: matchStatusByFactory.get(f.id) ?? null,
+  }))
 
   return (
     <div className="mx-auto max-w-3xl p-8">
@@ -86,7 +126,8 @@ export default async function AdminMatchPage({
 
       <MatchClient
         requestId={requestId}
-        availableFactories={availableFactories}
+        requestCategories={requestCategories}
+        factories={factories}
         existingMatches={existingMatches}
       />
     </div>
