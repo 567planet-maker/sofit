@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# claude.ai/design 원본 export (대용량, 폰트 내장) — 저장소 비대화 방지
+design-system/*standalone*.html

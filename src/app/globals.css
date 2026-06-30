@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 @theme inline {
-  /* ── Brand (Stripe-tuned indigo, sofit 앱) ── */
-  --color-brand: #5469D4;
-  --color-brand-hover: #4456C7;
-  --color-brand-active: #3E4AA8;
-  --color-brand-tint: #EDEFFB;
-  --color-brand-tint-strong: #D2D8F7;
+  /* ── Brand (SOFIT Blue #0064FF 단일 통일) ── */
+  --color-brand: #0064FF;
+  --color-brand-hover: #004FCC;
+  --color-brand-active: #003D99;
+  --color-brand-tint: #E8F1FF;
+  --color-brand-tint-strong: #C9DEFF;
 
-  /* 랜딩 하위호환 별칭 (sofit-blue 유지 — 랜딩 전용) */
+  /* 랜딩 별칭 (brand와 동일 — sofit-blue) */
   --color-sofit-blue: #0064FF;
   --color-sofit-blue-hover: #004FCC;
   --color-sofit-blue-tint: #E8F1FF;
