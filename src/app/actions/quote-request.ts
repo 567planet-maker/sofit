@@ -580,6 +580,68 @@ export async function submitQuoteDraft(requestId: string): Promise<
     note: '고객이 견적 요청을 제출했습니다',
   })
 
+  // ── 분야별 자동 매칭 (Phase 7): item별 시공 가능 공장에 매칭 생성 ──
+  await autoMatchByCategory(db, requestId, itemList)
+
   revalidatePath('/customer/requests')
   return { ok: true }
+}
+
+/**
+ * 제출된 요청의 분야(들)를 시공 가능한 active 공장에 자동 매칭한다.
+ * - 요청에 포함된 분야 중 하나라도 시공하는 공장이면 매칭(요청 단위, item_id NULL)
+ * - 기존 admin `createMatch`와 동일한 'pending' 매칭 → 공장이 수락/거절
+ *   (단일 match 기준의 견적서·채팅 플로우를 그대로 재사용하기 위해 요청 단위)
+ * - 매칭이 하나라도 생기면 요청 status → 'matching', 공장에 알림
+ * 매칭 대상 공장이 없으면 status는 'submitted'로 남아 관리자가 수동 배정.
+ *
+ * ※ 분야(item) 단위 매칭/견적(matches.item_id·factory_quotes.item_id)은
+ *   공장 "분야별 견적서 UI"(개발순서 Phase 7 step 2·3)와 함께 도입한다.
+ */
+async function autoMatchByCategory(
+  db: ReturnType<typeof createServiceClient>,
+  requestId: string,
+  items: Array<{ category: string }>,
+): Promise<void> {
+  const categories = [...new Set(items.map((i) => i.category).filter(isCategoryKey))]
+  if (categories.length === 0) return
+
+  // 요청 분야 중 하나라도 시공하는 active 공장 (한 번의 쿼리, 공장 단위 dedup)
+  const { data: rows } = await db
+    .from('factory_categories')
+    .select('factory_id, factories!inner(status)')
+    .in('category', categories)
+    .eq('factories.status', 'active')
+
+  const factoryIds = [
+    ...new Set((rows ?? []).map((r) => (r as { factory_id: string }).factory_id)),
+  ]
+  if (factoryIds.length === 0) return
+
+  // 요청 단위 매칭 생성 (UNIQUE(request_id, factory_id) 충돌은 무시 — 기존 매칭 보존)
+  await db.from('matches').upsert(
+    factoryIds.map((factory_id) => ({ request_id: requestId, factory_id, status: 'pending' })),
+    { onConflict: 'request_id,factory_id', ignoreDuplicates: true },
+  )
+
+  // 요청 상태 → matching (submitted에서만 전환, 기존 createMatch와 동일 규약)
+  await db
+    .from('quote_requests')
+    .update({ status: 'matching' })
+    .eq('id', requestId)
+    .eq('status', 'submitted')
+
+  // 매칭된 공장 사용자에게 알림
+  const { data: facUsers } = await db.from('factories').select('user_id').in('id', factoryIds)
+  if (facUsers && facUsers.length > 0) {
+    await db.from('notifications').insert(
+      facUsers.map((f) => ({
+        user_id: f.user_id as string,
+        type: 'new_match',
+        title: '새 견적 요청이 도착했습니다',
+        body: '전문 분야에 맞는 견적 요청이 매칭되었습니다. 확인해주세요.',
+        link: `/factory/requests/${requestId}`,
+      })),
+    )
+  }
 }
