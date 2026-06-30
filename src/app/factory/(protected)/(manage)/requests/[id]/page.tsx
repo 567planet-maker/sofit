@@ -8,6 +8,7 @@ import QuoteForm from './QuoteForm'
 import QuoteRequestView, { isNewSchemaRequest } from '@/components/quote/QuoteRequestView'
 import CategoryItemsSection from '@/components/quote/CategoryItemsSection'
 import AttachmentGallery from '@/components/quote/AttachmentGallery'
+import ClarificationSummary from '@/components/quote/ClarificationSummary'
 import { CATEGORY_LABELS, type CategoryKey } from '@/app/customer/request/schema/categories'
 
 function Row({ label, value }: { label: string; value: string | number | boolean | null }) {
@@ -192,6 +193,7 @@ export default async function FactoryRequestDetailPage({
           {isNew && (
             <>
               <QuoteRequestView request={req as Record<string, unknown>} />
+              <ClarificationSummary items={items} className="border-t border-warning/30 pt-4" />
               <CategoryItemsSection items={items} className="border-t border-border pt-4" />
               <AttachmentGallery requestId={requestId} className="border-t border-border pt-4" />
             </>

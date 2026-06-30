@@ -10,6 +10,7 @@ import { QUOTE_REQUEST_STATUS_LABELS } from '@/lib/constants/status'
 import QuoteRequestView, { isNewSchemaRequest } from '@/components/quote/QuoteRequestView'
 import CategoryItemsSection from '@/components/quote/CategoryItemsSection'
 import AttachmentGallery from '@/components/quote/AttachmentGallery'
+import ClarificationSummary from '@/components/quote/ClarificationSummary'
 
 function getBucket(fileType: string) {
   return fileType === 'document' ? 'request-documents' : 'request-images'
@@ -121,6 +122,9 @@ export default async function AdminRequestDetailPage({
       <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
         {/* ── 메인 ── */}
         <div className="space-y-5">
+          {/* 확인 필요 항목(모름·상담·실측) — 관리자 보완용 강조 */}
+          <ClarificationSummary items={items} />
+
           {/* 공통 정보 + 분야별 (신규 다분야 요청) */}
           <QuoteRequestView request={req as Record<string, unknown>} className="rounded-card border border-border bg-surface p-5 shadow-card" />
           <CategoryItemsSection items={items} className="rounded-card border border-border bg-surface p-5 shadow-card" />
