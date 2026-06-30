@@ -62,6 +62,11 @@ export default function RequestSummary({
         <p className="rounded-lg bg-danger-tint px-3 py-2 text-sm text-danger">{submitError}</p>
       )}
 
+      <p className="rounded-lg bg-brand-tint/40 px-3 py-2 text-xs leading-relaxed text-ink-muted">
+        📢 제출하면 작성하신 견적 내용과 첨부한 현장 사진·도면이 견적 산정을 위해{' '}
+        <b className="font-semibold text-ink">소핏 협력업체(공장)</b>에게 공개됩니다.
+      </p>
+
       <div className="space-y-2 pt-1">
         <button
           type="button"

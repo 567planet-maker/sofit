@@ -47,6 +47,16 @@ export default async function EditQuoteRequestPage({
     initialItems[item.category] = item.details ?? {}
   }
 
+  const initialAttachments = loaded.attachments
+    .filter((a) => a.item_id == null) // 요청 단위(공통) 첨부만
+    .map((a) => ({
+      id: a.id as string,
+      kind: a.kind as string,
+      storage_path: a.storage_path as string,
+      file_name: (a.file_name as string | null) ?? null,
+      mime_type: (a.mime_type as string | null) ?? null,
+    }))
+
   return (
     <div className="min-h-screen bg-surface-muted">
       <div className="border-b border-border bg-white px-4 py-5">
@@ -61,6 +71,7 @@ export default async function EditQuoteRequestPage({
         requestId={id}
         initialCommon={initialCommon}
         initialItems={initialItems}
+        initialAttachments={initialAttachments}
       />
     </div>
   )

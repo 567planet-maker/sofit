@@ -447,6 +447,78 @@ export async function removeCategoryItem(
   return { ok: true }
 }
 
+// ── 첨부(현장 사진·도면) — 요청 단위(item_id NULL) ───────────
+// kind: site_photo/style_ref(이미지) · drawing/prev_quote(문서)
+function attachmentBucket(kind: string): string {
+  return kind === 'drawing' || kind === 'prev_quote' ? 'request-documents' : 'request-images'
+}
+
+export type AttachmentRow = {
+  id: string
+  kind: string
+  storage_path: string
+  file_name: string | null
+  mime_type: string | null
+}
+
+export async function uploadAttachment(
+  requestId: string,
+  input: {
+    kind: string
+    storagePath: string
+    fileName?: string | null
+    mimeType?: string | null
+    sizeBytes?: number | null
+    itemId?: string | null
+  },
+): Promise<{ attachment: AttachmentRow } | { error: string }> {
+  const owned = await loadOwnedRequest(requestId, { requireDraft: true })
+  if ('error' in owned) return { error: owned.error }
+
+  const db = createServiceClient()
+  const { data, error } = await db
+    .from('quote_request_attachments')
+    .insert({
+      request_id: requestId,
+      item_id: input.itemId ?? null,
+      kind: input.kind,
+      storage_path: input.storagePath,
+      file_name: input.fileName ?? null,
+      mime_type: input.mimeType ?? null,
+      size_bytes: input.sizeBytes ?? null,
+    })
+    .select('id, kind, storage_path, file_name, mime_type')
+    .single()
+  if (error || !data) return { error: '첨부 저장에 실패했습니다.' }
+  return { attachment: data as AttachmentRow }
+}
+
+export async function removeAttachment(
+  requestId: string,
+  attachmentId: string,
+): Promise<{ ok: true } | { error: string }> {
+  const owned = await loadOwnedRequest(requestId, { requireDraft: true })
+  if ('error' in owned) return { error: owned.error }
+
+  const db = createServiceClient()
+  const { data: att } = await db
+    .from('quote_request_attachments')
+    .select('id, kind, storage_path')
+    .eq('id', attachmentId)
+    .eq('request_id', requestId)
+    .maybeSingle()
+  if (!att) return { error: '첨부를 찾을 수 없습니다.' }
+
+  await db.storage.from(attachmentBucket(att.kind as string)).remove([att.storage_path as string])
+  const { error } = await db
+    .from('quote_request_attachments')
+    .delete()
+    .eq('id', attachmentId)
+    .eq('request_id', requestId)
+  if (error) return { error: '첨부 삭제에 실패했습니다.' }
+  return { ok: true }
+}
+
 // ── 부모 + items + attachments 조회 (소유자/RLS) ─────────────
 export async function getQuoteRequest(
   requestId: string,

@@ -25,11 +25,15 @@ import CategorySidebar from './components/CategorySidebar'
 import CommonInfoSection from './components/CommonInfoSection'
 import CategorySection from './components/CategorySection'
 import RequestSummary from './components/RequestSummary'
+import AttachmentManager from '@/components/common/AttachmentManager'
+import type { AttachmentRow } from '@/app/actions/quote-request'
 import { progressPercent, requiredStats } from './components/helpers'
 import type { SaveStatus } from './components/SaveStatusBadge'
 
 type Values = Record<string, unknown>
 type ItemMap = Record<string, Values>
+
+const DOC_KINDS = new Set(['drawing', 'prev_quote'])
 
 const TABS = ['분야', '작성', '요약'] as const
 type Tab = (typeof TABS)[number]
@@ -38,13 +42,24 @@ export default function QuoteRequestStudio({
   requestId,
   initialCommon,
   initialItems,
+  initialAttachments = [],
 }: {
   requestId: string
   initialCommon: Values
   initialItems: ItemMap
+  initialAttachments?: AttachmentRow[]
 }) {
   const router = useRouter()
   const storageKey = `quote_studio_${requestId}`
+
+  const initialPhotos = useMemo(
+    () => initialAttachments.filter((a) => !DOC_KINDS.has(a.kind)),
+    [initialAttachments],
+  )
+  const initialDocs = useMemo(
+    () => initialAttachments.filter((a) => DOC_KINDS.has(a.kind)),
+    [initialAttachments],
+  )
 
   const [common, setCommon] = useState<Values>(initialCommon)
   const [items, setItems] = useState<ItemMap>(initialItems)
@@ -299,6 +314,46 @@ export default function QuoteRequestStudio({
             onChange={handleCommonChange}
             invalidKeys={invalidCommon}
           />
+
+          {/* 현장 사진·도면 (요청 단위 첨부) */}
+          <section
+            id="section-attachments"
+            className="rounded-card bg-white p-6 shadow-card ring-1 ring-border"
+          >
+            <h2 className="text-base font-semibold text-ink">현장 사진·도면 (선택)</h2>
+            <p className="mt-1 text-sm text-ink-muted">
+              현장 사진과 도면을 첨부하면 공장이 더 정확한 견적을 보낼 수 있어요.
+            </p>
+            <p className="mb-4 mt-2 flex items-start gap-1.5 rounded-lg bg-warning-tint px-3 py-2 text-xs leading-relaxed text-warning">
+              <span>📢</span>
+              <span>
+                업로드한 사진·도면은 견적 산정을 위해 <b>소핏 협력업체(공장)</b>에게 공개됩니다.
+                개인정보(주민번호·계좌 등)가 담긴 자료는 올리지 마세요.
+              </span>
+            </p>
+            <div className="space-y-5">
+              <AttachmentManager
+                requestId={requestId}
+                kind="site_photo"
+                isImage
+                accept=".jpg,.jpeg,.png,.webp,.heic,image/*"
+                maxSizeMb={10}
+                label="현장 사진 추가"
+                hint="여러 장 업로드 가능"
+                initial={initialPhotos}
+              />
+              <AttachmentManager
+                requestId={requestId}
+                kind="drawing"
+                isImage={false}
+                accept=".pdf,.jpg,.jpeg,.png,.dwg,.hwp,.zip"
+                maxSizeMb={20}
+                label="도면·기타 자료 추가"
+                initial={initialDocs}
+              />
+            </div>
+          </section>
+
           {order.map((cat) => (
             <CategorySection
               key={cat}

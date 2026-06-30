@@ -9,6 +9,7 @@ import AdminNoteEditor from './AdminNoteEditor'
 import { QUOTE_REQUEST_STATUS_LABELS } from '@/lib/constants/status'
 import QuoteRequestView, { isNewSchemaRequest } from '@/components/quote/QuoteRequestView'
 import CategoryItemsSection from '@/components/quote/CategoryItemsSection'
+import AttachmentGallery from '@/components/quote/AttachmentGallery'
 
 function getBucket(fileType: string) {
   return fileType === 'document' ? 'request-documents' : 'request-images'
@@ -123,6 +124,7 @@ export default async function AdminRequestDetailPage({
           {/* 공통 정보 + 분야별 (신규 다분야 요청) */}
           <QuoteRequestView request={req as Record<string, unknown>} className="rounded-card border border-border bg-surface p-5 shadow-card" />
           <CategoryItemsSection items={items} className="rounded-card border border-border bg-surface p-5 shadow-card" />
+          <AttachmentGallery requestId={id} className="rounded-card border border-border bg-surface p-5 shadow-card" />
 
           {/* 현장 정보 (레거시 요청) */}
           {!isNew && (
