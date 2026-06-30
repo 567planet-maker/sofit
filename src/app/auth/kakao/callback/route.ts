@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
 import { resolveNext } from '@/lib/auth/redirect'
+import { logSecurityEvent } from '@/lib/security-log'
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
@@ -14,6 +15,11 @@ export async function GET(request: NextRequest) {
   const returnedState = searchParams.get('state')
   const cookieState = request.cookies.get('kakao_oauth_state')?.value
   if (!returnedState || !cookieState || returnedState !== cookieState) {
+    // CSRF 위조 시도 가능성 — 보안 이벤트로 기록.
+    await logSecurityEvent('oauth_state_mismatch', {
+      ip: request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? null,
+      detail: { provider: 'kakao', hadReturnedState: !!returnedState, hadCookieState: !!cookieState },
+    })
     const res = NextResponse.redirect(new URL('/login?error=oauth_state', origin))
     res.cookies.delete('kakao_oauth_state')
     return res

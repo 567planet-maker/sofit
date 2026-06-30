@@ -6,6 +6,7 @@
 
 import { headers } from 'next/headers'
 import { createServiceClient } from '@/lib/supabase/server'
+import { logSecurityEvent } from '@/lib/security-log'
 
 /**
  * 고정 윈도 rate limit 검사.
@@ -32,7 +33,15 @@ export async function checkRateLimit(
     console.error('[rate-limit] RPC 실패:', error.message)
     return true
   }
-  return data === true
+  const allowed = data === true
+  // 한도 초과(차단)는 보안 이벤트로 기록 — 봇/brute force 탐지의 신호.
+  if (!allowed) {
+    await logSecurityEvent('rate_limited', {
+      identity,
+      detail: { bucket, max, windowSeconds },
+    })
+  }
+  return allowed
 }
 
 /** 프록시 헤더에서 클라이언트 IP 추출 (미인증 흐름의 식별자). */

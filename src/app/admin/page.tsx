@@ -13,6 +13,18 @@ function formatDate(iso: string) {
   })
 }
 
+// 렌더 본문에서 Date.now()를 직접 호출하면 react-hooks/purity 규칙에 걸리므로
+// 시각 계산은 모듈 스코프 헬퍼로 분리한다.
+function hoursAgoISO(hours: number): string {
+  return new Date(Date.now() - hours * 60 * 60 * 1000).toISOString()
+}
+
+const SECURITY_EVENT_LABELS: Record<string, string> = {
+  rate_limited: '요청 제한 초과',
+  login_failed: '로그인 실패',
+  oauth_state_mismatch: 'OAuth 위조 의심',
+}
+
 function StatCard({
   label,
   value,
@@ -51,6 +63,7 @@ export default async function AdminDashboard() {
     { count: inProgress },
     { count: pendingFactories },
     { count: activeFactories },
+    { count: securityEvents24h },
   ] = await Promise.all([
     supabase
       .from('quote_requests')
@@ -72,6 +85,10 @@ export default async function AdminDashboard() {
       .from('factories')
       .select('*', { count: 'exact', head: true })
       .eq('status', 'active'),
+    supabase
+      .from('security_events')
+      .select('*', { count: 'exact', head: true })
+      .gte('created_at', hoursAgoISO(24)),
   ])
 
   const { data: recentRequests } = await supabase
@@ -80,12 +97,18 @@ export default async function AdminDashboard() {
     .order('created_at', { ascending: false })
     .limit(8)
 
+  const { data: recentSecurityEvents } = await supabase
+    .from('security_events')
+    .select('id, type, identity, ip, created_at')
+    .order('created_at', { ascending: false })
+    .limit(10)
+
   return (
     <div className="p-8">
       <h1 className="mb-6 text-2xl font-semibold text-ink">대시보드</h1>
 
       {/* 요약 카드 */}
-      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-5">
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-6">
         <StatCard
           label="신규 접수"
           value={submitted ?? 0}
@@ -112,6 +135,12 @@ export default async function AdminDashboard() {
           label="활성 공장"
           value={activeFactories ?? 0}
           href="/admin/factories?status=active"
+        />
+        <StatCard
+          label="보안 이벤트 (24h)"
+          value={securityEvents24h ?? 0}
+          href="/admin#security-events"
+          urgent
         />
       </div>
 
@@ -146,6 +175,38 @@ export default async function AdminDashboard() {
                   <StatusBadge status={req.status as QuoteRequestStatus} />
                 </div>
               </Link>
+            ))
+          )}
+        </div>
+      </section>
+
+      {/* 최근 보안 이벤트 */}
+      <section id="security-events" className="mt-8 scroll-mt-8">
+        <h2 className="mb-3 font-semibold text-ink">최근 보안 이벤트</h2>
+        <div className="overflow-hidden rounded-card border border-border bg-surface shadow-card">
+          {!recentSecurityEvents || recentSecurityEvents.length === 0 ? (
+            <p className="py-10 text-center text-sm text-ink-subtle">최근 보안 이벤트가 없습니다.</p>
+          ) : (
+            recentSecurityEvents.map((ev, i) => (
+              <div
+                key={ev.id}
+                className={`flex items-center justify-between px-5 py-3 ${
+                  i > 0 ? 'border-t border-border' : ''
+                }`}
+              >
+                <div className="flex min-w-0 items-center gap-3">
+                  <span className="flex-shrink-0 rounded-full bg-danger-tint px-2.5 py-0.5 text-xs font-medium text-danger">
+                    {SECURITY_EVENT_LABELS[ev.type] ?? ev.type}
+                  </span>
+                  <span className="truncate text-sm text-ink-muted">
+                    {ev.identity ?? '—'}
+                    {ev.ip ? ` · ${ev.ip}` : ''}
+                  </span>
+                </div>
+                <span className="ml-4 flex-shrink-0 text-xs text-ink-subtle">
+                  {formatDate(ev.created_at)}
+                </span>
+              </div>
             ))
           )}
         </div>

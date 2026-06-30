@@ -7,6 +7,7 @@ import { createClient as createAdminClient } from '@supabase/supabase-js'
 import type { UserRole } from '@/types'
 import { resolveNext } from '@/lib/auth/redirect'
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
+import { logSecurityEvent, maskEmail } from '@/lib/security-log'
 
 async function getOrigin() {
   const headersList = await headers()
@@ -157,7 +158,11 @@ export async function signInWithEmail(
   const supabase = await createClient()
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
-  if (error) return { error: '이메일 또는 비밀번호가 올바르지 않습니다.' }
+  if (error) {
+    // 인증 실패 별도 추적(brute force 탐지). 이메일은 마스킹해 기록.
+    await logSecurityEvent('login_failed', { identity: maskEmail(emailKey), ip })
+    return { error: '이메일 또는 비밀번호가 올바르지 않습니다.' }
+  }
 
   const role = data.user.user_metadata?.role as string | undefined
   const next = formData.get('next') as string | null
