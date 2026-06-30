@@ -32,7 +32,6 @@ function formatTime(iso: string) {
 export default function ChatRoom({
   roomId,
   currentUserId,
-  currentUserRole,
   initialMessages,
   isReadOnly = false,
 }: Props) {
@@ -151,17 +150,31 @@ export default function ChatRoom({
       return
     }
 
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from('chat-attachments').getPublicUrl(path)
-
+    // 공개 URL 대신 스토리지 "경로"를 저장한다(버킷 비공개 + RLS 스코프).
+    // 열람 시 참여자 권한으로 signed URL을 즉석 생성한다.
     startTransition(async () => {
-      const res = await sendMessage(roomId, '', publicUrl, file.name)
+      const res = await sendMessage(roomId, '', path, file.name)
       if (res?.error) setError(res.error)
       setIsUploading(false)
     })
 
     if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
+  // 첨부 열기: 레거시(공개 URL)는 그대로, 신규(경로)는 signed URL 생성 후 연다.
+  async function openAttachment(fileRef: string) {
+    if (/^https?:\/\//.test(fileRef)) {
+      window.open(fileRef, '_blank', 'noopener,noreferrer')
+      return
+    }
+    const { data, error: signErr } = await supabase.storage
+      .from('chat-attachments')
+      .createSignedUrl(fileRef, 3600)
+    if (signErr || !data?.signedUrl) {
+      setError('첨부 파일을 열 수 없습니다.')
+      return
+    }
+    window.open(data.signedUrl, '_blank', 'noopener,noreferrer')
   }
 
   return (
@@ -174,9 +187,9 @@ export default function ChatRoom({
         ) : (
           messages.map((msg) => {
             const isMine = msg.sender_id === currentUserId
-            const senderRole = (msg.users as any)?.role ?? ''
-            const senderName = (msg.users as any)?.name
-            const senderAvatar = (msg.users as any)?.avatar_url ?? null
+            const senderRole = msg.users?.role ?? ''
+            const senderName = msg.users?.name
+            const senderAvatar = msg.users?.avatar_url ?? null
             const isAdmin = senderRole === 'admin'
             const label = senderName
               ? `${senderName} (${ROLE_LABEL[senderRole] ?? senderRole})`
@@ -205,14 +218,13 @@ export default function ChatRoom({
                       <p className="whitespace-pre-wrap break-words">{msg.content}</p>
                     )}
                     {msg.file_url && (
-                      <a
-                        href={msg.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`text-sm underline ${isMine ? 'text-white/70' : 'text-brand'}`}
+                      <button
+                        type="button"
+                        onClick={() => openAttachment(msg.file_url!)}
+                        className={`text-left text-sm underline ${isMine ? 'text-white/70' : 'text-brand'}`}
                       >
                         📎 {msg.file_name ?? '첨부파일'}
-                      </a>
+                      </button>
                     )}
                   </div>
                   <span className="mt-1 text-xs text-ink-subtle">{formatTime(msg.created_at)}</span>
