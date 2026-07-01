@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import SofitLanding from '@/components/landing/SofitLanding'
-import LandingHeader from '@/components/landing/LandingHeader'
+import SiteHeader from '@/components/SiteHeader'
 
 export const metadata: Metadata = {
   title: '소핏 — 인테리어의 모든 공정, 쉽고 투명하게',
@@ -13,5 +13,5 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
-  return <SofitLanding header={<LandingHeader />} />
+  return <SofitLanding header={<SiteHeader variant="landing" />} />
 }

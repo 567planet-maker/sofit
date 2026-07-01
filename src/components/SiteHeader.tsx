@@ -1,12 +1,23 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import { loginHref } from '@/lib/auth/redirect'
-import HeaderShell from '@/components/HeaderShell'
 import NotificationBell from '@/components/notifications/NotificationBell'
-import Avatar from '@/components/ui/Avatar'
+import ProfileMenu from '@/components/ProfileMenu'
+import SiteHeaderShell from '@/components/SiteHeaderShell'
 import type { Notification } from '@/types'
 
-export default async function Header({ contained = false }: { contained?: boolean } = {}) {
+/**
+ * 사이트 공통 헤더 (단일 소스). 랜딩·고객·공장·업체찾기 등 모든 곳에서 동일하게 사용한다.
+ * 여기 하나만 고치면 전 페이지 헤더가 함께 바뀐다.
+ * - variant="landing": 랜딩용(높이 넓게)
+ * - variant="app": 마이페이지·공장관리 등(높이 compact) — 위치·좌우 간격은 랜딩과 동일
+ * 섹션 네비는 어느 페이지에서든 랜딩 섹션으로 이동하도록 절대경로(/#...)를 쓴다.
+ */
+export default async function SiteHeader({
+  variant = 'app',
+}: {
+  variant?: 'landing' | 'app'
+} = {}) {
   const supabase = await createClient()
   const {
     data: { user },
@@ -42,44 +53,50 @@ export default async function Header({ contained = false }: { contained?: boolea
   const loginUrl = user ? '/login' : await loginHref()
 
   return (
-    <HeaderShell>
-      <div
-        className={
-          contained
-            ? 'mx-auto flex h-14 max-w-screen-xl items-center justify-between px-4'
-            : 'flex h-14 items-center justify-between pl-5 pr-[max(1.25rem,calc((100vw_-_80rem)/2_+_1rem))]'
-        }
-      >
-        <Link href="/" className="text-lg font-semibold tracking-tight text-brand">
-          소핏
-        </Link>
-
-        <nav className="flex items-center gap-5 text-sm font-medium text-ink-muted">
-          <Link href="/portfolios" className="hidden transition-colors hover:text-ink sm:inline">
-            업체찾기
+    <SiteHeaderShell compact={variant !== 'landing'}>
+      <div className="nav-inner">
+        <div className="nav-left">
+          <Link href="/" className="logo">
+            SO<b>FIT</b>
           </Link>
-          {user && role === 'customer' && (
-            <Link href="/customer/me" className="hidden transition-colors hover:text-ink sm:inline">
-              마이페이지
-            </Link>
-          )}
-          {user && role === 'factory' && (
-            <>
-              <Link href="/factory/me" className="hidden transition-colors hover:text-ink sm:inline">
-                마이페이지
+          {user && role !== 'factory' && role !== 'admin' && (
+            <div className="nav-actions">
+              <Link href="/customer/request/new" className="btn btn-md btn-primary">
+                견적 요청하기
               </Link>
-              <Link href="/factory" className="hidden transition-colors hover:text-ink sm:inline">
-                공장관리
+              <Link href="/factory/onboarding" className="btn btn-md btn-ghost">
+                공장 등록하기
               </Link>
-            </>
+            </div>
           )}
-          {user && role === 'admin' && (
-            <Link href="/admin" className="hidden transition-colors hover:text-ink sm:inline">
-              관리자
-            </Link>
-          )}
+        </div>
+
+        <nav className="nav-links">
+          <a href="/#problem">왜 소핏인가</a>
+          <a href="/#features">서비스</a>
+          <a href="/#cases">작업 사례</a>
+          <a href="/#partner">공장 입점</a>
+          <Link href="/portfolios">업체찾기</Link>
+        </nav>
+
+        <div className="nav-cta">
           {user ? (
-            <>
+            <div className="nav-tools">
+              {role === 'customer' && (
+                <Link href="/customer/me/requests" className="nav-login hidden sm:inline">
+                  내 견적관리
+                </Link>
+              )}
+              {role === 'factory' && (
+                <Link href="/factory" className="nav-login hidden sm:inline">
+                  내 공장관리
+                </Link>
+              )}
+              {role === 'admin' && (
+                <Link href="/admin" className="nav-login hidden sm:inline">
+                  관리자
+                </Link>
+              )}
               {chatHref && (
                 <Link
                   href={chatHref}
@@ -107,27 +124,20 @@ export default async function Header({ contained = false }: { contained?: boolea
                 initialUnreadCount={unreadCount}
                 initialNotifications={notifications}
               />
-              <Link
-                href={mypageHref}
-                className="flex items-center gap-2 rounded-pill py-0.5 pl-0.5 pr-1 transition-colors hover:bg-surface-muted"
-                aria-label="마이페이지"
-              >
-                <Avatar src={avatarUrl} name={name} size="sm" />
-                <span className="hidden max-w-[8rem] truncate text-sm font-medium text-ink sm:inline">
-                  {name ?? '사용자'}
-                </span>
+              <ProfileMenu name={name} avatarUrl={avatarUrl} mypageHref={mypageHref} />
+            </div>
+          ) : (
+            <>
+              <Link href={loginUrl} className="nav-login">
+                로그인
+              </Link>
+              <Link href="/customer/request/new" className="btn btn-md btn-primary">
+                견적 요청하기
               </Link>
             </>
-          ) : (
-            <Link
-              href={loginUrl}
-              className="rounded-control bg-brand px-4 py-2 font-medium text-white transition-colors hover:bg-brand-hover"
-            >
-              로그인
-            </Link>
           )}
-        </nav>
+        </div>
       </div>
-    </HeaderShell>
+    </SiteHeaderShell>
   )
 }

@@ -41,6 +41,11 @@ export async function createFactoryProfile(input: FactoryProfileInput) {
 
   if (error) throw new Error(`공장 프로필 생성 실패: ${error.message}`)
 
+  // 고객 → 공장 전환: 역할을 factory 로 승격 (auth 메타데이터 + users 테이블).
+  // 승인(active) 후 /factory 보호 영역 접근에 factory 역할이 필요하다.
+  await supabase.auth.updateUser({ data: { role: 'factory' } })
+  await supabase.from('users').update({ role: 'factory' }).eq('id', user!.id)
+
   redirect('/factory/pending')
 }
 

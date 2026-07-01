@@ -19,7 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     .select('role, name, avatar_url')
     .eq('id', user.id)
     .single()
-  if (!userData?.role) redirect('/onboarding')
+  if (!userData?.role) redirect('/')
   if (userData.role === 'customer') redirect('/customer/me')
   if (userData.role === 'factory') redirect('/factory')
   if (userData.role !== 'admin') redirect('/login')

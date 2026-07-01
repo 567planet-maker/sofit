@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import Header from '@/components/Header'
+import SiteHeader from '@/components/SiteHeader'
 import { createClient } from '@/lib/supabase/server'
 import type { FactoryPortfolioWithFactory, PortfolioCategory } from '@/types'
 
@@ -44,7 +44,7 @@ export default async function PortfoliosPage({
 
   return (
     <>
-      <Header />
+      <SiteHeader variant="app" />
       <main className="min-h-screen bg-canvas px-4 py-10">
         <div className="mx-auto max-w-6xl">
           <div className="mb-8">

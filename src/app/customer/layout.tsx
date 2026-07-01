@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { loginHref } from '@/lib/auth/redirect'
-import Header from '@/components/Header'
+import SiteHeader from '@/components/SiteHeader'
 
 export default async function CustomerLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
@@ -16,13 +16,13 @@ export default async function CustomerLayout({ children }: { children: React.Rea
     .eq('id', user.id)
     .single()
 
-  if (!userData?.role) redirect('/onboarding')
+  if (!userData?.role) redirect('/')
   if (userData.role === 'factory') redirect('/factory')
   if (userData.role === 'admin') redirect('/admin')
 
   return (
     <div className="min-h-screen bg-canvas">
-      <Header />
+      <SiteHeader variant="app" />
       <main>{children}</main>
     </div>
   )

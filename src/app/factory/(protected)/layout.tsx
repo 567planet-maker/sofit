@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { loginHref } from '@/lib/auth/redirect'
-import Header from '@/components/Header'
+import SiteHeader from '@/components/SiteHeader'
 
 export default async function FactoryLayout({
   children,
@@ -21,7 +21,7 @@ export default async function FactoryLayout({
     .eq('id', user.id)
     .single()
 
-  if (!userData?.role) redirect('/onboarding')
+  if (!userData?.role) redirect('/')
   if (userData.role === 'customer') redirect('/customer/me')
   if (userData.role === 'admin') redirect('/admin')
 
@@ -38,7 +38,7 @@ export default async function FactoryLayout({
 
   return (
     <div className="min-h-screen bg-canvas">
-      <Header />
+      <SiteHeader variant="app" />
       <main>{children}</main>
     </div>
   )

@@ -12,13 +12,8 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.verifyOtp({ type, token_hash })
 
     if (!error) {
-      const { data: { user } } = await supabase.auth.getUser()
-      const role = user?.user_metadata?.role as string | undefined
-
-      if (!role) return NextResponse.redirect(`${origin}/onboarding`)
-      if (role === 'admin') return NextResponse.redirect(`${origin}/admin`)
-      if (role === 'factory') return NextResponse.redirect(`${origin}/factory`)
-      return NextResponse.redirect(`${origin}/customer`)
+      // 이메일 확인 완료 → 홈으로. (역할별 페이지는 홈 헤더에서 이동)
+      return NextResponse.redirect(`${origin}/`)
     }
   }
 

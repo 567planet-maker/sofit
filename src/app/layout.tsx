@@ -1,17 +1,5 @@
 import type { Metadata } from 'next'
-import { Geist, Noto_Sans_KR } from 'next/font/google'
 import './globals.css'
-
-const geist = Geist({
-  variable: '--font-geist',
-  subsets: ['latin'],
-})
-
-const notoSansKR = Noto_Sans_KR({
-  variable: '--font-noto-sans-kr',
-  subsets: ['latin'],
-  weight: ['900'],
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://sofit.vercel.app'),
@@ -42,7 +30,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="ko" className={`${geist.variable} ${notoSansKR.variable} h-full antialiased`}>
+    <html lang="ko" className="h-full antialiased">
+      <head>
+        {/* 앱 전체 Pretendard (랜딩과 통일). Tailwind v4 @import 충돌 회피용으로 link 로 로드 */}
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
+        />
+      </head>
       <body className="flex min-h-full flex-col bg-canvas text-ink">
         {children}
       </body>

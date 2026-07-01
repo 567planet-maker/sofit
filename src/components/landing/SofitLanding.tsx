@@ -17,10 +17,7 @@ export default function SofitLanding({ header }: { header?: ReactNode }) {
     const root = rootRef.current
     if (!root) return
 
-    // ── nav shadow on scroll ──
-    const nav = document.getElementById('nav')
-    const onNavScroll = () => nav?.classList.toggle('scrolled', window.scrollY > 8)
-    window.addEventListener('scroll', onNavScroll, { passive: true })
+    // (nav 스크롤 그림자는 SiteHeaderShell 가 담당)
 
     // ── scroll reveal ──
     const revealCheck = () => {
@@ -40,18 +37,21 @@ export default function SofitLanding({ header }: { header?: ReactNode }) {
     )
 
     // ── rolling hero: 27 fields + synced design strip ──
-    const strip = document.getElementById('rollStrip')
-    const dstrip = document.getElementById('designStrip')
-    let resizeHandler: (() => void) | null = null
+    // DOM 조회는 이 인스턴스(root)로 스코프 — dev Fast Refresh/StrictMode 재마운트 시
+    // 전역 getElementById 가 분리된(detached) 노드를 잡아 애니메이션이 사라지는 문제 방지.
+    const N = F.length
+    const order = [F[N - 2], F[N - 1], ...F, F[0], F[1], F[2]]
+    const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches
+
+    let disposed = false
     let interval: number | null = null
     let resetTimer: number | null = null
-    let warmup: number | null = null
-    let disposed = false
+    let ro: ResizeObserver | null = null
+    let healTimer: number | null = null
+    let onWinResize: (() => void) | null = null
 
-    if (strip) {
-      const vp = strip.parentElement as HTMLElement
-      const N = F.length
-      const order = [F[N - 2], F[N - 1], ...F, F[0], F[1], F[2]]
+    // 스트립 내용 주입 (초기 + self-heal 재주입에 공용)
+    const populate = (strip: HTMLElement, dstrip: HTMLElement | null) => {
       strip.innerHTML = order.map((f) => `<span class="roll-word">${f.w}</span>`).join('')
       if (dstrip) {
         dstrip.innerHTML = order
@@ -61,7 +61,21 @@ export default function SofitLanding({ header }: { header?: ReactNode }) {
           )
           .join('')
       }
+    }
 
+    const initRolling = () => {
+      if (disposed) return
+      const strip = root.querySelector<HTMLElement>('#rollStrip')
+      const dstrip = root.querySelector<HTMLElement>('#designStrip')
+      // 마크업 주입 직후 등 아직 없으면 다음 프레임에 재시도 (빈 히어로 방지)
+      if (!strip) {
+        requestAnimationFrame(initRolling)
+        return
+      }
+
+      populate(strip, dstrip)
+
+      const vp = strip.parentElement as HTMLElement
       let i = 0
       const el = (parent: Element, idx: number) => parent.children[idx] as HTMLElement
       const rowH = () =>
@@ -85,14 +99,14 @@ export default function SofitLanding({ header }: { header?: ReactNode }) {
           markMid()
         }
       }
-      const fit = () => {
+      const fit = (): boolean => {
         const h = rowH()
-        if (h <= 0) return
+        if (h <= 0) return false
         vp.style.height = `${h * 5}px`
         place()
+        return true
       }
 
-      const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches
       const step = () => {
         i++
         const tr = 'transform .55s cubic-bezier(.22,1,.36,1)'
@@ -111,62 +125,71 @@ export default function SofitLanding({ header }: { header?: ReactNode }) {
 
       // 측정이 가능해진 뒤에만 시작 — 시작 전 멈춤(폰트 비동기 로드 타이밍) 방지
       let started = false
-      const start = (): boolean => {
-        if (disposed) return false
-        if (started) return true
-        if (rowH() <= 0) return false
+      const tryStart = (): boolean => {
+        if (disposed || started) return started
+        if (!fit()) return false
         started = true
-        fit()
         if (!reduce) interval = window.setInterval(step, 1400)
         return true
       }
 
-      // 페인트 직후 + 웹폰트(CDN Pretendard) 로드 완료 시점에 각각 재측정/시작
+      // 측정 가능해질 때까지 rAF 로 재시도 — setInterval 과 달리 백그라운드 탭에서
+      // 스로틀/조기 종료되지 않고, 다시 보이는 순간 이어서 시도된다.
+      const warm = () => {
+        if (disposed || started) return
+        if (!tryStart()) requestAnimationFrame(warm)
+      }
       fit()
-      requestAnimationFrame(() => {
-        fit()
-        start()
-      })
+      requestAnimationFrame(warm)
+
+      // 웹폰트(CDN Pretendard) 로드 완료 → 행 높이 재측정/시작
       if (document.fonts?.ready) {
         document.fonts.ready.then(() => {
           if (disposed) return
-          fit()
-          start()
+          if (started) fit()
+          else tryStart()
         })
       }
-      // 측정 가능해질 때까지 재시도, 시작되면 중단 (최대 6초)
-      warmup = window.setInterval(() => {
-        if (disposed) {
-          if (warmup) window.clearInterval(warmup)
-          return
-        }
-        fit()
-        if (start() && warmup) {
-          window.clearInterval(warmup)
-          warmup = null
-        }
-      }, 120)
-      window.setTimeout(() => {
-        if (warmup) {
-          window.clearInterval(warmup)
-          warmup = null
-        }
-      }, 6000)
 
-      resizeHandler = fit
-      window.addEventListener('resize', resizeHandler)
+      // 폰트 스왑·레이아웃 변화 시 재fit (첫 단어 크기 관찰 → 높이 변경으로 인한 루프 없음)
+      ro = new ResizeObserver(() => {
+        if (disposed) return
+        if (started) fit()
+        else tryStart()
+      })
+      ro.observe(el(strip, 0))
+
+      // 뷰포트 폭 변화(디자인 스트립 중앙 정렬 재계산)
+      onWinResize = () => {
+        if (started) fit()
+        else tryStart()
+      }
+      window.addEventListener('resize', onWinResize)
+
+      // self-heal: 리렌더/HMR 등으로 스트립이 비워지면(빈 히어로·정지) 즉시 재주입·재정렬.
+      // 정상일 땐(자식 존재) 아무 것도 하지 않아 애니메이션과 충돌하지 않는다.
+      healTimer = window.setInterval(() => {
+        if (disposed) return
+        if (strip.childElementCount === 0) {
+          populate(strip, dstrip)
+          i = 0
+          fit()
+        }
+      }, 1500)
     }
+
+    initRolling()
 
     return () => {
       disposed = true
-      window.removeEventListener('scroll', onNavScroll)
       window.removeEventListener('scroll', revealCheck)
-      if (resizeHandler) window.removeEventListener('resize', resizeHandler)
+      if (onWinResize) window.removeEventListener('resize', onWinResize)
       window.clearTimeout(t1)
       window.clearTimeout(t2)
       if (interval) window.clearInterval(interval)
       if (resetTimer) window.clearTimeout(resetTimer)
-      if (warmup) window.clearInterval(warmup)
+      if (healTimer) window.clearInterval(healTimer)
+      if (ro) ro.disconnect()
       document.body.classList.remove('anim-ready')
     }
   }, [])

@@ -50,9 +50,9 @@
 
 body {
   color: var(--color-ink);
-  /* Claude Design 카드와 동일한 시스템 폰트 스택 (Windows: Segoe UI / 맑은 고딕) */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo",
-    "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
+  /* 앱 전체 Pretendard 통일 (랜딩과 동일). 미로드 시 시스템 폰트로 폴백 */
+  font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", system-ui, sans-serif;
   background: #ffffff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

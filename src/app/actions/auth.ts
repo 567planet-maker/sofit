@@ -4,7 +4,6 @@ import { redirect } from 'next/navigation'
 import { headers, cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
-import type { UserRole } from '@/types'
 import { resolveNext } from '@/lib/auth/redirect'
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit'
 import { logSecurityEvent, maskEmail } from '@/lib/security-log'
@@ -95,10 +94,12 @@ export async function signUpWithEmail(
   const email = formData.get('email') as string
   const password = formData.get('password') as string
   const name = ((formData.get('name') as string) ?? '').trim()
+  const agreed = formData.get('agreed')
 
   if (!name) return { error: '이름을 입력해주세요.' }
   if (!email || !password) return { error: '이메일과 비밀번호를 입력해주세요.' }
   if (password.length < 8) return { error: '비밀번호는 8자 이상이어야 합니다.' }
+  if (agreed !== 'on') return { error: '이용약관 및 개인정보처리방침에 동의해주세요.' }
 
   // 가입 스팸 방어: IP당 10분에 5회
   const ip = await getClientIp()
@@ -130,7 +131,9 @@ export async function signUpWithEmail(
     return { error: `오류: ${error.message}` }
   }
 
-  if (data.session) redirect('/onboarding')
+  // 가입 즉시 세션이 생기면(이메일 확인 비활성) 곧바로 홈으로.
+  // 신규 사용자는 DB 트리거로 이미 customer 역할이 부여된 상태.
+  if (data.session) redirect('/')
 
   return { message: '인증 메일을 발송했습니다. 이메일을 확인해주세요.' }
 }
@@ -169,15 +172,3 @@ export async function signInWithEmail(
   redirect(resolveNext(next, role))
 }
 
-export async function updateUserRole(role: UserRole) {
-  const supabase = await createClient()
-
-  const { data: { user }, error: userError } = await supabase.auth.getUser()
-  if (userError || !user) redirect('/login')
-
-  await supabase.auth.updateUser({ data: { role } })
-  await supabase.from('users').update({ role }).eq('id', user!.id)
-
-  if (role === 'factory') redirect('/factory/onboarding')
-  redirect('/customer/me')
-}

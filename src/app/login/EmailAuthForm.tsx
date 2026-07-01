@@ -68,6 +68,20 @@ function SignupForm({ next }: { next?: string }) {
         autoComplete="new-password"
         className="rounded-card border border-border px-4 py-3 text-sm outline-none transition-colors focus:border-brand"
       />
+      <label className="flex cursor-pointer items-start gap-2.5 px-1 text-left">
+        <input
+          name="agreed"
+          type="checkbox"
+          required
+          className="mt-0.5 h-4 w-4 shrink-0 rounded border-border-strong accent-brand"
+        />
+        <span className="text-xs text-ink-muted">
+          <a href="/terms" target="_blank" className="font-medium underline">이용약관</a>
+          {' '}및{' '}
+          <a href="/privacy" target="_blank" className="font-medium underline">개인정보처리방침</a>
+          에 동의합니다. <span className="text-danger">(필수)</span>
+        </span>
+      </label>
       {state?.error && (
         <p className="text-center text-xs text-danger">{state.error}</p>
       )}

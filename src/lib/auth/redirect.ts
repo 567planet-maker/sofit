@@ -6,29 +6,23 @@ export async function loginHref(): Promise<string> {
   return path ? `/login?next=${encodeURIComponent(path)}` : '/login'
 }
 
-/** 역할별 기본 홈 (next 가 없을 때) */
-export function roleHome(role?: string | null): string {
-  if (role === 'admin') return '/admin'
-  if (role === 'factory') return '/factory'
-  if (role === 'customer') return '/customer/me'
-  return '/onboarding'
-}
-
-/** 로그인 후 목적지 결정 — 역할 없으면 온보딩, 유효한 next 있으면 그곳, 아니면 역할 홈 */
+/**
+ * 로그인/인증 후 목적지 — 유효한 next(딥링크)가 있으면 그곳, 없으면 홈('/').
+ * 신규 가입자는 DB 트리거(handle_new_user)로 이미 customer 역할이 부여되므로
+ * 별도 온보딩 단계 없이 곧바로 홈으로 보낸다.
+ */
 export function resolveNext(
   next: string | null | undefined,
-  role: string | null | undefined,
+  _role?: string | null | undefined,
 ): string {
-  if (!role) return '/onboarding'
   if (
     next &&
     next.startsWith('/') &&
     !next.startsWith('//') &&
     !next.startsWith('/login') &&
-    !next.startsWith('/auth') &&
-    next !== '/onboarding'
+    !next.startsWith('/auth')
   ) {
     return next
   }
-  return roleHome(role)
+  return '/'
 }
