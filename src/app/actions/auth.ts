@@ -147,16 +147,6 @@ export async function signInWithEmail(
 
   if (!email || !password) return { error: '이메일과 비밀번호를 입력해주세요.' }
 
-  // ⚠️ TEMP 디버그 — 원인 확정 후 삭제할 것.
-  // 배포된 빌드가 실제로 쓰는 env 값 확인(NEXT_PUBLIC_*는 빌드시 inline됨).
-  // anon key는 공개값이라 앞 8자/길이만 찍음(시크릿 아님).
-  console.log('[login-debug] env', {
-    url: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    anonPrefix: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.slice(0, 8),
-    anonLen: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length,
-    hasServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-  })
-
   // Brute force 방어: 이메일당 5분에 8회, IP당 5분에 30회
   const ip = await getClientIp()
   const emailKey = email.trim().toLowerCase()
@@ -172,13 +162,6 @@ export async function signInWithEmail(
   const { data, error } = await supabase.auth.signInWithPassword({ email, password })
 
   if (error) {
-    // ⚠️ TEMP 디버그 — 원인 확정 후 삭제할 것. 실제 Supabase 에러 노출.
-    console.error('[login-debug] signIn error', {
-      status: error.status,
-      code: error.code,
-      message: error.message,
-      name: error.name,
-    })
     // 인증 실패 별도 추적(brute force 탐지). 이메일은 마스킹해 기록.
     await logSecurityEvent('login_failed', { identity: maskEmail(emailKey), ip })
     return { error: '이메일 또는 비밀번호가 올바르지 않습니다.' }
