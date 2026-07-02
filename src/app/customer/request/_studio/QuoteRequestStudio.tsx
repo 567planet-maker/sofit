@@ -25,9 +25,8 @@ import CategorySidebar from './components/CategorySidebar'
 import CommonInfoSection from './components/CommonInfoSection'
 import CategorySection from './components/CategorySection'
 import RequestSummary from './components/RequestSummary'
-import AttachmentManager from '@/components/common/AttachmentManager'
-import type { AttachmentRow } from '@/app/actions/quote-request'
-import { progressPercent, requiredStats } from './components/helpers'
+import AttachmentManager, { type Item } from '@/components/common/AttachmentManager'
+import { requiredStats } from './components/helpers'
 import type { SaveStatus } from './components/SaveStatusBadge'
 
 type Values = Record<string, unknown>
@@ -42,24 +41,36 @@ export default function QuoteRequestStudio({
   requestId,
   initialCommon,
   initialItems,
+  initialItemIds = {},
   initialAttachments = [],
 }: {
   requestId: string
   initialCommon: Values
   initialItems: ItemMap
-  initialAttachments?: AttachmentRow[]
+  initialItemIds?: Record<string, string>
+  initialAttachments?: Item[]
 }) {
   const router = useRouter()
   const storageKey = `quote_studio_${requestId}`
 
+  // 전체(요청 단위, item_id NULL) 첨부만 상단 섹션으로
   const initialPhotos = useMemo(
-    () => initialAttachments.filter((a) => !DOC_KINDS.has(a.kind)),
+    () => initialAttachments.filter((a) => a.item_id == null && !DOC_KINDS.has(a.kind)),
     [initialAttachments],
   )
   const initialDocs = useMemo(
-    () => initialAttachments.filter((a) => DOC_KINDS.has(a.kind)),
+    () => initialAttachments.filter((a) => a.item_id == null && DOC_KINDS.has(a.kind)),
     [initialAttachments],
   )
+  // 분야별(item_id) 첨부를 item_id 기준으로 그룹핑 (사진/문서 분리는 CategorySection에서)
+  const initialByItem = useMemo(() => {
+    const map: Record<string, Item[]> = {}
+    for (const a of initialAttachments) {
+      if (a.item_id == null) continue
+      ;(map[a.item_id] ??= []).push(a)
+    }
+    return map
+  }, [initialAttachments])
 
   const [common, setCommon] = useState<Values>(initialCommon)
   const [items, setItems] = useState<ItemMap>(initialItems)
@@ -73,6 +84,33 @@ export default function QuoteRequestStudio({
   const [invalidCommon, setInvalidCommon] = useState<Set<string>>(new Set())
   const [invalidByCat, setInvalidByCat] = useState<Record<string, Set<string>>>({})
   const [tab, setTab] = useState<Tab>('작성')
+
+  // 분야(category) → 서버 item id. 분야별 첨부를 붙이는 데 필요.
+  const [itemIds, setItemIds] = useState<Record<string, string>>(initialItemIds)
+
+  // 첨부 실시간 관찰: 각 AttachmentManager가 스코프 키로 최신 items를 올림.
+  //   scope 키: 'req:photo' | 'req:doc' | `${cat}:photo` | `${cat}:doc`
+  //   우측 요약은 이 맵을 평탄화해 실시간 미리보기로 사용.
+  const [attachMap, setAttachMap] = useState<Record<string, Item[]>>({})
+  function handleAttachChange(scope: string, list: Item[]) {
+    setAttachMap((prev) => ({ ...prev, [scope]: list }))
+  }
+
+  // 요약용 첨부: 현재 유효한 첨부만 (제거된 분야의 잔여 스코프는 제외)
+  const validItemIds = useMemo(() => new Set(Object.values(itemIds)), [itemIds])
+  const summaryAttachments = useMemo(
+    () =>
+      Object.values(attachMap)
+        .flat()
+        .filter((a) => a.item_id == null || validItemIds.has(a.item_id)),
+    [attachMap, validItemIds],
+  )
+  // item_id → category (요약에서 분야별 그룹 라벨링)
+  const itemIdToCategory = useMemo(() => {
+    const m: Record<string, string> = {}
+    for (const [cat, id] of Object.entries(itemIds)) m[id] = cat
+    return m
+  }, [itemIds])
 
   // 하이브리드 자동저장: localStorage 즉시 백업 + 편집 1.5초 후 서버 upsert
   const autosaveTimer = useRef<number | null>(null)
@@ -160,20 +198,32 @@ export default function QuoteRequestStudio({
 
   async function toggleCategory(category: CategoryKey) {
     if (category in items) {
-      // 제거
+      // 제거 (분야 첨부는 서버에서 CASCADE + 스토리지 정리)
       const next = { ...items }
       delete next[category]
       setItems(next)
       setOrder((o) => o.filter((c) => c !== category))
+      setItemIds((prev) => {
+        const n = { ...prev }
+        delete n[category]
+        return n
+      })
+      setAttachMap((prev) => {
+        const n = { ...prev }
+        delete n[`${category}:photo`]
+        delete n[`${category}:doc`]
+        return n
+      })
       backup(common, next)
       await removeCategoryItem(requestId, category)
     } else {
-      // 추가
+      // 추가 — 반환된 item id를 보관해야 분야별 첨부를 붙일 수 있음
       const next = { ...items, [category]: {} }
       setItems(next)
       setOrder((o) => [...o, category])
       backup(common, next)
-      await upsertCategoryItem(requestId, category, {})
+      const res = await upsertCategoryItem(requestId, category, {})
+      if (!('error' in res)) setItemIds((prev) => ({ ...prev, [category]: res.itemId }))
     }
   }
 
@@ -192,6 +242,8 @@ export default function QuoteRequestStudio({
       for (const cat of order) {
         const r2 = await upsertCategoryItem(requestId, cat, items[cat] ?? {})
         if ('error' in r2) throw new Error(r2.error)
+        // localStorage 복구 등으로 아직 id를 모르는 분야의 item id 확보
+        setItemIds((prev) => (prev[cat] === r2.itemId ? prev : { ...prev, [cat]: r2.itemId }))
       }
       setSaveStatus('saved')
       return true
@@ -255,12 +307,12 @@ export default function QuoteRequestStudio({
 
   // ── 파생 값 ──
   const selectedSet = useMemo(() => new Set(order), [order])
-  const commonPercent = progressPercent(COMMON_FIELDS, common)
-  const categoryPercent = useMemo(() => {
-    const out: Record<string, number> = {}
+  const commonStat = useMemo(() => requiredStats(COMMON_FIELDS, common), [common])
+  const categoryStat = useMemo(() => {
+    const out: Record<string, { filled: number; total: number }> = {}
     for (const cat of order) {
       const schema = getCategorySchema(cat)
-      if (schema) out[cat] = progressPercent(schema.fields, items[cat] ?? {})
+      if (schema) out[cat] = requiredStats(schema.fields, items[cat] ?? {})
     }
     return out
   }, [order, items])
@@ -278,137 +330,200 @@ export default function QuoteRequestStudio({
     return n
   }, [common, items, order])
 
+  const activeIndex = TABS.indexOf(tab)
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6">
-      {/* 모바일 탭 */}
-      <div className="mb-4 flex gap-1 rounded-card bg-surface-muted p-1 lg:hidden">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            type="button"
-            onClick={() => setTab(t)}
-            className={`flex-1 rounded-control py-2 text-sm font-medium transition-colors ${
-              tab === t ? 'bg-white text-brand shadow-sm' : 'text-ink-muted'
-            }`}
-          >
-            {t}
-          </button>
-        ))}
+    <>
+      {/* 모바일 탭 (슬라이딩 pill) */}
+      <div className="flex-none px-5 pt-4 lg:hidden">
+        <div className="relative flex rounded-card bg-surface-muted p-1">
+          <span
+            className="pointer-events-none absolute left-1 top-1 h-[calc(100%-8px)] rounded-[7px] bg-white shadow-card transition-transform duration-200 ease-out"
+            style={{ width: 'calc(33.333% - 2.67px)', transform: `translateX(${activeIndex * 100}%)` }}
+          />
+          {TABS.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTab(t)}
+              className={`relative z-10 flex-1 rounded-[7px] py-2.5 text-center text-[13.5px] font-bold transition-colors ${
+                tab === t ? 'text-brand' : 'text-ink-muted'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[260px_1fr_300px]">
+      {/* 앱 로우: 가장자리 고정 사이드 패널 + 넓은 가운데 작성 영역 */}
+      <div className="flex min-h-0 flex-1 max-lg:block">
         {/* 좌: 분야 선택 */}
-        <aside className={`${tab === '분야' ? 'block' : 'hidden'} lg:block`}>
-          <div className="lg:sticky lg:top-20">
-            <CategorySidebar
-              selected={selectedSet}
-              commonPercent={commonPercent}
-              categoryPercent={categoryPercent}
-              onToggle={toggleCategory}
-            />
+        <aside
+          className={`${tab === '분야' ? 'block' : 'hidden'} studio-scroll shrink-0 overflow-y-auto bg-white px-[22px] py-[26px] lg:block lg:w-[288px] lg:border-r lg:border-border max-lg:overflow-visible max-lg:bg-transparent max-lg:p-5`}
+        >
+          {/* 페이지 제목: 별도 상단 밴드 대신 분야 컬럼 최상단으로 이동(세로 공간 절약) */}
+          <div className="mb-6">
+            <h1 className="text-[22px] font-bold tracking-[-.02em] text-ink">견적 요청</h1>
+            <p className="mt-1.5 text-[12.5px] font-medium leading-[1.5] text-ink-muted">
+              시공 분야를 선택하고 공통 정보와 분야별 내용을 작성하세요. 작성 중 내용은 임시저장됩니다.
+            </p>
           </div>
+
+          <CategorySidebar
+            selected={selectedSet}
+            commonStat={commonStat}
+            categoryStat={categoryStat}
+            onToggle={toggleCategory}
+          />
         </aside>
 
         {/* 중: 작성 */}
-        <div className={`${tab === '작성' ? 'block' : 'hidden'} space-y-6 lg:block`}>
-          {/* 견적 제목 */}
-          <section className="rounded-card bg-white p-6 shadow-card ring-1 ring-border">
-            <label className="mb-1 block text-sm font-medium text-ink">견적 제목</label>
-            <p className="mb-2 text-xs text-ink-subtle">
-              여러 견적을 구분할 수 있는 제목을 정해주세요. (예: 강남 카페 인테리어 전체)
-            </p>
-            <input
-              value={(common.title as string) ?? ''}
-              onChange={(e) => handleCommonChange('title', e.target.value)}
-              placeholder="견적 제목을 입력하세요"
-              className="w-full rounded-card border border-border px-4 py-2.5 text-sm outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
-            />
-            <div className="mt-3 flex items-start gap-2 rounded-card bg-brand-tint/50 px-3 py-2.5">
-              <span className="text-base leading-none">💾</span>
-              <p className="text-xs text-brand">
-                작성 중인 내용은 자동으로 임시저장됩니다. 지금 끝내지 못해도{' '}
-                <b>마이페이지 &gt; 내 견적 현황</b>에서 이어서 수정할 수 있어요.
+        <div
+          className={`${tab === '작성' ? 'block' : 'hidden'} studio-scroll min-w-0 flex-1 overflow-y-auto lg:block max-lg:overflow-visible`}
+        >
+          <div className="mx-auto flex max-w-[860px] flex-col gap-[22px] px-11 pb-20 pt-10 max-lg:p-5">
+            {/* 견적 제목 */}
+            <section className="rounded-card border border-border bg-white px-[30px] py-7 shadow-card">
+              {/* 헤더: 다른 폼 섹션과 동일하게 18px 제목 + mb-[22px] */}
+              <div className="mb-[22px]">
+                <h2 id="quote-title-label" className="text-lg font-bold tracking-[-.01em] text-ink">
+                  견적 제목
+                </h2>
+                <p className="mt-1.5 text-[12.5px] leading-[1.5] text-ink-muted">
+                  여러 견적을 구분할 수 있는 제목을 정해주세요. (예: 강남 카페 인테리어 전체)
+                </p>
+              </div>
+              <input
+                id="quote-title"
+                aria-labelledby="quote-title-label"
+                value={(common.title as string) ?? ''}
+                onChange={(e) => handleCommonChange('title', e.target.value)}
+                placeholder="견적 제목을 입력하세요"
+                className="h-11 w-full rounded-control border border-border bg-white px-3.5 text-sm text-ink outline-none transition-[border-color,box-shadow] placeholder:text-ink-subtle focus:border-brand focus:shadow-[0_0_0_3px_var(--color-brand-tint)]"
+              />
+              <p className="mt-4 rounded-lg bg-brand-tint/50 px-[15px] py-[13px] text-[13px] font-semibold leading-[1.6] text-brand">
+                작성 중인 내용은 자동으로 임시저장됩니다. <b>마이페이지 &gt; 내 견적 현황</b>에서
+                이어서 수정할 수 있어요.
               </p>
-            </div>
-          </section>
+            </section>
 
-          <CommonInfoSection
-            values={common}
-            onChange={handleCommonChange}
-            invalidKeys={invalidCommon}
-          />
-
-          {/* 현장 사진·도면 (요청 단위 첨부) */}
-          <section
-            id="section-attachments"
-            className="rounded-card bg-white p-6 shadow-card ring-1 ring-border"
-          >
-            <h2 className="text-base font-semibold text-ink">현장 사진·도면 (선택)</h2>
-            <p className="mt-1 text-sm text-ink-muted">
-              현장 사진과 도면을 첨부하면 공장이 더 정확한 견적을 보낼 수 있어요.
-            </p>
-            <p className="mb-4 mt-2 flex items-start gap-1.5 rounded-lg bg-warning-tint px-3 py-2 text-xs leading-relaxed text-warning">
-              <span>📢</span>
-              <span>
-                업로드한 사진·도면은 견적 산정을 위해 <b>소핏 협력업체(공장)</b>에게 공개됩니다.
-                개인정보(주민번호·계좌 등)가 담긴 자료는 올리지 마세요.
-              </span>
-            </p>
-            <div className="space-y-5">
-              <AttachmentManager
-                requestId={requestId}
-                kind="site_photo"
-                isImage
-                accept=".jpg,.jpeg,.png,.webp,.heic,image/*"
-                maxSizeMb={10}
-                label="현장 사진 추가"
-                hint="여러 장 업로드 가능"
-                initial={initialPhotos}
-              />
-              <AttachmentManager
-                requestId={requestId}
-                kind="drawing"
-                isImage={false}
-                accept=".pdf,.jpg,.jpeg,.png,.dwg,.hwp,.zip"
-                maxSizeMb={20}
-                label="도면·기타 자료 추가"
-                initial={initialDocs}
-              />
-            </div>
-          </section>
-
-          {order.map((cat) => (
-            <CategorySection
-              key={cat}
-              category={cat}
-              values={items[cat] ?? {}}
-              onChange={(k, v) => handleItemChange(cat, k, v)}
-              onRemove={() => toggleCategory(cat)}
-              invalidKeys={invalidByCat[cat] ?? new Set()}
+            <CommonInfoSection
+              values={common}
+              onChange={handleCommonChange}
+              invalidKeys={invalidCommon}
             />
-          ))}
-          {order.length === 0 && (
-            <div className="rounded-card border border-dashed border-border bg-surface-muted p-8 text-center text-sm text-ink-muted">
-              왼쪽에서 시공 분야를 선택하면 작성 항목이 추가됩니다.
-            </div>
-          )}
+
+            {/* 현장 사진·도면 (요청 단위 첨부) */}
+            <section
+              id="section-attachments"
+              className="scroll-mt-24 rounded-card border border-border bg-white px-[30px] py-7 shadow-card"
+            >
+              <div className="mb-[22px]">
+                <h2 className="text-lg font-bold tracking-[-.01em] text-ink">
+                  현장 전체 사진·도면{' '}
+                  <span className="text-[13px] font-semibold text-ink-muted">(선택)</span>
+                </h2>
+                <p className="mt-1.5 text-[12.5px] leading-[1.5] text-ink-muted">
+                  현장 전반을 보여주는 공통 자료예요. 특정 분야 자료는 아래 각 분야 카드에서 따로 올릴 수 있어요.
+                </p>
+              </div>
+
+              <p className="mb-5 rounded-lg bg-brand-tint/50 px-[15px] py-[13px] text-[13px] font-semibold leading-[1.6] text-brand">
+                업로드한 자료는 견적 산정을 위해 협력업체에 공유됩니다. 주민번호·계좌번호 등
+                개인정보는 제외해 주세요.
+              </p>
+
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                <div>
+                  <div className="mb-3">
+                    <div className="text-[13.5px] font-bold text-ink">현장 사진</div>
+                    <div className="mt-[3px] text-xs text-ink-muted">jpg, png · 최대 10MB</div>
+                  </div>
+                  <AttachmentManager
+                    requestId={requestId}
+                    kind="site_photo"
+                    isImage
+                    accept=".jpg,.jpeg,.png,.webp,.heic,image/*"
+                    maxSizeMb={10}
+                    label="현장 사진 추가"
+                    hint="여러 장 업로드 가능"
+                    initial={initialPhotos}
+                    onChange={(list) => handleAttachChange('req:photo', list)}
+                  />
+                </div>
+                <div>
+                  <div className="mb-3">
+                    <div className="text-[13.5px] font-bold text-ink">도면·기타 자료</div>
+                    <div className="mt-[3px] text-xs text-ink-muted">pdf, dwg 등 · 최대 20MB</div>
+                  </div>
+                  <AttachmentManager
+                    requestId={requestId}
+                    kind="drawing"
+                    isImage={false}
+                    accept=".pdf,.jpg,.jpeg,.png,.dwg,.hwp,.zip"
+                    maxSizeMb={20}
+                    label="도면·기타 자료 추가"
+                    initial={initialDocs}
+                    onChange={(list) => handleAttachChange('req:doc', list)}
+                  />
+                </div>
+              </div>
+
+              <p className="mt-4 text-[12.5px] leading-[1.55] text-ink-muted">
+                업로드한 파일은 견적 매칭 목적으로만 사용됩니다.
+              </p>
+            </section>
+
+            {order.map((cat) => (
+              <CategorySection
+                key={cat}
+                category={cat}
+                values={items[cat] ?? {}}
+                onChange={(k, v) => handleItemChange(cat, k, v)}
+                onRemove={() => toggleCategory(cat)}
+                invalidKeys={invalidByCat[cat] ?? new Set()}
+                requestId={requestId}
+                itemId={itemIds[cat] ?? null}
+                initialAttachments={itemIds[cat] ? (initialByItem[itemIds[cat]] ?? []) : []}
+                onAttachChange={(scope, list) => handleAttachChange(`${cat}:${scope}`, list)}
+              />
+            ))}
+
+            {order.length === 0 && (
+              <div className="rounded-card border-[1.5px] border-dashed border-border-strong bg-surface-muted px-6 py-12 text-center">
+                <div className="mx-auto mb-3.5 flex h-[52px] w-[52px] items-center justify-center rounded-xl bg-brand-tint text-brand">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" className="h-6 w-6">
+                    <rect x="5" y="4" width="14" height="17" rx="2" />
+                    <path d="M9 9h6M9 13h6M9 17h3" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="text-[15.5px] font-bold text-ink">아직 선택한 시공 분야가 없어요</div>
+                <p className="mt-1.5 text-[13px] leading-[1.5] text-ink-muted">
+                  왼쪽에서 시공 분야를 선택하면 작성 항목이 여기에 추가됩니다.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 우: 요약 */}
-        <aside className={`${tab === '요약' ? 'block' : 'hidden'} lg:block`}>
-          <div className="lg:sticky lg:top-20">
-            <RequestSummary
-              selected={order.filter((c) => isCategoryKey(c))}
-              missingCount={missingCount}
-              saveStatus={saveStatus}
-              submitting={submitting}
-              onSave={saveAll}
-              onSubmit={handleSubmit}
-              submitError={submitError}
-            />
-          </div>
+        <aside
+          className={`${tab === '요약' ? 'block' : 'hidden'} studio-scroll shrink-0 overflow-y-auto bg-white px-[22px] py-[26px] lg:block lg:w-[288px] lg:border-l lg:border-border max-lg:overflow-visible max-lg:bg-transparent max-lg:p-5`}
+        >
+          <RequestSummary
+            selected={order.filter((c) => isCategoryKey(c))}
+            missingCount={missingCount}
+            saveStatus={saveStatus}
+            submitting={submitting}
+            onSave={saveAll}
+            onSubmit={handleSubmit}
+            submitError={submitError}
+            attachments={summaryAttachments}
+            itemIdToCategory={itemIdToCategory}
+          />
         </aside>
       </div>
-    </div>
+    </>
   )
 }

@@ -399,7 +399,7 @@ export async function upsertCategoryItem(
   requestId: string,
   category: string,
   detailsPatch: Record<string, unknown>,
-): Promise<{ ok: true } | { error: string }> {
+): Promise<{ ok: true; itemId: string } | { error: string }> {
   if (!isCategoryKey(category) || !getCategorySchema(category)) {
     return { error: '지원하지 않는 분야입니다.' }
   }
@@ -421,13 +421,16 @@ export async function upsertCategoryItem(
       .update({ details: merged })
       .eq('id', existing.id)
     if (error) return { error: '저장에 실패했습니다.' }
-  } else {
-    const { error } = await db
-      .from('quote_request_items')
-      .insert({ request_id: requestId, category, details: detailsPatch })
-    if (error) return { error: '분야 추가에 실패했습니다.' }
+    return { ok: true, itemId: existing.id as string }
   }
-  return { ok: true }
+
+  const { data: created, error } = await db
+    .from('quote_request_items')
+    .insert({ request_id: requestId, category, details: detailsPatch })
+    .select('id')
+    .single()
+  if (error || !created) return { error: '분야 추가에 실패했습니다.' }
+  return { ok: true, itemId: created.id as string }
 }
 
 // ── 분야 항목 제거 ───────────────────────────────────────────
@@ -439,6 +442,33 @@ export async function removeCategoryItem(
   if ('error' in owned) return { error: owned.error }
 
   const db = createServiceClient()
+
+  // 이 분야에 속한 첨부를 먼저 조회 → 스토리지 파일 제거(고아 방지).
+  // item 행은 FK ON DELETE CASCADE로 자동 삭제되지만 스토리지 객체는 안 지워짐.
+  const { data: item } = await db
+    .from('quote_request_items')
+    .select('id')
+    .eq('request_id', requestId)
+    .eq('category', category)
+    .maybeSingle()
+
+  if (item) {
+    const { data: atts } = await db
+      .from('quote_request_attachments')
+      .select('kind, storage_path')
+      .eq('item_id', item.id)
+    const byBucket = new Map<string, string[]>()
+    for (const a of atts ?? []) {
+      const bucket = attachmentBucket(a.kind as string)
+      const list = byBucket.get(bucket) ?? []
+      list.push(a.storage_path as string)
+      byBucket.set(bucket, list)
+    }
+    for (const [bucket, paths] of byBucket) {
+      if (paths.length > 0) await db.storage.from(bucket).remove(paths)
+    }
+  }
+
   const { error } = await db
     .from('quote_request_items')
     .delete()
@@ -456,11 +486,17 @@ function attachmentBucket(kind: string): string {
 
 export type AttachmentRow = {
   id: string
+  item_id: string | null
   kind: string
   storage_path: string
   file_name: string | null
   mime_type: string | null
+  size_bytes: number | null
+  note: string | null
 }
+
+const ATTACHMENT_COLUMNS = 'id, item_id, kind, storage_path, file_name, mime_type, size_bytes, note'
+const NOTE_MAX = 200
 
 export async function uploadAttachment(
   requestId: string,
@@ -492,11 +528,33 @@ export async function uploadAttachment(
       file_name: input.fileName ?? null,
       mime_type: input.mimeType ?? null,
       size_bytes: input.sizeBytes ?? null,
+      note: null,
     })
-    .select('id, kind, storage_path, file_name, mime_type')
+    .select(ATTACHMENT_COLUMNS)
     .single()
   if (error || !data) return { error: '첨부 저장에 실패했습니다.' }
   return { attachment: data as AttachmentRow }
+}
+
+// ── 첨부 파일 설명(note) 저장 ────────────────────────────────
+export async function updateAttachmentNote(
+  requestId: string,
+  attachmentId: string,
+  note: string,
+): Promise<{ ok: true } | { error: string }> {
+  const owned = await loadOwnedRequest(requestId, { requireDraft: true })
+  if ('error' in owned) return { error: owned.error }
+
+  const trimmed = note.trim().slice(0, NOTE_MAX)
+
+  const db = createServiceClient()
+  const { error } = await db
+    .from('quote_request_attachments')
+    .update({ note: trimmed === '' ? null : trimmed })
+    .eq('id', attachmentId)
+    .eq('request_id', requestId)
+  if (error) return { error: '설명 저장에 실패했습니다.' }
+  return { ok: true }
 }
 
 export async function removeAttachment(

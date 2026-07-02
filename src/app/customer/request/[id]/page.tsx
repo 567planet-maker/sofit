@@ -43,34 +43,49 @@ export default async function EditQuoteRequestPage({
   }
 
   const initialItems: Record<string, Record<string, unknown>> = {}
+  const initialItemIds: Record<string, string> = {}
   for (const item of loaded.items) {
     initialItems[item.category] = item.details ?? {}
+    initialItemIds[item.category] = item.id
   }
 
-  const initialAttachments = loaded.attachments
-    .filter((a) => a.item_id == null) // 요청 단위(공통) 첨부만
-    .map((a) => ({
-      id: a.id as string,
-      kind: a.kind as string,
-      storage_path: a.storage_path as string,
-      file_name: (a.file_name as string | null) ?? null,
-      mime_type: (a.mime_type as string | null) ?? null,
-    }))
+  // 전체(item_id NULL) + 분야별(item_id) 첨부를 모두 전달 — 스튜디오가 분배.
+  // 이미지 썸네일은 서버에서 signed URL을 미리 발급(앱 공통 패턴, 브라우저 발급보다 안정적).
+  const isImageKind = (kind: string) => kind !== 'drawing' && kind !== 'prev_quote'
+  const initialAttachments = await Promise.all(
+    loaded.attachments.map(async (a) => {
+      const kind = a.kind as string
+      const storagePath = a.storage_path as string
+      let url: string | undefined
+      if (isImageKind(kind)) {
+        const { data } = await supabase.storage
+          .from('request-images')
+          .createSignedUrl(storagePath, 3600)
+        url = data?.signedUrl
+      }
+      return {
+        id: a.id as string,
+        item_id: (a.item_id as string | null) ?? null,
+        kind,
+        storage_path: storagePath,
+        file_name: (a.file_name as string | null) ?? null,
+        mime_type: (a.mime_type as string | null) ?? null,
+        size_bytes: (a.size_bytes as number | null) ?? null,
+        note: (a.note as string | null) ?? null,
+        url,
+      }
+    }),
+  )
 
   return (
-    <div className="min-h-screen bg-surface-muted">
-      <div className="border-b border-border bg-white px-4 py-5">
-        <div className="mx-auto max-w-7xl">
-          <h1 className="text-2xl font-semibold text-ink">견적 요청</h1>
-          <p className="mt-1 text-sm text-ink-muted">
-            시공 분야를 선택하고 공통 정보와 분야별 내용을 작성하세요. 작성 중 내용은 임시저장됩니다.
-          </p>
-        </div>
-      </div>
+    // 전역 앱 헤더(sticky, 56px) 아래에서 남은 뷰포트를 채운다.
+    // 데스크톱: 사이드 패널 독립 스크롤 / 모바일(<lg): 자연 스크롤로 스택.
+    <div className="flex flex-col bg-canvas lg:h-[calc(100vh-56px)] max-lg:min-h-[calc(100vh-56px)]">
       <QuoteRequestStudio
         requestId={id}
         initialCommon={initialCommon}
         initialItems={initialItems}
+        initialItemIds={initialItemIds}
         initialAttachments={initialAttachments}
       />
     </div>

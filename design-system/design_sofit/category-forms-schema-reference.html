@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>분야별 폼 스키마 레퍼런스 · 소핏</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<style>
+:root{
+  --brand:#0064FF;--brand-hover:#004FCC;--brand-active:#003D99;
+  --brand-tint:#E8F1FF;--brand-tint-strong:#C9DEFF;
+  --ink:#1A1F36;--ink-muted:#4F566B;--ink-subtle:#8792A2;
+  --canvas:#F6F8FB;--surface:#FFFFFF;--surface-muted:#F0F3F8;
+  --border:#E3E8EE;--border-strong:#D5DBE3;
+  --success:#1A7F64;--success-tint:#E6F4EF;
+  --warning:#9A6700;--warning-tint:#FBF3E0;
+  --danger:#E5484D;--danger-tint:#FDECEC;
+  --radius-card:10px;--radius-control:6px;--radius-pill:9999px;
+  --shadow-card:0 1px 1px rgba(0,0,0,.03),0 2px 5px rgba(26,31,54,.06);
+  --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{height:100%;background:var(--canvas)}
+body{font-family:var(--font);color:var(--ink);margin:0;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit}
+.page{display:flex;flex-direction:column;height:100%}
+
+.topbar{flex:none;background:var(--surface);border-bottom:1px solid var(--border);padding:22px 28px}
+.topbar h1{margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em}
+.topbar p{margin:7px 0 0;font-size:13.5px;color:var(--ink-muted);font-weight:500;line-height:1.6;max-width:760px}
+.topbar code{background:var(--surface-muted);padding:2px 6px;border-radius:5px;font-size:12.5px}
+
+.app-row{flex:1;display:flex;min-height:0}
+.side-nav{flex:none;width:270px;border-right:1px solid var(--border);background:var(--surface);overflow-y:auto;padding:22px 18px}
+.col-write{flex:1;min-width:0;overflow-y:auto;background:var(--canvas);scroll-behavior:smooth}
+.side-nav,.col-write{scrollbar-width:thin;scrollbar-color:transparent transparent}
+.side-nav:hover,.col-write:hover{scrollbar-color:var(--border-strong) transparent}
+.side-nav::-webkit-scrollbar,.col-write::-webkit-scrollbar{width:10px}
+.side-nav::-webkit-scrollbar-thumb,.col-write::-webkit-scrollbar-thumb{background:transparent;border-radius:9999px;border:3px solid transparent;background-clip:content-box}
+.side-nav:hover::-webkit-scrollbar-thumb,.col-write:hover::-webkit-scrollbar-thumb{background:var(--border-strong);background-clip:content-box}
+.write-inner{max-width:860px;margin:0 auto;padding:36px 44px 100px;display:flex;flex-direction:column;gap:20px}
+
+.nav-group{margin-bottom:20px}
+.nav-group-h{font-size:11px;font-weight:700;color:var(--ink-subtle);text-transform:uppercase;letter-spacing:.05em;margin:0 8px 8px}
+.nav-list{display:flex;flex-direction:column;gap:1px}
+.nav-link{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:7px;font-size:13.5px;font-weight:600;color:var(--ink-muted);text-decoration:none;transition:background .12s,color .12s}
+.nav-link:hover{background:var(--surface-muted);color:var(--ink)}
+.nav-link.is-active{background:rgba(232,241,255,.6);color:var(--brand)}
+.nav-link-count{font-size:11px;font-weight:700;color:var(--ink-subtle);flex:none}
+.nav-link.is-active .nav-link-count{color:var(--brand)}
+
+.intro-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius-card);box-shadow:var(--shadow-card);padding:22px 26px;font-size:13px;color:var(--ink-muted);line-height:1.7}
+.intro-card b{color:var(--ink)}
+.intro-legend{display:flex;flex-wrap:wrap;gap:6px 10px;margin-top:12px}
+.intro-legend span{background:var(--surface-muted);color:var(--ink-muted);font-size:11.5px;font-weight:700;padding:4px 9px;border-radius:var(--radius-pill)}
+
+.group-divider{display:flex;align-items:baseline;gap:10px;padding:10px 2px 0;margin-top:4px}
+.group-divider .gd-index{font-size:12px;font-weight:800;color:var(--brand);flex:none}
+.group-divider h2{margin:0;font-size:15px;font-weight:700;color:var(--ink)}
+.group-divider .gd-count{font-size:12px;color:var(--ink-subtle);font-weight:600}
+
+.wcard{background:#fff;border-radius:var(--radius-card);box-shadow:var(--shadow-card);border:1px solid var(--border);padding:26px 28px}
+.scroll-anchor{scroll-margin-top:20px}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:20px}
+.section-head-l{display:flex;flex-direction:column;gap:3px}
+.section-eyebrow{font-size:11.5px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.04em}
+.section-title{font-size:17px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+.section-key{font-size:11.5px;color:var(--ink-subtle);font-weight:600;font-family:ui-monospace,"SF Mono",Menlo,monospace}
+
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 20px}
+.field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.field.span2{grid-column:1 / -1}
+.field-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.field-label{font-size:13.5px;font-weight:600;color:var(--ink)}
+.field-label .req{color:var(--danger)}
+.field-help{font-size:12px;color:var(--ink-muted);margin:-2px 0 0;line-height:1.4}
+
+.ctrl{width:100%;height:44px;padding:0 14px;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--border);border-radius:var(--radius-control);outline:none;transition:border-color .12s,box-shadow .12s}
+.ctrl::placeholder{color:var(--ink-subtle)}
+.ctrl:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-tint)}
+textarea.ctrl{height:auto;min-height:76px;padding:12px 14px;resize:vertical;line-height:1.55}
+select.ctrl{appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="%238792A2" stroke-width="1.8"><path d="M5 8l5 5 5-5"/></svg>');background-repeat:no-repeat;background-position:right 10px center;padding-right:32px}
+
+.num-unit{display:flex;align-items:center;gap:10px}
+.num-unit .ctrl{flex:1}
+.num-unit-suffix{flex:none;font-size:13px;font-weight:600;color:var(--ink-muted)}
+
+.dim-row{display:flex;align-items:center;gap:10px}
+.dim-row .ctrl{flex:1;text-align:center}
+.dim-x{font-size:13.5px;color:var(--ink-muted);font-weight:600;flex:none}
+.dim-unit{font-size:13px;color:var(--ink-muted);font-weight:600;flex:none}
+
+.address-row{display:flex;gap:9px}
+.address-row .ctrl{flex:1}
+.btn-mini{flex:none;height:44px;padding:0 15px;border-radius:var(--radius-control);border:1px solid var(--border);background:#fff;color:var(--ink-muted);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:background .12s,color .12s}
+.btn-mini:hover{background:var(--surface-muted);color:var(--ink)}
+
+.unit-row{display:flex;gap:8px}
+.unit-row .ctrl{flex:1}
+.unit-toggle{display:flex;flex:none;border:1px solid var(--border);border-radius:var(--radius-control);overflow:hidden}
+.unit-toggle button{flex:none;white-space:nowrap;border:none;background:#fff;color:var(--ink-muted);font-size:13px;font-weight:700;padding:0 14px;cursor:pointer;transition:background .12s,color .12s}
+.unit-toggle button.is-active{background:var(--brand);color:#fff}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{flex:none;white-space:nowrap;border:1px solid var(--border);background:#fff;color:var(--ink-muted);font-size:13px;font-weight:600;padding:9px 15px;border-radius:var(--radius-pill);cursor:pointer;transition:all .12s}
+.chip:hover{border-color:var(--border-strong)}
+.chip.is-active{background:var(--brand);border-color:var(--brand);color:#fff}
+
+.seg{display:flex;border:1px solid var(--border);border-radius:var(--radius-control);overflow:hidden;width:fit-content}
+.seg button{flex:none;white-space:nowrap;border:none;background:#fff;color:var(--ink-muted);font-size:13.5px;font-weight:700;padding:10px 19px;cursor:pointer;transition:background .12s,color .12s;border-right:1px solid var(--border)}
+.seg button:last-child{border-right:none}
+.seg button.is-active{background:var(--brand-tint);color:var(--brand)}
+
+.unknown-toggle{flex:none;white-space:nowrap;font-size:11.5px;font-weight:700;color:var(--ink-muted);background:var(--surface-muted);border:1px solid transparent;padding:5px 11px;border-radius:var(--radius-pill);cursor:pointer;transition:all .12s}
+.unknown-toggle.is-active{background:var(--ink);color:#fff}
+.field.is-unknown .widget-target{opacity:.4;pointer-events:none}
+
+.field-error{display:none;font-size:11.5px;color:var(--danger);font-weight:600}
+
+@media (max-width:1023px){
+  .page{height:auto;min-height:100vh}
+  .app-row{display:block}
+  .side-nav{width:auto;border-right:none;border-bottom:1px solid var(--border);overflow:visible}
+  .col-write{overflow:visible}
+  .write-inner{max-width:none;padding:24px}
+}
+@media (max-width:640px){
+  .field-grid{grid-template-columns:1fr}
+}
+</style></head>
+<body>
+
+<div class="page">
+  <div class="topbar">
+    <h1>분야별 폼 스키마 레퍼런스</h1>
+    <p>가운데 "견적 작성" 영역의 <b>27개 시공 분야 폼</b>을 스키마 구동(schema-driven) 구조로 렌더링한 정적 레퍼런스입니다. 분야마다 컴포넌트를 따로 만들지 않고, <code>FIELD_SCHEMAS</code> 데이터 + 공통 렌더러(<code>renderField</code>) 하나로 27개 전부를 그립니다. 폼의 생김새를 바꾸려면 렌더러를, 분야별 내용을 바꾸려면 스키마 데이터를 수정하세요.</p>
+  </div>
+
+  <div class="app-row">
+    <aside class="side-nav" id="sideNav"></aside>
+    <div class="col-write">
+      <div class="write-inner" id="writeInner">
+        <div class="intro-card">
+          <b>타입 시스템</b> — 필드 위젯 8종을 실제 데이터 계약(§3-4)에 맞춰 렌더링했습니다. "모름" 안전장치는 모드별로 라벨이 다릅니다.
+          <div class="intro-legend">
+            <span>text</span><span>textarea</span><span>number(+unit)</span><span>select</span>
+            <span>multiselect</span><span>boolean(예/아니오)</span><span>date</span><span>dimension(mm)</span>
+          </div>
+        </div>
+        <!-- category sections injected here -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+
+  // ───────── helpers ─────────
+  function O(s){ // "value=라벨/value2=라벨2" → [{value,label}]
+    return s.split('/').map(function(pair){
+      var i = pair.indexOf('=');
+      return { value: pair.slice(0,i), label: pair.slice(i+1) };
+    });
+  }
+  var UNKNOWN_LABELS = { unknown:'모름', consult:'추천 요청', site_check:'현장 확인', measure:'실측 요청' };
+  var SPAN2_TYPES = { multiselect:1, textarea:1, dimension:1, boolean:1, address:1 };
+  var NOTE_FIELD = { key:'note', label:'추가 메모', type:'textarea', placeholder:'추가로 전달하고 싶은 내용이 있으면 적어주세요.' };
+
+  // ───────── FIELD_SCHEMAS — copy directly into the app's schema module ─────────
+  var FIELD_SCHEMAS = {
+
+    // 그룹 1. 철거·기초
+    demolition: { group:'철거·기초', label:'철거', fields:[
+      { key:'demo_scope', label:'철거 범위', type:'multiselect', required:true, options:O('full=전체철거/wall=벽체/floor=바닥/ceiling=천장/bathroom=욕실/kitchen=주방') },
+      { key:'area', label:'철거 면적', type:'number', unit:'m²' },
+      { key:'structure_type', label:'구조 형태', type:'select', unknown:'site_check', help:'벽체 철거 시 구조 확인 필요', options:O('masonry=조적/concrete=콘크리트/light_frame=경량/wood=목구조') },
+      { key:'asbestos', label:'석면 의심 자재', type:'select', unknown:'site_check', options:O('yes=있음/no=없음') },
+      { key:'debris_included', label:'폐기물 반출 포함', type:'boolean' },
+    ]},
+    waste: { group:'철거·기초', label:'폐기물 처리', fields:[
+      { key:'waste_types', label:'폐기물 종류', type:'multiselect', required:true, options:O('construction=건축/household=생활/furniture=대형가구/appliance=폐가전/hazardous=위험물') },
+      { key:'volume', label:'예상 배출량', type:'select', unknown:'consult', options:O('under_1t=1톤미만/1_5t=1~5톤/over_5t=5톤이상') },
+      { key:'access', label:'반출 동선', type:'select', unknown:'site_check', options:O('elevator=엘리베이터/stairs=계단/ladder_truck=사다리차') },
+      { key:'urgent', label:'긴급 처리', type:'boolean' },
+    ]},
+    plumbing: { group:'철거·기초', label:'설비(급배수·배관)', fields:[
+      { key:'work_items', label:'작업 항목', type:'multiselect', required:true, options:O('supply=급수/drain=배수/heating_pipe=난방배관/gas=가스/fixture=위생기구') },
+      { key:'pipe_material', label:'배관 자재', type:'select', unknown:'consult', options:O('pb=PB/pvc=PVC/stainless=스테인리스/copper=동관') },
+      { key:'relocate', label:'배관 위치 이동', type:'boolean' },
+      { key:'boiler_included', label:'보일러 포함', type:'boolean' },
+      { key:'issue', label:'누수·막힘 문제', type:'select', unknown:'site_check', options:O('yes=있음/no=없음') },
+    ]},
+    waterproofing: { group:'철거·기초', label:'방수', fields:[
+      { key:'waterproof_area', label:'방수 부위', type:'multiselect', required:true, options:O('bathroom=욕실/veranda=베란다/rooftop=옥상/kitchen=주방/basement=지하') },
+      { key:'method', label:'방수 공법', type:'select', unknown:'consult', options:O('membrane=도막/sheet=시트/complex=복합/penetrating=침투') },
+      { key:'area', label:'시공 면적', type:'number', unit:'m²' },
+      { key:'crack_repair', label:'균열 보수 포함', type:'boolean' },
+      { key:'existing_leak', label:'기존 누수', type:'select', unknown:'site_check', options:O('yes=있음/no=없음') },
+    ]},
+
+    // 그룹 2. 골조·목공
+    carpentry: { group:'골조·목공', label:'목공', fields:[
+      { key:'work_items', label:'작업 항목', type:'multiselect', required:true, options:O('wall=가벽/ceiling=천장/molding=문틀·몰딩/frame=가구틀/partition=파티션/platform=단상') },
+      { key:'space', label:'작업 공간', type:'text', required:true, placeholder:'예) 거실, 주방' },
+      { key:'ceiling_type', label:'천장 형태', type:'select', options:O('flat=평천장/well=우물천장/indirect=간접') },
+      { key:'area', label:'면적/길이', type:'number', unit:'m²' },
+      { key:'finish_included', label:'마감 포함', type:'boolean' },
+      { key:'material_grade', label:'자재 등급', type:'select', unknown:'consult', help:'잘 모르시면 추천 요청', options:O('normal=일반/e0=친환경 E0') },
+    ]},
+    metal: { group:'골조·목공', label:'금속', fields:[
+      { key:'work_items', label:'작업 항목', type:'multiselect', required:true, options:O('railing=난간/stair=계단/frame=프레임/steel_door=철문/reinforce=구조보강') },
+      { key:'install_location', label:'설치 위치', type:'text', required:true },
+      { key:'material', label:'재질', type:'select', unknown:'consult', options:O('stainless=스테인리스/steel=철/aluminum=알루미늄/galvanized=아연도금') },
+      { key:'finish', label:'마감', type:'select', unknown:'consult', options:O('paint=도장/powder=분체도장/hairline=헤어라인') },
+      { key:'size', label:'규격', type:'dimension', unit:'mm', unknown:'measure' },
+    ]},
+    glass: { group:'골조·목공', label:'유리', fields:[
+      { key:'work_items', label:'작업 항목', type:'multiselect', required:true, options:O('partition=파티션/door=도어/shower_booth=샤워부스/railing=난간/glass_wall=유리벽') },
+      { key:'glass_type', label:'유리 종류', type:'select', unknown:'consult', options:O('tempered=강화/laminated=접합/pair=복층/wired=망입/color=컬러') },
+      { key:'thickness', label:'두께', type:'select', unknown:'consult', options:O('5=5mm/8=8mm/10=10mm/12=12mm') },
+      { key:'size', label:'규격', type:'dimension', unit:'mm', unknown:'measure' },
+      { key:'frame_included', label:'프레임 포함', type:'boolean' },
+    ]},
+    window: { group:'골조·목공', label:'창호', fields:[
+      { key:'window_type', label:'창호 종류', type:'select', required:true, unknown:'consult', options:O('double=이중창/single=단창/system=시스템창/balcony=발코니창') },
+      { key:'count', label:'창 개수', type:'number', required:true, unit:'개' },
+      { key:'frame_material', label:'프레임 재질', type:'select', unknown:'consult', options:O('pvc=PVC/aluminum=알루미늄/hybrid=하이브리드') },
+      { key:'glass_spec', label:'유리 사양', type:'select', unknown:'consult', options:O('pair=복층/triple=삼중/lowe=로이') },
+      { key:'size', label:'창 규격', type:'dimension', unit:'mm', unknown:'measure' },
+      { key:'remove_existing', label:'기존 창 철거', type:'boolean' },
+    ]},
+    interior_door: { group:'골조·목공', label:'중문', fields:[
+      { key:'door_type', label:'중문 형태', type:'select', required:true, unknown:'consult', options:O('sliding=슬라이딩/swing=스윙/three_fold=3연동/folding=폴딩') },
+      { key:'count', label:'수량', type:'number', required:true, unit:'개' },
+      { key:'material', label:'재질', type:'select', unknown:'consult', options:O('glass=유리/wood=목재/aluminum=알루미늄') },
+      { key:'frame_finish', label:'프레임 색상', type:'text', placeholder:'예) 화이트, 블랙, 우드' },
+      { key:'size', label:'설치 규격', type:'dimension', unit:'mm', unknown:'measure' },
+    ]},
+
+    // 그룹 3. 마감
+    flooring: { group:'마감', label:'바닥', fields:[
+      { key:'floor_material', label:'바닥재 종류', type:'select', required:true, unknown:'consult', options:O('gangmaru=강마루/laminate=강화마루/hardwood=원목마루/sheet=장판/tile=타일/polishing=폴리싱/epoxy=에폭시/deco_tile=데코타일') },
+      { key:'area', label:'시공 면적', type:'number', required:true, unit:'m²' },
+      { key:'remove_existing', label:'기존 바닥 철거', type:'boolean' },
+      { key:'pattern', label:'패턴/방향', type:'text' },
+      { key:'baseboard_included', label:'걸레받이 포함', type:'boolean' },
+      { key:'leveling_needed', label:'평탄 작업 필요', type:'boolean' },
+      { key:'heating_type', label:'난방 종류', type:'select', unknown:'unknown', options:O('water=온수/electric=전기/none=없음') },
+    ]},
+    tile: { group:'마감', label:'타일', fields:[
+      { key:'tile_area', label:'시공 부위', type:'multiselect', required:true, options:O('bathroom_wall=욕실벽/bathroom_floor=욕실바닥/kitchen=주방/entrance=현관/veranda=베란다/living=거실') },
+      { key:'area', label:'시공 면적', type:'number', required:true, unit:'m²' },
+      { key:'tile_type', label:'타일 종류', type:'select', unknown:'consult', options:O('porcelain=자기질/ceramic=도기질/porcelain_large=포세린/mosaic=모자이크') },
+      { key:'tile_size', label:'타일 규격', type:'select', unknown:'consult', options:O('300=300각/600=600각/600x1200=600x1200/etc=기타') },
+      { key:'remove_existing', label:'기존 타일 철거', type:'boolean' },
+    ]},
+    wallpaper: { group:'마감', label:'도배', fields:[
+      { key:'wallpaper_type', label:'벽지 종류', type:'select', required:true, unknown:'consult', options:O('silk=실크/paper=합지/flame_retardant=방염/mural=뮤럴') },
+      { key:'area', label:'시공 면적', type:'number', required:true, unit:'m²', help:'벽면 기준 면적' },
+      { key:'remove_existing', label:'기존 벽지 제거', type:'boolean' },
+      { key:'ceiling_included', label:'천장 포함', type:'boolean' },
+      { key:'color_pattern', label:'컬러/패턴 희망', type:'text' },
+      { key:'mold_area', label:'곰팡이·결로 부위', type:'select', unknown:'site_check', options:O('yes=있음/no=없음') },
+    ]},
+    painting: { group:'마감', label:'도장', fields:[
+      { key:'paint_areas', label:'도장 부위', type:'multiselect', required:true, options:O('wall=벽/ceiling=천장/door_molding=문·몰딩/exterior=외부/metal=철물') },
+      { key:'area', label:'면적', type:'number', required:true, unit:'m²' },
+      { key:'paint_type', label:'페인트 종류', type:'select', unknown:'consult', options:O('water_based=수성/oil_based=유성/eco=친환경/waterproof=방수/special=특수') },
+      { key:'color', label:'색상', type:'text', unknown:'consult', placeholder:'지정 색상 또는 추천 요청' },
+      { key:'putty_needed', label:'퍼티·바탕 작업 필요', type:'select', unknown:'site_check', options:O('yes=필요/no=불필요') },
+    ]},
+    film: { group:'마감', label:'필름·시트', fields:[
+      { key:'film_areas', label:'시공 부위', type:'multiselect', required:true, options:O('furniture=가구/door=문/wall=벽/window_frame=창틀/sink=싱크대') },
+      { key:'film_type', label:'필름 종류', type:'select', unknown:'consult', options:O('solid=단색/wood=우드/metal=메탈/marble=대리석/matte=무광') },
+      { key:'area', label:'시공 면적', type:'number', unit:'m²' },
+      { key:'existing_condition', label:'바탕 상태', type:'select', unknown:'site_check', options:O('flat=평탄/uneven=요철 있음') },
+      { key:'color', label:'희망 색상/패턴', type:'text' },
+    ]},
+
+    // 그룹 4. 설비·전기
+    electrical: { group:'설비·전기', label:'전기·배선', fields:[
+      { key:'work_items', label:'작업 항목', type:'multiselect', required:true, options:O('wiring=배선/outlet=콘센트/switch=스위치/panel=분전반/network=통신/cctv=CCTV') },
+      { key:'outlet_add', label:'콘센트·스위치 추가 수량', type:'number', unit:'개', unknown:'consult' },
+      { key:'conceal', label:'배선 방식', type:'select', options:O('embedded=매립/exposed=노출') },
+      { key:'capacity_upgrade', label:'증설·승압', type:'boolean' },
+      { key:'panel_work', label:'분전반 교체', type:'boolean' },
+    ]},
+    lighting: { group:'설비·전기', label:'조명', fields:[
+      { key:'work_scope', label:'작업 범위', type:'select', required:true, options:O('full_replace=전체교체/partial=부분/new=신규설치') },
+      { key:'space', label:'적용 공간', type:'text', required:true, placeholder:'예) 거실, 침실' },
+      { key:'light_types', label:'조명 종류', type:'multiselect', unknown:'consult', options:O('recessed=매입등/surface=직부/rail=레일/pendant=펜던트/indirect=간접/line=라인') },
+      { key:'count', label:'수량', type:'number', unit:'개', unknown:'consult' },
+      { key:'color_temp', label:'색온도', type:'select', unknown:'consult', options:O('warm=전구색/neutral=주백색/cool=주광색') },
+      { key:'smart_dimming', label:'디밍·스마트', type:'boolean' },
+    ]},
+    hvac: { group:'설비·전기', label:'냉난방', fields:[
+      { key:'equipment', label:'장비 종류', type:'multiselect', required:true, options:O('system_ac=시스템에어컨/wall_ac=벽걸이/stand_ac=스탠드/boiler=보일러/ventilation=환기') },
+      { key:'count', label:'설치 수량', type:'number', unit:'개' },
+      { key:'capacity', label:'용량(평형)', type:'select', unknown:'consult', options:O('6=6평/9=9평/13=13평/18=18평') },
+      { key:'work_type', label:'작업 유형', type:'select', options:O('new=신규설치/relocate=이전설치/remove=철거') },
+      { key:'duct_work', label:'배관·타공 포함', type:'boolean' },
+    ]},
+
+    // 그룹 5. 공간 가구
+    kitchen: { group:'공간 가구', label:'주방', fields:[
+      { key:'work_scope', label:'작업 범위', type:'select', required:true, options:O('full_replace=전체교체/partial=부분/sink_only=싱크대만') },
+      { key:'layout', label:'주방 형태', type:'select', required:true, unknown:'consult', options:O('straight=일자형/l_shape=ㄱ자형/u_shape=ㄷ자형/island=아일랜드') },
+      { key:'cabinet_length', label:'상·하부장 길이', type:'number', unit:'mm', unknown:'measure' },
+      { key:'countertop', label:'상판 재질', type:'select', unknown:'consult', options:O('engineered=인조대리석/ceramic=세라믹/stainless=스테인리스') },
+      { key:'hood_cooktop', label:'후드·쿡탑 포함', type:'boolean' },
+      { key:'storage_needs', label:'수납 요구', type:'text' },
+    ]},
+    bathroom: { group:'공간 가구', label:'욕실', fields:[
+      { key:'work_scope', label:'작업 범위', type:'select', required:true, options:O('full=전체/partial=부분') },
+      { key:'bathroom_count', label:'욕실 개수', type:'number', required:true, unit:'개' },
+      { key:'replace_items', label:'교체 항목', type:'multiselect', options:O('toilet=변기/basin=세면대/bathtub=욕조/shower_booth=샤워부스/tile=타일/ceiling=천장') },
+      { key:'dry_wet', label:'건식/습식', type:'select', options:O('dry=건식/wet=습식') },
+      { key:'waterproof_included', label:'방수 포함 여부', type:'select', unknown:'consult', options:O('yes=포함/no=미포함') },
+      { key:'size', label:'욕실 사이즈', type:'dimension', unit:'mm', unknown:'measure' },
+    ]},
+    builtin: { group:'공간 가구', label:'붙박이·수납', fields:[
+      { key:'furniture_types', label:'가구 종류', type:'multiselect', required:true, options:O('wardrobe=붙박이장/shoe_cabinet=신발장/pantry=팬트리/bookshelf=책장/storage_wall=수납벽/dressroom=드레스룸') },
+      { key:'location', label:'설치 위치', type:'text', required:true },
+      { key:'size', label:'규격', type:'dimension', unit:'mm', unknown:'measure' },
+      { key:'door_type', label:'도어 방식', type:'select', unknown:'consult', options:O('hinged=여닫이/sliding=슬라이딩/open=오픈') },
+      { key:'material', label:'자재', type:'select', unknown:'consult', options:O('pet=PET/veneer=무늬목/film=필름/paint=도장') },
+    ]},
+
+    // 그룹 6. 가구·소품 — ⚠️ sofa 필드 key는 레거시 DB 컬럼과 1:1 매핑, 이름 변경 금지
+    sofa: { group:'가구·소품', label:'쇼파·가구', fields:[
+      { key:'sofa_type', label:'형태', type:'select', required:true, options:O('straight=직선형(1자)/l_shape=ㄱ자형/u_shape=ㄷ자형/round=원형/etc=기타') },
+      { key:'sofa_count', label:'수량', type:'number', required:true, unit:'개' },
+      { key:'seat_count', label:'좌석 수', type:'number', unit:'인' },
+      { key:'backrest_height', label:'등받이 높이', type:'select', options:O('high=하이백(90cm↑)/mid=미디백(70~90cm)/low=로우백(~70cm)') },
+      { key:'cushion_type', label:'쿠션 타입', type:'select', options:O('spring=스프링/foam=폼/mixed=혼합') },
+      { key:'frame_structure', label:'프레임 구조', type:'select', options:O('wood=목재/metal=철재/mixed=혼합') },
+      { key:'fabric_type', label:'원단 종류', type:'select', unknown:'consult', options:O('fabric=패브릭/leather=천연가죽/faux_leather=인조가죽/velvet=벨벳/etc=기타') },
+      { key:'inner_material', label:'내부 충전재', type:'select', options:O('high_density_foam=고밀도폼/spring_foam=스프링+폼/cotton=솜/etc=기타') },
+      { key:'frame_material', label:'프레임 재질', type:'select', options:O('plywood=합판/solid_wood=원목/metal=철재/etc=기타') },
+      { key:'color_code', label:'색상 코드/색상명', type:'text', placeholder:'예) #F5F5DC, 베이지' },
+      { key:'flame_retardant', label:'방염 처리', type:'boolean' },
+      { key:'waterproof', label:'방수 처리', type:'boolean' },
+      { key:'has_armrest', label:'팔걸이', type:'boolean' },
+      { key:'total_length', label:'전체 길이', type:'number', unit:'mm' },
+      { key:'total_width', label:'전체 폭', type:'number', unit:'mm' },
+      { key:'total_height', label:'전체 높이', type:'number', unit:'mm' },
+      { key:'seat_height', label:'좌면 높이', type:'number', unit:'mm' },
+      { key:'seat_depth', label:'좌면 깊이', type:'number', unit:'mm' },
+    ]},
+    curtain: { group:'가구·소품', label:'커튼·블라인드', fields:[
+      { key:'product_types', label:'제품 종류', type:'multiselect', required:true, options:O('curtain=커튼/combi=콤비블라인드/roll=롤스크린/wood=우드블라인드/honeycomb=허니콤/blackout=암막') },
+      { key:'window_count', label:'창 개수', type:'number', required:true, unit:'개' },
+      { key:'size', label:'창 규격', type:'dimension', unit:'mm', unknown:'measure' },
+      { key:'mount', label:'설치 방식', type:'select', unknown:'site_check', options:O('ceiling=천장/wall=벽면/frame=창틀') },
+      { key:'motorized', label:'전동', type:'boolean' },
+    ]},
+    appliance: { group:'가구·소품', label:'가전', fields:[
+      { key:'appliances', label:'가전 종류', type:'multiselect', required:true, options:O('fridge=냉장고/washer=세탁기/dryer=건조기/dishwasher=식기세척기/induction=인덕션/oven=오븐/tv=TV') },
+      { key:'install_type', label:'설치 형태', type:'select', options:O('builtin=빌트인/standard=일반설치') },
+      { key:'count', label:'수량', type:'number', unit:'개' },
+      { key:'remove_old', label:'기존 가전 철거', type:'boolean' },
+      { key:'utility_needed', label:'전기·급배수 연결 필요', type:'boolean' },
+    ]},
+
+    // 그룹 7. 사인·외부
+    signage: { group:'사인·외부', label:'간판', fields:[
+      { key:'sign_types', label:'간판 종류', type:'multiselect', required:true, options:O('front=전면간판/projecting=돌출간판/stand=입간판/window=윈도우시트/channel=채널') },
+      { key:'material', label:'재질', type:'select', unknown:'consult', options:O('acrylic=아크릴/led_channel=LED채널/galva=갈바/flex=플렉스') },
+      { key:'size', label:'규격', type:'dimension', unit:'mm', unknown:'measure' },
+      { key:'lighting', label:'조명 포함', type:'boolean' },
+      { key:'permit_needed', label:'인허가 대행', type:'boolean' },
+      { key:'design_provided', label:'디자인 보유 여부', type:'select', options:O('have=보유/request=제작요청') },
+    ]},
+    signboard: { group:'사인·외부', label:'사인물', fields:[
+      { key:'signboard_types', label:'사인물 종류', type:'multiselect', required:true, options:O('indoor=실내사인/guide=유도사인/nameplate=명패/poster=포스터/sticker=스티커') },
+      { key:'quantity', label:'수량', type:'number', unit:'개' },
+      { key:'material', label:'재질', type:'select', unknown:'consult', options:O('acrylic=아크릴/forex=포맥스/metal=메탈/wood=우드/sheet=시트') },
+      { key:'size', label:'규격', type:'dimension', unit:'mm', unknown:'measure' },
+      { key:'design_provided', label:'디자인 보유 여부', type:'select', options:O('have=보유/request=제작요청') },
+    ]},
+    landscaping: { group:'사인·외부', label:'조경·플랜테리어', fields:[
+      { key:'scope', label:'작업 범위', type:'multiselect', required:true, options:O('indoor_plant=실내플랜테리어/outdoor=실외조경/green_wall=벽면녹화/flower_bed=화단/tree=조경수/artificial_turf=인조잔디') },
+      { key:'location', label:'설치 위치', type:'text', required:true },
+      { key:'area', label:'면적', type:'number', unit:'m²' },
+      { key:'plant_preference', label:'선호 식물/스타일', type:'text', unknown:'consult' },
+      { key:'maintenance', label:'유지관리 포함', type:'boolean' },
+    ]},
+
+    // 그룹 8. 마무리
+    cleaning: { group:'마무리', label:'청소', fields:[
+      { key:'cleaning_type', label:'청소 종류', type:'select', required:true, options:O('move_in=입주청소/post_construction=준공·리모델링후/office=사무실/move_out=이사청소') },
+      { key:'area', label:'청소 면적', type:'number', required:true, unit:'m²' },
+      { key:'options', label:'추가 옵션', type:'multiselect', options:O('glass=유리/grout=줄눈/floor_wax=바닥왁스/mold=곰팡이제거/exterior=외부') },
+      { key:'desired_date', label:'희망일', type:'date' },
+    ]},
+  };
+
+  var GROUPS = ['철거·기초','골조·목공','마감','설비·전기','공간 가구','가구·소품','사인·외부','마무리'];
+
+  // ───────── DynamicField renderer (widget markup — the one place to change "생김새") ─────────
+  function renderWidget(f){
+    switch (f.type){
+      case 'text':
+        return '<input class="ctrl widget-target" type="text" placeholder="' + (f.placeholder||'') + '">';
+      case 'textarea':
+        return '<textarea class="ctrl widget-target" placeholder="' + (f.placeholder||'') + '"></textarea>';
+      case 'tel':
+        return '<input class="ctrl widget-target" type="tel" placeholder="010-0000-0000">';
+      case 'date':
+        return '<input class="ctrl widget-target" type="date">';
+      case 'number':
+        if (f.unit) return '<div class="num-unit widget-target"><input class="ctrl" type="number" placeholder="' + (f.placeholder||'') + '"><span class="num-unit-suffix">' + f.unit + '</span></div>';
+        return '<input class="ctrl widget-target" type="number" placeholder="' + (f.placeholder||'') + '">';
+      case 'select':
+        var opts = (f.options||[]).map(function(o){ return '<option value="' + o.value + '">' + o.label + '</option>'; }).join('');
+        return '<select class="ctrl widget-target"><option value="">선택하세요</option>' + opts + '</select>';
+      case 'multiselect':
+        var chips = (f.options||[]).map(function(o){ return '<button type="button" class="chip" data-val="' + o.value + '">' + o.label + '</button>'; }).join('');
+        return '<div class="chips widget-target">' + chips + '</div>';
+      case 'boolean':
+        return '<div class="seg widget-target" data-state="unset"><button type="button" data-val="yes">예</button><button type="button" data-val="no">아니오</button></div>';
+      case 'dimension':
+        return '<div class="dim-row widget-target"><input class="ctrl" type="number" placeholder="가로"><span class="dim-x">×</span><input class="ctrl" type="number" placeholder="세로"><span class="dim-unit">' + (f.unit||'mm') + '</span></div>';
+      case 'address':
+        return '<div class="address-row widget-target"><input class="ctrl" type="text" placeholder="도로명 주소 검색"><button type="button" class="btn-mini">주소 검색</button></div>';
+      default:
+        return '';
+    }
+  }
+
+  function renderField(scope, f){
+    var span2 = SPAN2_TYPES[f.type] ? ' span2' : '';
+    var req = f.required ? ' <span class="req">*</span>' : '';
+    var unknown = f.unknown ? '<button type="button" class="unknown-toggle" data-unknown data-mode="' + f.unknown + '">' + UNKNOWN_LABELS[f.unknown] + '</button>' : '';
+    var help = f.help ? '<span class="field-help">' + f.help + '</span>' : '';
+    var errMsg = f.type === 'multiselect' ? '최소 1개 이상 선택해주세요.' : (f.type === 'dimension' ? '가로·세로를 모두 입력해주세요.' : '필수 항목입니다.');
+    return '<div class="field' + span2 + '" data-field data-scope="' + scope + '" data-key="' + f.key + '" data-type="' + f.type + '" data-required="' + !!f.required + '">' +
+      '<div class="field-label-row"><span class="field-label">' + f.label + req + '</span>' + unknown + '</div>' +
+      help + renderWidget(f) +
+      '<span class="field-error">' + errMsg + '</span>' +
+    '</div>';
+  }
+
+  // CategorySection: same wrapper for all 27 — content differs only via FIELD_SCHEMAS[key].fields
+  function renderCategory(key){
+    var schema = FIELD_SCHEMAS[key];
+    var fields = schema.fields.concat([NOTE_FIELD]);
+    var fieldsHtml = fields.map(function(f){ return renderField(key, f); }).join('');
+    return '<section class="wcard scroll-anchor" id="cat-' + key + '" data-cat-section="' + key + '">' +
+      '<div class="section-head"><div class="section-head-l">' +
+        '<span class="section-eyebrow">' + schema.group + '</span>' +
+        '<div class="section-title">' + schema.label + '</div>' +
+      '</div><span class="section-key">' + key + '</span></div>' +
+      '<div class="field-grid">' + fieldsHtml + '</div>' +
+    '</section>';
+  }
+
+  // ───────── assemble page: group dividers + 27 sections, nav list ─────────
+  var writeInner = document.getElementById('writeInner');
+  var sideNav = document.getElementById('sideNav');
+  var contentHtml = '';
+  var navHtml = '';
+
+  GROUPS.forEach(function(groupName){
+    var keys = Object.keys(FIELD_SCHEMAS).filter(function(k){ return FIELD_SCHEMAS[k].group === groupName; });
+    contentHtml += '<div class="group-divider"><span class="gd-index">그룹 ' + (GROUPS.indexOf(groupName)+1) + '</span><h2>' + groupName + '</h2><span class="gd-count">' + keys.length + '개 분야</span></div>';
+    contentHtml += keys.map(renderCategory).join('');
+
+    navHtml += '<div class="nav-group"><div class="nav-group-h">' + groupName + '</div><div class="nav-list">';
+    navHtml += keys.map(function(k){
+      var fieldCount = FIELD_SCHEMAS[k].fields.length + 1;
+      return '<a class="nav-link" href="#cat-' + k + '" data-nav="' + k + '">' + FIELD_SCHEMAS[k].label + '<span class="nav-link-count">' + fieldCount + '</span></a>';
+    }).join('');
+    navHtml += '</div></div>';
+  });
+
+  writeInner.insertAdjacentHTML('beforeend', contentHtml);
+  sideNav.innerHTML = navHtml;
+
+  // ───────── behavior: chips / seg / unknown toggle (mirrors quote-studio.html) ─────────
+  writeInner.querySelectorAll('.chips .chip').forEach(function(chip){
+    chip.addEventListener('click', function(){ chip.classList.toggle('is-active'); });
+  });
+  writeInner.querySelectorAll('.seg').forEach(function(seg){
+    seg.querySelectorAll('button').forEach(function(b){
+      b.addEventListener('click', function(){
+        seg.querySelectorAll('button').forEach(function(x){ x.classList.remove('is-active'); });
+        b.classList.add('is-active');
+        seg.setAttribute('data-state', b.getAttribute('data-val'));
+      });
+    });
+  });
+  writeInner.querySelectorAll('[data-unknown]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var field = btn.closest('.field');
+      var active = btn.classList.toggle('is-active');
+      field.classList.toggle('is-unknown', active);
+    });
+  });
+
+  // ───────── nav: click to scroll, scroll-spy to highlight ─────────
+  var navLinks = sideNav.querySelectorAll('.nav-link');
+  navLinks.forEach(function(link){
+    link.addEventListener('click', function(e){
+      e.preventDefault();
+      var target = document.getElementById('cat-' + link.getAttribute('data-nav'));
+      if (target) target.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+  var sections = writeInner.querySelectorAll('[data-cat-section]');
+  var observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if (!entry.isIntersecting) return;
+      var key = entry.target.getAttribute('data-cat-section');
+      navLinks.forEach(function(l){ l.classList.toggle('is-active', l.getAttribute('data-nav') === key); });
+    });
+  }, { root: document.querySelector('.col-write'), rootMargin: '-10% 0px -75% 0px', threshold: 0 });
+  sections.forEach(function(s){ observer.observe(s); });
+
+})();
+</script>
+</body></html>

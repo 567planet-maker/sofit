@@ -4,8 +4,9 @@
 // 공통 정보 입력 섹션 (Phase 4) — COMMON_SCHEMA 기반
 // ============================================================
 
-import { COMMON_SCHEMA } from '@/app/customer/request/schema/commonSchema'
+import { COMMON_SCHEMA, COMMON_FIELDS } from '@/app/customer/request/schema/commonSchema'
 import DynamicField from './DynamicField'
+import { requiredStats, isFullWidthField } from './helpers'
 
 export default function CommonInfoSection({
   values,
@@ -16,33 +17,40 @@ export default function CommonInfoSection({
   onChange: (key: string, value: unknown) => void
   invalidKeys: Set<string>
 }) {
-  return (
-    <section id="section-common" className="scroll-mt-24 rounded-card bg-white p-6 shadow-card ring-1 ring-border">
-      <h2 className="mb-1 text-lg font-semibold text-ink">공통 정보</h2>
-      <p className="mb-5 text-sm text-ink-muted">현장·일정·예산 등 모든 견적에 공통으로 필요한 정보입니다.</p>
+  const { filled, total } = requiredStats(COMMON_FIELDS, values)
 
-      <div className="space-y-6">
-        {COMMON_SCHEMA.map((sec) => (
-          <div key={sec.id}>
-            <h3 className="mb-3 text-sm font-medium text-ink-muted">
-              {sec.label}
-              {sec.required && <span className="ml-1 text-xs text-red-500">필수</span>}
-            </h3>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {sec.fields.map((f) => (
-                <div key={f.key} className={f.type === 'textarea' || f.type === 'address' ? 'sm:col-span-2' : ''}>
-                  <DynamicField
-                    def={f}
-                    value={values[f.key]}
-                    onChange={(v) => onChange(f.key, v)}
-                    invalid={invalidKeys.has(f.key)}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
+  return (
+    <section
+      id="section-common"
+      className="scroll-mt-24 rounded-card border border-border bg-white px-[30px] py-7 shadow-card"
+    >
+      <div className="mb-[22px] flex items-baseline gap-2">
+        <h2 className="text-lg font-bold tracking-[-.01em] text-ink">공통 정보</h2>
+        <span className="text-[12.5px] font-semibold text-ink-muted">
+          ({filled}/{total} 완료)
+        </span>
       </div>
+
+      {COMMON_SCHEMA.map((sec, i) => (
+        <div key={sec.id} className={i > 0 ? 'mt-[26px] border-t border-border pt-[26px]' : ''}>
+          <div className="mb-4 flex items-baseline gap-2.5">
+            <span className="text-sm font-bold text-ink">{sec.label}</span>
+            {sec.required && <span className="text-xs font-semibold text-ink-subtle">필수</span>}
+          </div>
+          <div className="grid grid-cols-1 gap-x-[22px] gap-y-5 sm:grid-cols-2">
+            {sec.fields.map((f) => (
+              <div key={f.key} className={isFullWidthField(f.type) ? 'sm:col-span-2' : ''}>
+                <DynamicField
+                  def={f}
+                  value={values[f.key]}
+                  onChange={(v) => onChange(f.key, v)}
+                  invalid={invalidKeys.has(f.key)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
     </section>
   )
 }

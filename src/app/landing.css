@@ -2,14 +2,14 @@
 @import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");
 
 :root{
-  --ink:#191F28; --ink-muted:#4E5968; --ink-subtle:#8B95A1;
-  --canvas:#F9FAFB; --surface:#FFFFFF; --surface-muted:#F2F4F6;
-  --border:#E5E8EB; --border-strong:#D1D6DB;
-  --accent:#0064FF; --accent-hover:#0054D6; --accent-tint:#E8F1FF;
+  --ink:#1A1F36; --ink-muted:#4F566B; --ink-subtle:#8792A2;
+  --canvas:#F6F8FB; --surface:#FFFFFF; --surface-muted:#F0F3F8;
+  --border:#E3E8EE; --border-strong:#D5DBE3;
+  --accent:#0064FF; --accent-hover:#004FCC; --accent-tint:#E8F1FF;
   --accent-deep:#0046B8;
   --success:#1A7F64; --success-tint:#E6F4EF;
   --warning:#9A6700; --warning-tint:#FBF3E0;
-  --danger:#C0123C; --danger-tint:#FCE8EC;
+  --danger:#E5484D; --danger-tint:#FDECEC;
   --ink-900:#0B1220; --ink-800:#131A26;
   --radius-control:8px; --radius-card:16px; --radius-pill:999px;
   --shadow-card:0 1px 2px rgba(16,24,40,.04),0 8px 28px rgba(16,24,40,.06);
@@ -25,7 +25,7 @@ html{scroll-behavior:smooth}
   margin:0; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
   letter-spacing:-.01em; line-height:1.5;
 }
-h1,h2,h3,h4,p{margin:0}
+.sofit-landing :where(h1,h2,h3,h4,p){margin:0}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
 .eyebrow{

@@ -8,6 +8,10 @@ const styles = [...src.matchAll(/<style>([\s\S]*?)<\/style>/g)].map((m) => m[1])
 let css = styles[1] // [0] = @font-face(uuid, broken), [1] = design tokens/components
 // scope body -> wrapper so it does not override the rest of the app
 css = css.replace(/\bbody\{/, '.sofit-landing{')
+// scope the bare element reset into the landing wrapper — otherwise this
+// unlayered `p/hN{margin:0}` leaks app-wide (loaded via SiteHeaderShell) and
+// beats Tailwind's layered `mt-*/mb-*` utilities on every <p>/heading.
+css = css.replace(/\bh1,h2,h3,h4,p\{margin:0\}/, '.sofit-landing :where(h1,h2,h3,h4,p){margin:0}')
 const cssOut =
   '/* SOFIT 랜딩 — claude.ai/design 원본에서 추출. body{} -> .sofit-landing{} 외 무수정. */\n' +
   '@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css");\n' +

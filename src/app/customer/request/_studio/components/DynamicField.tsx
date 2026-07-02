@@ -36,24 +36,44 @@ export default function DynamicField({
   const isUnknown = isUnknownValue(value)
 
   return (
-    <div>
-      <label className="mb-1 block text-sm font-medium text-ink">
-        {def.label}
-        {def.required && <span className="ml-0.5 text-red-500">*</span>}
-      </label>
-      {def.help && <p className="mb-1.5 text-xs text-ink-subtle">{def.help}</p>}
+    // 그리드 셀은 행의 가장 높은 필드에 맞춰 늘어난다(items-stretch).
+    // 위젯 블록을 mt-auto로 셀 하단에 고정 → help 유무와 무관하게 위젯 라인이 정렬됨.
+    <div className="flex h-full min-w-0 flex-col">
+      {/* 라벨 행: 라벨(13.5/600) + 필수 별표, 우측에 "모름" pill 통합(space-between).
+          pill 높이(≈30px)로 행 높이를 고정 → pill 유무와 무관하게 모든 필드의
+          라벨 라인이 같은 높이가 되어 좌·우 열 정렬이 딱 맞는다. */}
+      <div className="flex min-h-[30px] items-center justify-between gap-2">
+        <span className="flex items-center gap-1 text-[13.5px] font-semibold text-ink">
+          {def.label}
+          {def.required && <span className="text-danger">*</span>}
+        </span>
+        {def.unknown && (
+          <UnknownToggle
+            mode={def.unknown}
+            active={isUnknown}
+            onToggle={(on) => onChange(on ? { __unknown: true, reason: def.unknown } : null)}
+          />
+        )}
+      </div>
 
-      {!isUnknown && renderWidget(def, value, onChange, invalid)}
-
-      {def.unknown && (
-        <UnknownToggle
-          mode={def.unknown}
-          active={isUnknown}
-          onToggle={(on) =>
-            onChange(on ? { __unknown: true, reason: def.unknown } : null)
-          }
-        />
+      {/* 도움말: 라벨 바로 아래 살짝 붙여 한 그룹처럼(12.5px) */}
+      {def.help && (
+        <p className="mt-0.5 text-[12.5px] leading-[1.4] text-ink-muted">{def.help}</p>
       )}
+
+      {/* 위젯: 요소 간 7px(pt-[7px]) + mt-auto로 셀 하단 고정 →
+          help 유무·행 높이차와 무관하게 위젯 라인이 정렬됨.
+          "모름" 활성 시 흐림 + 비활성(값은 UnknownValue로 대체됨) */}
+      <div className="mt-auto pt-[7px]">
+        <div className={isUnknown ? 'pointer-events-none opacity-40' : ''}>
+          {renderWidget(def, isUnknown ? undefined : value, isUnknown ? () => {} : onChange, invalid)}
+        </div>
+        {invalid && (
+          <span className="mt-[7px] block text-[11.5px] font-semibold text-danger">
+            필수 항목입니다.
+          </span>
+        )}
+      </div>
     </div>
   )
 }
@@ -125,7 +145,7 @@ function renderWidget(
         />
       )
     case 'boolean':
-      return <Toggle value={!!value} onChange={onChange} />
+      return <Toggle value={value as boolean | null | undefined} onChange={onChange} />
     case 'dimension':
       return (
         <DimensionInput value={(value as DimensionValue) ?? null} onChange={onChange} />

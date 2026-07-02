@@ -9,10 +9,12 @@ import { useState } from 'react'
 import type { FieldOption, DimensionValue, AddressValue } from '@/app/customer/request/schema/types'
 import { m2ToPyeongRounded, pyeongToM2Rounded } from '@/lib/units'
 
+// 공통 컨트롤 (.ctrl) — 44px, rounded-control(6px), 포커스 시 brand + 3px tint ring
 export const baseInputClass =
-  'w-full rounded-card border border-border px-4 py-2.5 text-sm outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20'
+  'h-11 w-full rounded-control border border-border bg-white px-3.5 text-sm text-ink outline-none transition-[border-color,box-shadow] placeholder:text-ink-subtle focus:border-brand focus:shadow-[0_0_0_3px_var(--color-brand-tint)]'
 
-export const errorInputClass = 'border-red-400 focus:border-red-400 focus:ring-red-200'
+export const errorInputClass =
+  'border-danger focus:border-danger focus:shadow-[0_0_0_3px_var(--color-danger-tint)]'
 
 // ─── 텍스트 / 전화 ──────────────────────────────────────────
 export function TextInput({
@@ -54,7 +56,7 @@ export function TextArea({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       rows={3}
-      className={`${baseInputClass} resize-y`}
+      className="min-h-[88px] w-full resize-y rounded-control border border-border bg-white px-3.5 py-3 text-sm leading-[1.55] text-ink outline-none transition-[border-color,box-shadow] placeholder:text-ink-subtle focus:border-brand focus:shadow-[0_0_0_3px_var(--color-brand-tint)]"
     />
   )
 }
@@ -82,12 +84,14 @@ export function NumberInput({
         placeholder={placeholder}
         className={`${baseInputClass} ${invalid ? errorInputClass : ''}`}
       />
-      {unit && unit !== 'm2' && <span className="shrink-0 text-sm text-ink-subtle">{unit}</span>}
+      {unit && unit !== 'm2' && (
+        <span className="shrink-0 text-[13px] font-semibold text-ink-muted">{unit}</span>
+      )}
     </div>
   )
 }
 
-// ─── 선택 (단일) ────────────────────────────────────────────
+// ─── 선택 (단일) — 커스텀 화살표 ────────────────────────────
 export function Select({
   value,
   onChange,
@@ -100,18 +104,29 @@ export function Select({
   invalid?: boolean
 }) {
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className={`${baseInputClass} ${invalid ? errorInputClass : ''}`}
-    >
-      <option value="">선택하세요</option>
-      {options.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className={`${baseInputClass} appearance-none pr-9 ${invalid ? errorInputClass : ''}`}
+      >
+        <option value="">선택하세요</option>
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+      <svg
+        viewBox="0 0 20 20"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-subtle"
+      >
+        <path d="M5 8l5 5 5-5" />
+      </svg>
+    </div>
   )
 }
 
@@ -130,7 +145,9 @@ export function MultiSelect({
   const toggle = (v: string) =>
     value.includes(v) ? onChange(value.filter((x) => x !== v)) : onChange([...value, v])
   return (
-    <div className={`flex flex-wrap gap-2 ${invalid ? 'rounded-card p-1 ring-1 ring-red-300' : ''}`}>
+    <div
+      className={`flex flex-wrap gap-2 ${invalid ? 'rounded-control p-1 ring-1 ring-danger' : ''}`}
+    >
       {options.map((o) => {
         const active = value.includes(o.value)
         return (
@@ -138,10 +155,10 @@ export function MultiSelect({
             key={o.value}
             type="button"
             onClick={() => toggle(o.value)}
-            className={`rounded-full border px-3.5 py-1.5 text-sm transition-colors ${
+            className={`whitespace-nowrap rounded-pill border px-[15px] py-[9px] text-[13px] font-semibold transition-colors ${
               active
                 ? 'border-brand bg-brand text-white'
-                : 'border-border bg-surface text-ink-muted hover:border-brand-tint-strong'
+                : 'border-border bg-white text-ink-muted hover:border-border-strong'
             }`}
           >
             {o.label}
@@ -152,29 +169,36 @@ export function MultiSelect({
   )
 }
 
-// ─── 불리언 (예/아니오 토글) ────────────────────────────────
+// ─── 불리언 (예/아니오 세그먼트, 초기 미선택) ──────────────
 export function Toggle({
   value,
   onChange,
 }: {
-  value: boolean
+  value: boolean | null | undefined
   onChange: (v: boolean) => void
 }) {
   return (
-    <button
-      type="button"
-      onClick={() => onChange(!value)}
-      className={`inline-flex h-7 w-12 items-center rounded-full px-0.5 transition-colors ${
-        value ? 'bg-brand' : 'bg-border-strong'
-      }`}
-      aria-pressed={value}
-    >
-      <span
-        className={`h-6 w-6 rounded-full bg-white shadow transition-transform ${
-          value ? 'translate-x-5' : 'translate-x-0'
-        }`}
-      />
-    </button>
+    <div className="flex w-fit overflow-hidden rounded-control border border-border">
+      {[
+        { val: true, label: '예' },
+        { val: false, label: '아니오' },
+      ].map((o, i) => {
+        const active = value === o.val
+        return (
+          <button
+            key={o.label}
+            type="button"
+            onClick={() => onChange(o.val)}
+            aria-pressed={active}
+            className={`h-11 whitespace-nowrap px-[19px] text-[13.5px] font-bold transition-colors ${
+              i === 0 ? 'border-r border-border' : ''
+            } ${active ? 'bg-brand-tint text-brand' : 'bg-white text-ink-muted'}`}
+          >
+            {o.label}
+          </button>
+        )
+      })}
+    </div>
   )
 }
 
@@ -190,27 +214,25 @@ export function DimensionInput({
   const set = (k: keyof DimensionValue, raw: string) =>
     onChange({ ...v, [k]: raw === '' ? null : Number(raw) })
   const cell = (k: keyof DimensionValue, label: string) => (
-    <div className="flex-1">
-      <input
-        type="number"
-        value={v[k] ?? ''}
-        onChange={(e) => set(k, e.target.value)}
-        placeholder={label}
-        className={baseInputClass}
-      />
-    </div>
+    <input
+      type="number"
+      value={v[k] ?? ''}
+      onChange={(e) => set(k, e.target.value)}
+      placeholder={label}
+      className={`${baseInputClass} flex-1 text-center`}
+    />
   )
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2.5">
       {cell('width_mm', '가로')}
-      <span className="text-ink-subtle">×</span>
+      <span className="shrink-0 text-[13.5px] font-semibold text-ink-muted">×</span>
       {cell('height_mm', '세로')}
-      <span className="shrink-0 text-sm text-ink-subtle">mm</span>
+      <span className="shrink-0 text-[13px] font-semibold text-ink-muted">mm</span>
     </div>
   )
 }
 
-// ─── 주소 ────────────────────────────────────────────────────
+// ─── 주소 (도로명 + 상세) ───────────────────────────────────
 export function AddressInput({
   value,
   onChange,
@@ -222,7 +244,7 @@ export function AddressInput({
 }) {
   const v = value ?? {}
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <input
         value={v.road ?? ''}
         onChange={(e) => onChange({ ...v, road: e.target.value })}
@@ -267,14 +289,14 @@ export function AreaInput({
         placeholder={unit === 'pyeong' ? '예) 10' : '예) 33'}
         className={`${baseInputClass} ${invalid ? errorInputClass : ''}`}
       />
-      <div className="flex shrink-0 overflow-hidden rounded-control border border-border text-sm">
+      <div className="flex shrink-0 overflow-hidden rounded-control border border-border">
         {(['pyeong', 'm2'] as const).map((u) => (
           <button
             key={u}
             type="button"
             onClick={() => setUnit(u)}
-            className={`px-3 py-2 transition-colors ${
-              unit === u ? 'bg-brand text-white' : 'bg-surface text-ink-muted'
+            className={`px-3.5 py-2.5 text-[13px] font-bold transition-colors ${
+              unit === u ? 'bg-brand text-white' : 'bg-white text-ink-muted'
             }`}
           >
             {u === 'pyeong' ? '평' : '㎡'}

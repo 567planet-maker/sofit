@@ -131,6 +131,9 @@ export default async function SiteHeader({
               <Link href={loginUrl} className="nav-login">
                 로그인
               </Link>
+              <Link href="/factory/onboarding" className="btn btn-md btn-ghost">
+                공장 등록하기
+              </Link>
               <Link href="/customer/request/new" className="btn btn-md btn-primary">
                 견적 요청하기
               </Link>

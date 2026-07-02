@@ -2,8 +2,21 @@
 // 스튜디오 공용 헬퍼 (Phase 4)
 // ============================================================
 
-import type { FieldDef } from '@/app/customer/request/schema/types'
+import type { FieldDef, FieldType } from '@/app/customer/request/schema/types'
 import { isUnknownValue } from '@/app/customer/request/schema/types'
+
+/** 필드 그리드에서 전폭(span2)으로 배치하는 위젯 타입.
+ *  boolean(예/아니오)은 짧아서 반칸으로 두 개씩 배치 → 빈 공간 방지. */
+const FULL_WIDTH_TYPES: ReadonlySet<FieldType> = new Set<FieldType>([
+  'textarea',
+  'multiselect',
+  'dimension',
+  'address',
+])
+
+export function isFullWidthField(type: FieldType): boolean {
+  return FULL_WIDTH_TYPES.has(type)
+}
 
 /** 값이 채워졌는지 ("모름" 선택도 채움으로 인정 — 서버 검증과 동일 규칙) */
 export function isFilledValue(v: unknown): boolean {
